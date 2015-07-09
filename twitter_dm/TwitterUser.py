@@ -1,0 +1,368 @@
+"""A class to handle Twitter users
+
+..moduleauthor:: Kenneth Joseph <josephkena@gmail.com>
+
+"""
+__author__ = 'kjoseph'
+
+import Tweet
+from .utility.tweet_utils import parse_date
+import codecs
+from collections import Counter
+import datetime
+import ujson as json
+import random
+import StringIO
+import gzip
+import os
+from pkg_resources import resource_stream
+
+
+class TwitterUser:
+    def __init__(self, api_hook=None, screen_name=None, user_id=None,
+                 list_of_tweets=None, stopwords=None, print_verbose=False):
+        """
+        Initialize the twitter user. Must supply either a screen name or an ID!
+        :param screen_name: a user's screen_name
+        :param user_id: a user's id
+        :param api_hook: an OAuth1Service session... if you have one, this code will use it
+                        in future calls you want to make to the Twitter API
+        """
+
+        if stopwords is None:
+            stopwords_stream = resource_stream('twitter_dm', 'data/stopwords.txt')
+            self.stopwords = set([word.strip() for word in stopwords_stream.readlines()])
+        else:
+            self.stopwords = set([s for s in stopwords])
+
+        self.tweets = []
+        # RELATIONSHIPS
+        self.replied_to = Counter()
+        self.replied_to_sns = Counter()
+        self.mentioned = Counter()
+        self.mentioned_sns = Counter()
+        self.retweeted = Counter()
+        self.retweeted_sns = Counter()
+        self.friend_ids = []
+        self.follower_ids = []
+
+        # Hashtag Info
+        self.hashtags = Counter()
+
+        # Tokens Info
+        self.tokens = Counter()
+
+        # MISC
+        self.retweeted_tweets = []
+        self.lists = []
+        self.times_listed = -1
+
+        self.earliest_tweet_time = None
+        self.latest_tweet_time = None
+
+        self.print_verbose = print_verbose
+        self.name = None
+        self.description = None
+        self.n_total_tweets = None
+        self.creation_date = None
+        self.location = None
+        self.homepage = None
+        self.utc_offset =None
+        self.followers_count = -1
+        self.following_count = -1
+
+        if list_of_tweets is not None:
+            self.populate_tweets(list_of_tweets)
+
+        else:
+            # SESSION INFO
+            self.api_hook = api_hook
+
+            if screen_name is None and user_id is None:
+                raise Exception('error', 'supply either screen name or user id')
+
+            self.screen_name = screen_name
+            self.user_id = user_id
+
+    def populate_tweets(self, tweets):
+        if len(tweets) == 0:
+            return
+
+        i = 0
+
+        if self.earliest_tweet_time is None:
+            self.earliest_tweet_time = datetime.datetime.max
+            self.latest_tweet_time = datetime.datetime.min
+
+        for t in tweets:
+            tweet = Tweet(t, noise_tokens=self.stopwords)
+            self.tweets.append(tweet)
+
+            if tweet.created_at < self.earliest_tweet_time:
+                self.earliest_tweet_time = tweet.created_at
+            if tweet.created_at > self.latest_tweet_time:
+                self.latest_tweet_time = tweet.created_at
+
+            ##mentions
+            for mention in tweet.mentions:
+                self.mentioned[mention] += 1
+            for mention_sn in tweet.mentions_sns:
+                self.mentioned_sns[mention_sn] += 1
+
+            ##replies
+            if tweet.reply_to is not None:
+                self.replied_to[tweet.reply_to] += 1
+            if tweet.reply_to_sn is not None:
+                self.replied_to_sns[tweet.reply_to_sn] += 1
+
+            ##retweets
+            if tweet.retweeted is not None:
+                self.retweeted[tweet.retweeted] += 1
+            if tweet.retweeted_sn is not None:
+                self.retweeted_sns[tweet.retweeted_sn] += 1
+            if tweet.retweeted_user_tweet_count > 0:
+                self.retweeted_tweets.append(i)
+
+            ##tokens and HTs
+            for term in tweet.tokens:
+                self.tokens[term] += 1
+            for ht in tweet.hashtags:
+                self.hashtags[ht] += 1
+            i += 1
+
+        # INFO ABOUT USER
+        user_data = tweets[-1]['user']
+        self.user_id = get_user_id_str(user_data)
+        self.screen_name = user_data.get('screen_name', None)
+        self.name = user_data.get('name', None)
+        self.description = user_data.get('description', None)
+        self.n_total_tweets = user_data.get('statuses_count', None)
+        if 'created_at' in user_data:
+            self.creation_date = parse_date(user_data['created_at'])
+        else:
+            self.creation_date = None
+        self.location = user_data.get('location', None)
+        self.homepage = None
+        if 'entities' in user_data and 'url' in user_data['entities'] and 'urls' in user_data['entities']['url']:
+            self.homepage = user_data['entities']['url']['urls'][0]['expanded_url']
+        self.times_listed = user_data.get('listed_count', -1)
+        self.utc_offset = user_data.get('utc_offset', None)
+        self.followers_count = user_data.get('followers_count', -1)
+        self.following_count = user_data.get('friends_count', -1)
+
+
+
+
+    def populate_tweets_from_api(self, json_output_directory=None,json_output_filename=None,sleep_var=True, is_gzip=True):
+        """
+        Gets the last ~3200 tweets for the user from the Twitter REST API
+        """
+        params = {
+            'include_rts': 1,  # Include retweets
+            'count': 200,  # 200 tweets
+        }
+        tweets_from_api = self.api_hook.get_with_max_id_for_user(
+            'statuses/user_timeline.json',
+            params,
+            self.screen_name,
+            self.user_id,
+            sleep_var=sleep_var
+        )
+
+        self.populate_tweets(tweets_from_api)
+        if json_output_directory is not None or json_output_filename is not None:
+
+            # if a file name is provided
+            if json_output_filename is not None:
+                is_gzip = is_gzip or json_output_filename.endswith(".gz")
+                out_fil_name = json_output_filename
+                #add the correct file endings
+                if not (out_fil_name.endswith(".json") or out_fil_name.endswith(".gz")):
+                    out_fil_name += ".json"
+            else:
+                if json_output_directory != '':
+                    out_fil_name = os.path.join(json_output_directory,self.user_id+".json")
+                else:
+                    out_fil_name = self.user_id+".json"
+
+
+            if is_gzip:
+                if not out_fil_name.endswith(".gz"):
+                    out_fil_name += ".gz"
+                out_fil = gzip.open(out_fil_name, "wb")
+
+                for tweet in tweets_from_api:
+                    out_fil.write(json.dumps(tweet).strip().encode("utf8") + "\n")
+            else:
+                out_fil = codecs.open(out_fil_name, "w","utf8")
+
+                for tweet in tweets_from_api:
+                    out_fil.write(json.dumps(tweet).strip() + "\n")
+
+            out_fil.close()
+
+            print('WROTE OUT ', len(tweets_from_api), ' FOR: ', self.screen_name)
+            return out_fil_name
+        return None
+
+
+
+    def populate_tweets_from_file(self, filename):
+        if filename.endswith(".gz"):
+            reader = codecs.getreader('utf-8')(gzip.open(filename), errors='replace')
+        else:
+            reader = codecs.open(filename,"r","utf8")
+
+        tweets = [json.loads(l) for l in reader]
+        self.populate_tweets(tweets)
+
+
+
+
+
+    def populate_lists(self, session=None, print_output=False):
+        if self.times_listed > 0:
+            lists = self.api_hook.get_with_cursor_for_user(
+                "lists/memberships.json",
+                "lists",
+                self.screen_name,
+                self.user_id)
+
+            for l in lists:
+                self.lists.append({'creating_user_name': l['user']['screen_name'],
+                                   'creating_user_id': l['user']['id_str'],
+                                   'created_at': parse_date(l['created_at']),
+                                   'n_subscribers': l['subscriber_count'],
+                                   'n_members': l['member_count'],
+                                   'name': l['name'],
+                                   'description': l['description'],
+                                   'id': l['id_str'],
+                                   'twitter_full_name': l['full_name']})
+        if print_output:
+            print('LISTS: ')
+            for l in self.lists:
+                print(l)
+
+    def populate_friends(self, print_output=False):
+        self.friend_ids = self.api_hook.get_with_cursor_for_user(
+            "friends/ids.json",
+            "ids",
+            self.screen_name,
+            self.user_id)
+        if print_output:
+            print('NUM FRIENDS: ', len(self.friend_ids))
+
+    def populate_followers(self, print_output=False):
+        self.follower_ids = self.api_hook.get_with_cursor_for_user(
+            "followers/ids.json",
+            "ids",
+            self.screen_name,
+            self.user_id)
+        if print_output:
+            print('NUM FOLLOWERS: ', len(self.follower_ids))
+
+    def counter_to_links(self, full_net, single_net, name, restriction_set):
+        for k, v in single_net.iteritems():
+            if restriction_set is None or k in restriction_set and k != self.screen_name:
+                full_net.append([self.user_id, k, v, name])
+
+    def get_ego_network(self, restrict_output_to_user_names=None):
+        network = []
+        self.counter_to_links(network, self.retweeted, "RT", restrict_output_to_user_names)
+        self.counter_to_links(network, self.mentioned, "Mention", restrict_output_to_user_names)
+        self.counter_to_links(network, self.replied_to, "Reply", restrict_output_to_user_names)
+        return network
+
+    def get_ego_network_actors(self):
+        all_net = self.retweeted+self.mentioned+self.replied_to
+        return [k for k in all_net.keys() if k != self.user_id]
+
+    def write_counter(self, output, string_to_write, n_top, counter_data):
+        output.write(u'\n {0}:'
+                     '\n\tTOTAL UNIQUE: {1}'
+                     '\n\tTop {2}: {3}'.
+                     format(string_to_write,
+                            len(counter_data),
+                            n_top,
+                            json.dumps(counter_data.most_common(n_top))))
+
+    def __unicode__(self):
+        output = StringIO.StringIO()
+        output.write(u'USER')
+        output.write(u'\n\tNAME: {0} ({1})'.format(self.screen_name, self.name))
+        output.write(u'\n\tLOCATION: {0}'.format(self.location))
+        output.write(u'\n\tDESCRIPTION: {0}'.format(self.description))
+        output.write('\n\tNUM FRIENDS: {0}'.format(self.following_count))
+        output.write('\n\tNUM_FOLLOWERS: {0}'.format(self.followers_count))
+        output.write('\n\tTWEET COUNT: {0} (total {1})'.format(len(self.tweets), self.n_total_tweets))
+        output.write('\n\tEARLIEST TWEET SEEN: {0}'.format(self.earliest_tweet_time))
+        output.write('\n\tLATEST TWEET SEEN: {0}'.format(self.latest_tweet_time))
+        output.write('\n\tTOTAL OBSERVED DAYS ACTIVE: {0} days'.format((self.latest_tweet_time-self.earliest_tweet_time).days))
+
+        if self.print_verbose:
+            n_top = 15
+            self.write_counter(output, 'Mentioned', n_top, self.mentioned)
+            self.write_counter(output, 'Retweeted', n_top, self.retweeted)
+            self.write_counter(output, 'Replied to', n_top, self.replied_to)
+            self.write_counter(output, 'Hashtags', n_top, self.hashtags)
+            # self.write_counter(output, '\n\tHashtags in RTs', n_top, self.retweeted_someone_else_hashtags)
+            # self.write_counter(output, '\n\tHashtags in own tweets that were RTd', n_top, self.user_was_retweeted_hashtags)
+            self.write_counter(output, 'Terms', n_top, self.tokens)
+            # self.write_counter(output, '\n\tTerms in RTs', n_top, self.retweeted_someone_else_tokens)
+            # self.write_counter(output, '\n\tTerms in own tweets that were RTd', n_top, self.user_was_retweeted_tokens)
+
+            output.write('\nList info:')
+            output.write('\n\t On {0} lists'.format((len(self.lists))))
+            for l in self.lists:
+                output.write(u'\n\t\t Name: {0} Member count: {1} Subscriber count: {2}'.
+                             format(l['name'], l['n_members'], l['n_subscribers']))
+
+        v = output.getvalue()
+        return v
+
+
+def get_user_id_str(user_data):
+    if 'id_str' in user_data:
+        return user_data['id_str']
+    if 'id' in user_data:
+        return str(user_data['id'])
+    return None
+
+
+def get_user_ids_and_sn_data_from_list(data, handles, is_sns,out_fil=None):
+    print len(data)
+    if len(data) < 100:
+        user_data_chunked = [data]
+    else:
+        i = 0
+        user_data_chunked = []
+        while i < len(data):
+            user_data_chunked.append(data[i:(i+100)])
+            i += 100
+
+        user_data_chunked.append(data[i-100:len(data)])
+
+    if is_sns:
+        str_to_get = "screen_name"
+    else:
+        str_to_get = "user_id"
+    user_screenname_id_pairs = []
+
+    i = 0
+    for x in user_data_chunked:
+        print i
+        i += 1
+
+        api_hook = handles[random.randint(0, len(handles)-1)]
+        user_data = api_hook.get_from_url("users/lookup.json", {str_to_get: ",".join(x), "include_entities": "false"})
+        for u in user_data:
+            data = [u['screen_name'],u['id_str'],
+                     str(u['statuses_count']),
+                     str(u['followers_count']),
+                     str(u['friends_count']),
+                     str(u['listed_count'])]
+            user_screenname_id_pairs.append(data)
+            if out_fil is not None:
+                out_fil.write(",".join(data)+"\n")
+
+    return user_screenname_id_pairs
