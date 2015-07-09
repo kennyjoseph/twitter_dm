@@ -22,7 +22,7 @@ been using and developing the library for the last year or so with the help of P
 
 I promise to continue adding documentation and examples ASAP, and feel free to do the same!
 
-# GETTING STARTED
+# Getting Started
 
 Once you've cloned the repo, install the package and its dependencies
 
@@ -34,13 +34,13 @@ and ```gen_user_ht_networks.py```.
 You should also probably check out ```Tweet.py``` and ```TwitterUser.py``` if you're interested in the Object Oriented
 approach to Twitter data - I think they're pretty useful!
 
-# NOTES:
+# Notes
 - Importantly, the multiprocess stuff won't work on a OSX because of some crazy bug in urllib2.  Give it a try, feel free to 
 submit a fix/tell me what I'm doing wrong, but I have traced it all the way into urllib2 and where it interacts with
  the OS as a heads up.
  
 
-# TODO:
+# Todo:
 
 1. More examples
 2. More documentation
