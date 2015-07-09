@@ -2,10 +2,10 @@
 
 This library has chiefly been developed for three purposes:
 
-1. Rapidly collect data from the Twitter *Search* API. We hopefully will be able to integrate it with '''tweepy'''
+1. Rapidly collect data from the Twitter *Search* API. We hopefully will be able to integrate it with ```tweepy```
 at some point soon so it can also handle the Streaming API.  The main goal here has been to leverage multiple 
-connections, or "handles" to the API via multiprocessing. The '''examples''' directory contains a bunch of examples
-of how this is done, and you can start with the '''twitter_dm/multiprocess''' folder to see how we extend the Worker
+connections, or "handles" to the API via multiprocessing. The ```examples``` directory contains a bunch of examples
+of how this is done, and you can start with the ```twitter_dm/multiprocess``` folder to see how we extend the Worker
 class of Twitter's multiprocessing library to do what we want to do.  
 
 2. Provide a convenient way to manipulate and access data from Twitter users and Tweets in an object-oriented, extendible
@@ -26,12 +26,12 @@ I promise to continue adding documentation and examples ASAP, and feel free to d
 
 Once you've cloned the repo, install the package and its dependencies
 
-'''$ python setup.py install'''
+```$ python setup.py install```
 
-Then, open up the examples and check out how they work.  I recommend starting with '''collect_user_data_serially.py'''
-and '''gen_user_ht_networks.py'''.
+Then, open up the examples and check out how they work.  I recommend starting with ```collect_user_data_serially.py```
+and ```gen_user_ht_networks.py```.
 
-You should also probably check out '''Tweet.py''' and '''TwitterUser.py''' if you're interested in the Object Oriented
+You should also probably check out ```Tweet.py``` and ```TwitterUser.py``` if you're interested in the Object Oriented
 approach to Twitter data - I think they're pretty useful!
 
 # NOTES:
