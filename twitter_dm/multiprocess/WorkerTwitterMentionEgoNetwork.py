@@ -59,7 +59,7 @@ class TwitterMentionEgoNetwork(multiprocessing.Process):
             ##write out their following network and add each id to queue
             network_fil = codecs.open(os.path.join(self.network_dir,user_id),"w", "utf-8")
             added = 0
-            for following_id in user.mentioned.keys:
+            for following_id in user.mentioned.keys():
                 if snow_sample_number < self.step_count:
                     added +=1
                     self.queue.put([str(following_id),snow_sample_number+1])

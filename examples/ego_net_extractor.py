@@ -29,7 +29,7 @@ general_utils.mkdir_no_err(network_dir)
 multiprocess_setup.init_good_sync_manager()
 
 ##put data on the queue
-request_queue = general_utils.load_request_queue(user_screenname_id_pairs, len(handles))
+request_queue = multiprocess_setup.load_request_queue(user_screenname_id_pairs, len(handles))
 
 processes = []
 for i in range(len(handles)):

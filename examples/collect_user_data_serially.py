@@ -23,12 +23,7 @@ for i in range(len(user_sns)):
     user = TwitterUser(handles[i], screen_name=user_sns[i])
     user.populate_tweets_from_api(json_output_filename=out_dir+user_sns[i]+".json",
                                   sleep_var=False)
-<<<<<<< HEAD
     user.populate_follwers()
-=======
-
-    print('\tgetting friends for: ', user_sns[i])
->>>>>>> 26d16571e37b6dacccd1861082da2fa97d7fbeb8
     rts = 0
     gt = 0
     for t in user.tweets:

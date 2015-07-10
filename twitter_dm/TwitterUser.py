@@ -12,7 +12,8 @@ and goes to the Twitter API to get this user's tweets
 """
 __author__ = 'kjoseph'
 
-from twitter_dm.utility.tweet_utils import parse_date
+from .utility.tweet_utils import parse_date
+from Tweet import  Tweet
 import codecs
 from collections import Counter
 import datetime

@@ -39,7 +39,7 @@ print 'len already done:', 0
 #user_screennames = [u for u in user_screennames if u not in already_done]
 
 ##put data on the queue
-request_queue = general_utils.load_request_queue(user_ids, len(handles))
+request_queue = multiprocess_setup.load_request_queue(user_ids, len(handles))
 
 processes = []
 for i in range(1):

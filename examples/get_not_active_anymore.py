@@ -13,6 +13,7 @@ import glob
 from twitter_dm import TwitterApplicationHandler
 from twitter_dm.utility import general_utils
 from twitter_dm.multiprocess.WorkerUserSimpleData import UserSimpleDataWorker
+from twitter_dm.multiprocess import multiprocess_setup
 import urllib3.contrib.pyopenssl
 urllib3.contrib.pyopenssl.inject_into_urllib3()
 
@@ -46,10 +47,10 @@ user_data_chunked.append(user_ids[i-100:len(user_ids)])
 
 print 'len chunked: ', len(user_data_chunked)
 
-general_utils.init_good_sync_manager()
+multiprocess_setup.init_good_sync_manager()
 
 ##put data on the queue
-request_queue = general_utils.load_request_queue([x for x in user_data_chunked], len(handles), add_nones=True)
+request_queue = multiprocess_setup.load_request_queue([x for x in user_data_chunked], len(handles), add_nones=True)
 
 processes = []
 for i in range(len(handles)):
