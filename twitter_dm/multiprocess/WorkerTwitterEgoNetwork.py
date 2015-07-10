@@ -8,9 +8,9 @@ my ICWSM'15 paper.
 """
 __author__ = 'kjoseph'
 
-from ..TwitterUser import TwitterUser
+from twitter_dm.TwitterUser import TwitterUser
 import os, sys,  multiprocessing, glob, traceback, codecs
-from ..utility.general_utils import mkdir_no_err
+from twitter_dm.utility.general_utils import mkdir_no_err
 import cPickle as pickle
 
 

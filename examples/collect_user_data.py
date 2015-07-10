@@ -13,6 +13,7 @@ __author__ = 'kjoseph'
 import os, sys, glob
 from twitter_dm.multiprocess.WorkerUserTweetData import UserDataWorker
 from twitter_dm.utility import general_utils
+from twitter_dm.multiprocess import multiprocess_setup
 
 
 if len(sys.argv) != 4:
@@ -31,7 +32,7 @@ print 'num users: ', len(user_ids)
 general_utils.mkdir_no_err(out_dir)
 general_utils.mkdir_no_err(os.path.join(out_dir,"obj"))
 general_utils.mkdir_no_err(os.path.join(out_dir,"json"))
-general_utils.init_good_sync_manager()
+multiprocess_setup.init_good_sync_manager()
 
 #already_done = set([os.path.basename(f) for f in glob.glob(out_dir+"/*")])
 print 'len already done:', 0

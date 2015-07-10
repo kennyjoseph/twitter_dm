@@ -10,6 +10,7 @@ import os, sys
 from multiprocessing import Queue
 from twitter_dm.multiprocess.WorkerTweetData import TweetDataWorker
 from twitter_dm.utility import general_utils
+from twitter_dm.multiprocess import multiprocess_setup
 import glob
 
 # read in system arguments
@@ -52,7 +53,7 @@ while i < len(tweet_ids):
 tweets_chunked.append(tweet_ids[i-100:len(tweet_ids)])
 
 # init a sync manager
-general_utils.init_good_sync_manager()
+multiprocess_setup.init_good_sync_manager()
 
 # put data on the queue
 request_queue = Queue()

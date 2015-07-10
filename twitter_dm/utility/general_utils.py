@@ -5,7 +5,7 @@ __author__ = 'kjoseph'
 
 
 import os
-from ..TwitterApplicationHandler import TwitterApplicationHandler
+from twitter_dm.TwitterApplicationHandler import TwitterApplicationHandler
 def mkdir_no_err(dir_name):
     try:
         os.mkdir(dir_name)

@@ -7,7 +7,7 @@ to collect the lists and/or followers and friends of the user
 """
 __author__ = 'kjoseph'
 
-from ..TwitterUser import TwitterUser
+from twitter_dm.TwitterUser import TwitterUser
 
 import multiprocessing
 import cPickle as pickle

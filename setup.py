@@ -20,12 +20,12 @@ here = path.abspath(path.dirname(__file__))
 print find_packages(exclude=['contrib', 'docs', 'tests*'])
 
 setup(
-    name='police',
+    name='twitter_dm',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.0',
+    version='1.0.1',
 
     description='A suite of libraries for collecting and processing Twitter data. Also includes a base class that can be used to run things on hadoop using mrjob',
     long_description='',
@@ -42,7 +42,8 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=['twitter_dm'],
+    packages=['twitter_dm','twitter_dm.nlp',
+              'twitter_dm.multiprocess','twitter_dm.utility'],
 
 
     # List run-time dependencies here.  These will be installed by pip when

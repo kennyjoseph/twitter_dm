@@ -5,6 +5,7 @@ import glob,sys, os
 from twitter_dm.multiprocess.WorkerTwitterFollowerEgoNetwork import TwitterFollowingNetworkWorker
 from twitter_dm.utility import general_utils
 from twitter_dm.TwitterUser import get_user_ids_and_sn_data_from_list
+from twitter_dm.multiprocess import multiprocess_setup
 
 if len(sys.argv) != 4:
     print 'usage:  [known_user_dir] [output_dir] [user_sn_file]'
@@ -14,7 +15,7 @@ OUTPUT_DIRECTORY = sys.argv[2]
 
 # get all the handles we have to the api
 handles = general_utils.get_handles(glob.glob(os.path.join(sys.argv[1],"*.txt")))
-
+handles = handles[:5]
 print 'n authed users: ', len(handles)
 
 # user screen names we are interested in
@@ -31,7 +32,7 @@ general_utils.mkdir_no_err(OUTPUT_DIRECTORY)
 general_utils.mkdir_no_err(pickle_dir)
 general_utils.mkdir_no_err(network_dir)
 
-general_utils.init_good_sync_manager()
+multiprocess_setup.init_good_sync_manager()
 
 # put data on the queue
 request_queue = general_utils.load_request_queue([(x[1],0) for x in user_screenname_id_pairs], len(handles), add_nones=False)

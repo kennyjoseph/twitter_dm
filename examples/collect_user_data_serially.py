@@ -4,15 +4,8 @@ import os, sys, glob, codecs
 from casostwitter import TwitterUser
 from casostwitter.general_utils import tab_stringify_newline, get_handles
 
-sys.argv = ['',
-            '/Users/kjoseph/git/thesis/thesis_python/twitter_login_creds',
-            '/Users/kjoseph/Desktop/mikhail/',
-           '/Users/kjoseph/Desktop/mikhail/users.txt']
-
-print sys.argv
-
 if len(sys.argv) != 4:
-    print 'usage:  [known_user_dir] [output_dir] [tweet_id_file]'
+    print 'usage:  [known_user_dir] [output_dir] [user_screennames_file]'
     sys.exit(-1)
 
 handles = get_handles(glob.glob(os.path.join(sys.argv[1],"*.txt")))
@@ -29,7 +22,7 @@ for i in range(len(user_sns)):
     user = TwitterUser(handles[i], screen_name=user_sns[i])
     user.populate_tweets_from_api(json_output_filename=out_dir+user_sns[i]+".json",
                                   sleep_var=False)
-    print('\tgetting friends for: ', user_sns[i])
+    user.populate_follwers()
     rts = 0
     gt = 0
     for t in user.tweets:

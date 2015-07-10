@@ -5,3 +5,4 @@ import WorkerTweetData
 import WorkerTwitterEgoNetwork
 import WorkerTwitterFollowerEgoNetwork
 import WorkerUserTweetData
+import WorkerTwitterMentionEgoNetwork

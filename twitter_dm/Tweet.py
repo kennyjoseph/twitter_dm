@@ -13,15 +13,16 @@ Note that a lot of the code is ugly because it deals with both the "new" and "ol
 tweet formats. It needs way more commenting, but that will come, I hope, soon.
 """
 
-from .nlp.twokenize import tokenize
-from .nlp.Tokenize import extract_tokens_twokenize_and_regex
-from utility.tweet_utils import parse_date, lookup
+
+from .utility.tweet_utils import parse_date, lookup
 import re
 from datetime import datetime
 import HTMLParser
 import ujson as json
 import gzip
 import codecs
+from .nlp import Tokenize
+from .nlp.twokenize import tokenize
 
 
 class Tweet:
@@ -45,7 +46,7 @@ class Tweet:
 
         # TOKEN EXTRACTION
         if do_tokenize:
-            self.tokens = extract_tokens_twokenize_and_regex(jsn['text'],
+            self.tokens = Tokenize.extract_tokens_twokenize_and_regex(jsn['text'],
                                                              noise_tokens,
                                                              gram_list,
                                                              do_arabic_stemming=do_arabic_stemming,

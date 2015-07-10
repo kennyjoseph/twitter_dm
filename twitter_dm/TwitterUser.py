@@ -1,12 +1,18 @@
-"""A class to handle Twitter users
+"""A class to handle Twitter users.
+
+The constructor takes in either a list of dictionary objects (from a json.loads of a .json file)
+Or just a screen name/user_id and, optionally, an api_hook
+
+If you do the latter and have an api_hook, then you can use the populate_* methods
+to "hydrate" this user.  For example, populate_tweets_from_api() uses the api_hook
+and goes to the Twitter API to get this user's tweets
 
 ..moduleauthor:: Kenneth Joseph <josephkena@gmail.com>
 
 """
 __author__ = 'kjoseph'
 
-import Tweet
-from .utility.tweet_utils import parse_date
+from twitter_dm.utility.tweet_utils import parse_date
 import codecs
 from collections import Counter
 import datetime
@@ -19,6 +25,7 @@ from pkg_resources import resource_stream
 
 
 class TwitterUser:
+
     def __init__(self, api_hook=None, screen_name=None, user_id=None,
                  list_of_tweets=None, stopwords=None, print_verbose=False):
         """
@@ -36,23 +43,42 @@ class TwitterUser:
             self.stopwords = set([s for s in stopwords])
 
         self.tweets = []
-        # RELATIONSHIPS
+
+        # All of these are populated when you get a user's tweets from the API
+        ##############
+
         self.replied_to = Counter()
         self.replied_to_sns = Counter()
+
+        # Counter of number of times person has mentioned other users with these Twitter IDs
         self.mentioned = Counter()
+
+        # Counter of number of times person has mentioned other users with these Twitter Screen Names
+        # (same as above, except screen names instead of IDs)
         self.mentioned_sns = Counter()
+
+        # Same as mentions, except for other users this person has retweeted
         self.retweeted = Counter()
         self.retweeted_sns = Counter()
-        self.friend_ids = []
-        self.follower_ids = []
 
-        # Hashtag Info
+        # Counter for hashtags used by this user
         self.hashtags = Counter()
 
         # Tokens Info
         self.tokens = Counter()
 
+        ##############
+        ##############
+
+
+        # Friend IDs, Populated with populate_friends() method
+        self.friend_ids = []
+
+        # Follower IDs, populated with populate_followers() method
+        self.follower_ids = []
+
         # MISC
+        ##############
         self.retweeted_tweets = []
         self.lists = []
         self.times_listed = -1
@@ -70,10 +96,12 @@ class TwitterUser:
         self.utc_offset =None
         self.followers_count = -1
         self.following_count = -1
+        ##############
 
+        # If you've passed in a list of tweets, then "hydrate" this user
         if list_of_tweets is not None:
             self.populate_tweets(list_of_tweets)
-
+        #Otherwise, set up the user to be hydrated with future populate_* calls
         else:
             # SESSION INFO
             self.api_hook = api_hook
@@ -84,7 +112,12 @@ class TwitterUser:
             self.screen_name = screen_name
             self.user_id = user_id
 
+
+
     def populate_tweets(self, tweets):
+        """ Populates tweets from a list of python dictionary objects.
+        Use populate_tweets_from_api to get if from the API
+        """
         if len(tweets) == 0:
             return
 
@@ -215,9 +248,6 @@ class TwitterUser:
 
         tweets = [json.loads(l) for l in reader]
         self.populate_tweets(tweets)
-
-
-
 
 
     def populate_lists(self, session=None, print_output=False):

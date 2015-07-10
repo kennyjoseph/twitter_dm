@@ -12,7 +12,7 @@ import codecs
 import sys, os
 import traceback
 from time import sleep
-from ..utility.general_utils import tab_stringify_newline
+from twitter_dm.utility.general_utils import tab_stringify_newline
 
 class UserSimpleDataWorker(multiprocessing.Process):
     def __init__(self, queue, api_hook, conn_number, out_dir,

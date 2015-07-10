@@ -7,8 +7,8 @@
 """
 __author__ = 'kjoseph'
 
-from .. import Tweet, TwitterUser
-from ..nlp import Tokenize
+from twitter_dm import Tweet, TwitterUser
+from twitter_dm.nlp import Tokenize
 from collections import defaultdict, Counter
 import ujson as json
 import numpy as np

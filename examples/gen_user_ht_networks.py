@@ -8,13 +8,6 @@ import os, sys, glob, codecs
 from twitter_dm import TwitterUser
 from twitter_dm.utility.general_utils import get_handles
 
-sys.argv = ['',
-            '/Users/kjoseph/git/thesis/thesis_python/twitter_login_creds',
-            '/Users/kjoseph/Desktop/for_jon/data',
-           '/Users/kjoseph/Desktop/for_jon/real_user.csv']
-
-print sys.argv
-
 if len(sys.argv) != 4:
     print 'usage:  [known_user_dir] [output_dir] [user_id_file]'
     sys.exit(-1)
