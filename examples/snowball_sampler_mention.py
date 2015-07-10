@@ -7,8 +7,8 @@ from twitter_dm.multiprocess.WorkerTwitterMentionEgoNetwork import TwitterMentio
 from twitter_dm.utility import general_utils
 from twitter_dm.TwitterUser import get_user_ids_and_sn_data_from_list
 
-if len(sys.argv) != 4:
-    print 'usage:  [known_user_dir] [output_dir] [user_sn_file]'
+if len(sys.argv) != 6:
+    print 'usage:  [known_user_dir] [output_dir] [user_sn_file] [step_count] [seed_agent_file]'
     sys.exit(-1)
 
 OUTPUT_DIRECTORY = sys.argv[2]
@@ -19,7 +19,7 @@ handles = general_utils.get_handles(glob.glob(os.path.join(sys.argv[1],"*.txt"))
 print 'n authed users: ', len(handles)
 
 # user screen names we are interested in
-user_sns = ['Khalid_Maqdisi','SaqrAnsaar','AbuSiqr','JabhtAnNusrah_s','ShamiWitness']
+user_sns = ['coalitionfd','InfoResist_EN','InfoResist','MusuLatvija','SpecGhost','NATOlizer','Stormtroepen']
 
 # Get a bit more data on users
 user_screenname_id_pairs = get_user_ids_and_sn_data_from_list(user_sns,handles,True)
@@ -39,7 +39,7 @@ request_queue = general_utils.load_request_queue([(x[1],0) for x in user_screenn
 
 processes = []
 for i in range(len(handles)):
-    p = TwitterMentionEgoNetwork(request_queue,handles[i],network_dir,pickle_dir)
+    p = TwitterMentionEgoNetwork(request_queue,handles[i],network_dir,pickle_dir,step_count)
     p.start()
     processes.append(p)
 
