@@ -26,7 +26,7 @@ user_screenname_id_pairs = get_user_ids_and_sn_data_from_list(user_sns,handles,T
 print 'got screen names, ', len(user_screenname_id_pairs)
 
 pickle_dir = OUTPUT_DIRECTORY +"/obj/"
-network_dir = OUTPUT_DIRECTORY+"/net/"
+network_dir = OUTPUT_DIRECTORY+"/net/" # what does the network directory do for me?
 
 general_utils.mkdir_no_err(OUTPUT_DIRECTORY)
 general_utils.mkdir_no_err(pickle_dir)

@@ -7,7 +7,7 @@ from casostwitter.general_utils import tab_stringify_newline, get_handles
 if len(sys.argv) != 4:
     print 'usage:  [known_user_dir] [output_dir] [user_screennames_file]'
     sys.exit(-1)
-
+# Get the handles to the Twitter API
 handles = get_handles(glob.glob(os.path.join(sys.argv[1],"*.txt")))
 print 'n authed users: ', len(handles)
 
@@ -19,10 +19,16 @@ print 'num users: ', len(user_sns)
 
 of = codecs.open("output_fil.tsv","w","utf8")
 for i in range(len(user_sns)):
+    #creates a Twitter User object to fill with information from the API
     user = TwitterUser(handles[i], screen_name=user_sns[i])
     user.populate_tweets_from_api(json_output_filename=out_dir+user_sns[i]+".json",
                                   sleep_var=False)
+<<<<<<< HEAD
     user.populate_follwers()
+=======
+
+    print('\tgetting friends for: ', user_sns[i])
+>>>>>>> 26d16571e37b6dacccd1861082da2fa97d7fbeb8
     rts = 0
     gt = 0
     for t in user.tweets:
