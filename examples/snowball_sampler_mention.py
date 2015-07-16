@@ -7,10 +7,6 @@ from twitter_dm.utility import general_utils
 from twitter_dm.TwitterUser import get_user_ids_and_sn_data_from_list
 from twitter_dm.multiprocess import multiprocess_setup
 
-
-sys.argv = ['', '/Users/kjoseph/git/thesis/thesis_python/twitter_login_creds',
-            'blah','2','f.txt']
-
 if len(sys.argv) != 5:
     print 'usage:  [known_user_dir] [output_dir][step_count] [seed_agent_file]'
     sys.exit(-1)
@@ -20,7 +16,6 @@ OUTPUT_DIRECTORY = sys.argv[2]
 # get all the handles we have to the api
 handles = general_utils.get_handles(glob.glob(os.path.join(sys.argv[1],"*.txt")))
 
-handles = handles[0:3]
 print 'n authed users: ', len(handles)
 
 step_count = int(sys.argv[3])
