@@ -28,7 +28,7 @@ from pkg_resources import resource_stream
 class TwitterUser:
 
     def __init__(self, api_hook=None, screen_name=None, user_id=None,
-                 list_of_tweets=None, stopwords=None, print_verbose=False):
+                 list_of_tweets=None, filename_for_tweets=None, stopwords=None, print_verbose=False):
         """
         Initialize the twitter user. Must supply either a screen name or an ID!
         :param screen_name: a user's screen_name
@@ -99,11 +99,15 @@ class TwitterUser:
         self.following_count = -1
         ##############
 
-        # If you've passed in a list of tweets, then "hydrate" this user
+
         if list_of_tweets is not None:
+            # If you've passed in a list of tweets, then "hydrate" this user
             self.populate_tweets(list_of_tweets)
-        #Otherwise, set up the user to be hydrated with future populate_* calls
+        elif filename_for_tweets is not None:
+            # Or, give a file name (either .gz or a raw file w/ JSON) to load tweets from there
+            self.populate_tweets_from_file(filename_for_tweets)
         else:
+            #Otherwise, set up the user to be hydrated with future populate_* calls
             # SESSION INFO
             self.api_hook = api_hook
 
