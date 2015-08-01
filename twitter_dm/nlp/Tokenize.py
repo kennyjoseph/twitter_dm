@@ -40,7 +40,7 @@ def getNGrams(temp_tokens, size=2):
 
 def extract_tokens_twokenize_and_regex(text,
                                        noise_tokens,
-                                       gram_list,
+                                       gram_list=[],
                                        keep_hashtags_and_mentions=True,
                                        make_lowercase=True,
                                        lemmatize=True,

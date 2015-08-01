@@ -111,7 +111,7 @@ class TwitterUser:
             # SESSION INFO
             self.api_hook = api_hook
 
-            if screen_name is None and user_id is None:
+            if api_hook and not screen_name and not user_id:
                 raise Exception('error', 'supply either screen name or user id')
 
             self.screen_name = screen_name
@@ -119,9 +119,13 @@ class TwitterUser:
 
 
 
-    def populate_tweets(self, tweets):
-        """ Populates tweets from a list of python dictionary objects.
+    def populate_tweets(self, tweets, **kwargs):
+        """
+        Populates tweets from a list of python dictionary objects.
         Use populate_tweets_from_api to get if from the API
+        :param tweets: list of python dictionaries (i.e. from json.loads())
+        :param kwargs: keywords to pass to Tweet constructor
+        :return:
         """
         if len(tweets) == 0:
             return
@@ -133,7 +137,7 @@ class TwitterUser:
             self.latest_tweet_time = datetime.datetime.min
 
         for t in tweets:
-            tweet = Tweet(t, noise_tokens=self.stopwords)
+            tweet = Tweet(t, noise_tokens=self.stopwords, **kwargs)
             self.tweets.append(tweet)
 
             if tweet.created_at < self.earliest_tweet_time:
@@ -245,14 +249,19 @@ class TwitterUser:
 
 
 
-    def populate_tweets_from_file(self, filename):
+    def populate_tweets_from_file(self, filename, **kwargs):
+        """
+        :param filename: Name of file that has the tweets
+        :param kwargs: keywords to pass on to the Tweet constructor
+        :return:
+        """
         if filename.endswith(".gz"):
             reader = codecs.getreader('utf-8')(gzip.open(filename), errors='replace')
         else:
             reader = codecs.open(filename,"r","utf8")
 
         tweets = [json.loads(l) for l in reader]
-        self.populate_tweets(tweets)
+        self.populate_tweets(tweets, **kwargs)
 
 
     def populate_lists(self, session=None, print_output=False):

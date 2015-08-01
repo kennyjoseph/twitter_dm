@@ -29,8 +29,6 @@ class Tweet:
     def __init__(self, jsn, do_tokenize=True,
                  store_json=False,
                  noise_tokens=set(),
-                 gram_list=[],
-                 do_arabic_stemming=True,
                  **kwargs):
 
         # store raw json (yuck, but useful in some random cases
@@ -48,8 +46,6 @@ class Tweet:
         if do_tokenize:
             self.tokens = Tokenize.extract_tokens_twokenize_and_regex(jsn['text'],
                                                              noise_tokens,
-                                                             gram_list,
-                                                             do_arabic_stemming=do_arabic_stemming,
                                                              **kwargs)
         else:
             self.tokens = None
