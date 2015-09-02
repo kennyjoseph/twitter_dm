@@ -9,6 +9,7 @@ import codecs
 import subprocess
 from twitter_dm.utility.general_utils import mkdir_no_err
 import shutil
+import re
 
 DIRECTORY_I_EXIST_IN = os.path.dirname(os.path.realpath(__file__))
 
@@ -27,7 +28,8 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename):
         # create the input file
         tweebo_output_fil = codecs.open(output_filename+".inp","w","utf8")
         for tweet in tweets:
-            tweebo_output_fil.write(tweet.text.replace("\n","   ")+"\n")
+            to_output = tweet.text.replace(r"\r\n","\n").replace("\n", "     ").replace("\r","    ")
+            tweebo_output_fil.write(to_output + "\n")
         tweebo_output_fil.close()
 
         # create the working directory
