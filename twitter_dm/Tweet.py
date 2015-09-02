@@ -21,8 +21,8 @@ import HTMLParser
 import ujson as json
 import gzip
 import codecs
-from .nlp import Tokenize
-from .nlp.twokenize import tokenize
+from nlp import Tokenize
+from nlp.twokenize import tokenize
 
 
 class Tweet:

@@ -12,7 +12,7 @@ from pkg_resources import resource_stream
 
 
 def get_stopwords():
-    stopwords_stream = resource_stream('casostwitter', 'data/stopwords.txt')
+    stopwords_stream = resource_stream('twitter_dm', 'data/stopwords.txt')
     return set([word.strip() for word in stopwords_stream.readlines()])
 
 

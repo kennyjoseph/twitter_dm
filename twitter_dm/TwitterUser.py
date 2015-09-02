@@ -166,8 +166,9 @@ class TwitterUser:
                 self.retweeted_tweets.append(i)
 
             ##tokens and HTs
-            for term in tweet.tokens:
-                self.tokens[term] += 1
+            if tweet.tokens:
+                for term in tweet.tokens:
+                    self.tokens[term] += 1
             for ht in tweet.hashtags:
                 self.hashtags[ht] += 1
             i += 1

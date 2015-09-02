@@ -42,7 +42,7 @@ print 'len already done:', 0
 request_queue = multiprocess_setup.load_request_queue(user_ids, len(handles))
 
 processes = []
-for i in range(1):
+for i in range(len(handles)):
     p = UserDataWorker( request_queue,handles[i],i,out_dir,
                         to_pickle=True,gets_user_id=False,
                         populate_lists=False,populate_friends_and_followers=True)

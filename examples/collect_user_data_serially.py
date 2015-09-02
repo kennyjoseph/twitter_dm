@@ -1,8 +1,8 @@
 __author__ = 'kjoseph'
 
 import os, sys, glob, codecs
-from casostwitter import TwitterUser
-from casostwitter.general_utils import tab_stringify_newline, get_handles
+from twitter_dm import TwitterUser
+from twitter_dm.utility.general_utils import tab_stringify_newline, get_handles
 
 if len(sys.argv) != 4:
     print 'usage:  [known_user_dir] [output_dir] [user_screennames_file]'
