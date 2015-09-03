@@ -13,6 +13,9 @@ import re
 
 DIRECTORY_I_EXIST_IN = os.path.dirname(os.path.realpath(__file__))
 
+def replace_tweet_newlines(text):
+    return text.replace(r"\r\n","\n").replace("\n", "     ").replace("\r","    ")
+
 def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename):
     """
     :param location_of_tweebo_parser: Path to the TweeboParser directory on your machine
@@ -28,7 +31,7 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename):
         # create the input file
         tweebo_output_fil = codecs.open(output_filename+".inp","w","utf8")
         for tweet in tweets:
-            to_output = tweet.text.replace(r"\r\n","\n").replace("\n", "     ").replace("\r","    ")
+            to_output = replace_tweet_newlines(tweet.text)
             tweebo_output_fil.write(to_output + "\n")
         tweebo_output_fil.close()
 
