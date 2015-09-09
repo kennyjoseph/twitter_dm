@@ -10,13 +10,14 @@ import subprocess
 from twitter_dm.utility.general_utils import mkdir_no_err
 import shutil
 import re
+import gzip
 
 DIRECTORY_I_EXIST_IN = os.path.dirname(os.path.realpath(__file__))
 
 def replace_tweet_newlines(text):
     return text.replace(r"\r\n","\n").replace("\n", "     ").replace("\r","    ")
 
-def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename):
+def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename,gzip_final_output=True):
     """
     :param location_of_tweebo_parser: Path to the TweeboParser directory on your machine
     :param tweets: A list of Tweet objects that you would like to run dependency parsing on
@@ -24,9 +25,15 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename):
     :return: the data read in to python that facilitates further analysis
     """
 
-    if os.path.exists(output_filename):
+    final_output_filename = output_filename
+    if gzip_final_output and not output_filename.endswith(".gz"):
+        final_output_filename += ".gz"
+    if gzip_final_output and output_filename.endswith(".gz"):
+        output_filename.replace(".gz","")
+
+    if os.path.exists(final_output_filename):
         print 'found existing parse, returning'
-        return read_tweebo_parse(output_filename)
+        return read_tweebo_parse(final_output_filename)
     else:
         # create the input file
         tweebo_output_fil = codecs.open(output_filename+".inp","w","utf8")
@@ -46,12 +53,24 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename):
                                 output_fil=output_filename),
                 shell=True).wait()
 
+
         shutil.rmtree(output_filename+"_wd")
         os.remove(output_filename+".inp")
 
+        if gzip_final_output:
+            with open(output_filename, 'rb') as f_in:
+                with gzip.open(final_output_filename, 'wb') as f_out:
+                    f_out.writelines(f_in)
+            os.remove(output_filename)
+
         print 'FINISHED dependency parse'
-    return read_tweebo_parse(output_filename)
+    return read_tweebo_parse(final_output_filename)
 
 def read_tweebo_parse(filename):
+    if filename.endswith(".gz"):
+        zf = gzip.open(filename, 'rb')
+        reader = codecs.getreader("utf-8")
+        contents = reader(zf)
+        return "".join(contents).split("\n\n")
     return "".join(codecs.open(filename,"r","utf8").readlines()).split("\n\n")
 
