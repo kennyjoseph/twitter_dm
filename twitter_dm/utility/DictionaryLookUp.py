@@ -17,6 +17,15 @@ class DictionaryLookUp:
                  sep=",",
                  has_header=False,
                  all_lower=True):
+        """
+        :param file_location: location of the file containing the dictionary
+        :param map_from_column: what to map from
+        :param map_to_column: what to map to
+        :param sep: separator splitting the from/to columns
+        :param has_header: does the file have a header?
+        :param all_lower: should everything be lowercased for the matching process?
+        :return:
+        """
         self.file_location = file_location
         self.mappings_dict = defaultdict(set)
         self.init_mappings(file_location,map_from_column,map_to_column,sep,has_header,all_lower)
@@ -41,6 +50,7 @@ class DictionaryLookUp:
         #dest = dest.replace("_","")
 
         src = src.strip()
+
         if all_lower:
             src = src.lower()
 

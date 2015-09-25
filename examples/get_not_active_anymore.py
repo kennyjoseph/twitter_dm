@@ -14,8 +14,6 @@ from twitter_dm import TwitterApplicationHandler
 from twitter_dm.utility import general_utils
 from twitter_dm.multiprocess.WorkerUserSimpleData import UserSimpleDataWorker
 from twitter_dm.multiprocess import multiprocess_setup
-import urllib3.contrib.pyopenssl
-urllib3.contrib.pyopenssl.inject_into_urllib3()
 
 if len(sys.argv) != 4:
     print 'usage:  [known_user_dir] [screen_name_file] [out_dir]'
