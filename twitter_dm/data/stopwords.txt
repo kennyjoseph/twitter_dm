@@ -220,7 +220,6 @@ auth
 available
 away
 awfully
-b
 back
 be
 became
@@ -249,7 +248,6 @@ brief
 briefly
 but
 by
-c
 ca
 came
 can
@@ -259,7 +257,6 @@ cause
 causes
 certain
 certainly
-co
 com
 come
 comes
@@ -268,7 +265,6 @@ containing
 contains
 could
 couldnt
-d
 date
 did
 didn't
@@ -283,7 +279,6 @@ down
 downwards
 due
 during
-e
 each
 ed
 edu
@@ -308,7 +303,6 @@ everybody
 everyone
 everything
 everywhere
-ex
 except
 f
 far
@@ -330,7 +324,6 @@ four
 from
 further
 furthermore
-g
 gave
 get
 gets
@@ -461,8 +454,6 @@ more
 moreover
 most
 mostly
-mr
-mrs
 much
 mug
 must
@@ -511,7 +502,6 @@ often
 oh
 ok
 okay
-old
 omitted
 on
 once
@@ -574,8 +564,6 @@ readily
 really
 recent
 recently
-ref
-refs
 regarding
 regardless
 regards
@@ -621,7 +609,6 @@ showed
 shown
 showns
 shows
-significant
 significantly
 similar
 similarly
@@ -632,7 +619,6 @@ so
 some
 somebody
 somehow
-someone
 somethan
 something
 sometime
@@ -869,19 +855,16 @@ youll
 theyll
 thereve
 doesnt
-ill
 havent
 hasnt
 #####FROM PML - PREVIOUSLY UNSEEN WORDS FROM CHRIS FOX'S STOP LIST
 numbers
 turn
 backed
-full
-member
+fullc
 showing
 evenly
 second
-older
 places
 going
 generally
@@ -896,19 +879,15 @@ turning
 fact
 fully
 problems
-men
 differ
 longer
 room
 backing
-young
 great
 today
 parted
 find
 furthering
-youngest
-smaller
 sees
 years
 large
@@ -920,9 +899,6 @@ interests
 opened
 presents
 parts
-group
-members
-newer
 wanting
 longest
 small
@@ -934,10 +910,8 @@ knew
 interesting
 asked
 area
-younger
 opens
 smallest
-backs
 works
 downing
 thoughts
@@ -953,7 +927,6 @@ felt
 case
 grouping
 ended
-greatest
 interest
 downed
 newest
@@ -962,7 +935,6 @@ open
 ordered
 clearly
 numbering
-big
 face
 finds
 faces
@@ -980,10 +952,8 @@ sides
 better
 point
 furthered
-oldest
 facts
 orders
-man
 working
 side
 thought

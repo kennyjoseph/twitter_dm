@@ -13,15 +13,15 @@ There's probably a bunch of ways to make this better/faster.
 
 import HTMLParser
 import string
-import re
+import regex
 from nltk.stem.isri import ISRIStemmer
 from nltk.stem import WordNetLemmatizer
 import twokenize
 
 ## globals
 arabic_stemmer = ISRIStemmer()
-arabic_regex = re.compile('[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]+',re.U)
-POSSESSIVE_REGEX = re.compile(u"['’′][^\s\.,?\"]*",regex.U)
+arabic_regex = regex.compile('[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]+',regex.U)
+POSSESSIVE_REGEX = regex.compile(u"['’′][^\s\.,?\"]*",regex.U)
 remove_punctuation_map = dict((ord(char), None) for char in string.punctuation)
 wnl = WordNetLemmatizer()
 lemmatize = wnl.lemmatize
