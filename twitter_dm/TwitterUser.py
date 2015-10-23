@@ -257,7 +257,7 @@ class TwitterUser:
         :return:
         """
         if filename.endswith(".gz"):
-            reader = codecs.getreader('utf-8')(gzip.open(filename), errors='replace')
+            reader = [z.decode("utf8") for z in gzip.open(filename).read().splitlines()]
         else:
             reader = codecs.open(filename,"r","utf8")
 

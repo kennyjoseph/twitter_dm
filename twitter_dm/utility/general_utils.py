@@ -22,10 +22,20 @@ def tab_stringify_newline(data,newline=True):
     return to_return
 
 
-def get_handles(file_list):
+def get_handles(file_list,silent=False):
     handles = []
     for fil in file_list:
-        print fil
-        app_handler = TwitterApplicationHandler(pathToConfigFile=fil)
+        if not silent:
+            print fil
+        app_handler = TwitterApplicationHandler(pathToConfigFile=fil,silent=silent)
         handles += app_handler.api_hooks
     return handles
+
+def powerset(iterable,combs=None):
+    from itertools import combinations
+    from itertools import chain
+    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
+    s = list(iterable)
+    if not combs:
+        combs = range(1,len(s)+1)
+    return chain.from_iterable(combinations(s, r) for r in combs)

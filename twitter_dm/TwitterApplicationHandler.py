@@ -25,7 +25,8 @@ class TwitterApplicationHandler:
     ###################################################
     def __init__(self, pathToConfigFile=None,
                  consumer_key=None,
-                 consumer_secret=None):
+                 consumer_secret=None,
+                 silent=False):
 
         if pathToConfigFile is None and consumer_key is None:
             raise Exception("Need a config file and/or consumer_key")
@@ -47,7 +48,7 @@ class TwitterApplicationHandler:
                 outfile.write(','.join([self.consumer_key,self.consumer_secret])+'\n')
                 outfile.close()
 
-        self.load_known_users()
+        self.load_known_users(silent)
 
         self.twitter = OAuth1Service(
             name='twitter',
@@ -111,8 +112,9 @@ class TwitterApplicationHandler:
 
         return session
 
-    def load_known_users(self):
-        print('Loading known users...')
+    def load_known_users(self, silent=False):
+        if not silent:
+            print('Loading known users...')
         if not os.path.exists(self.configFileName):
             return
         try:
@@ -121,7 +123,8 @@ class TwitterApplicationHandler:
             # the first line now may be app token, app secret. Check
             first_line_split = lines[0].strip().split(',')
             if len(first_line_split) == 2:
-                print('got consumer key and secret from config file')
+                if not silent:
+                    print('got consumer key and secret from config file')
                 self.consumer_key = first_line_split[0]
                 self.consumer_secret = first_line_split[1]
             elif len(first_line_split) == 4:
@@ -132,6 +135,7 @@ class TwitterApplicationHandler:
             for line in lines[1:]:
                 user, user_access_token, user_access_token_secret = line.strip().split(',')
                 self.knownUserDict[user] = (user_access_token, user_access_token_secret)
-                print(' Got', user)
+                if not silent:
+                    print(' Got', user)
         except:
             raise Exception("Config file not specified correctly")

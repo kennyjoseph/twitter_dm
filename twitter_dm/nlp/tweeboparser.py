@@ -22,6 +22,7 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename,gzi
     :param location_of_tweebo_parser: Path to the TweeboParser directory on your machine
     :param tweets: A list of Tweet objects that you would like to run dependency parsing on
     :param output_filename: The name of the file that you would like to export the data to
+           NOTE THIS HAS TO BE AN ABSOLUTE PATH RIGHT NOW
     :return: the data read in to python that facilitates further analysis
     """
 
@@ -45,6 +46,7 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename,gzi
         # create the working directory
         mkdir_no_err(output_filename+"_wd")
 
+
         subprocess.Popen(DIRECTORY_I_EXIST_IN+'/tweeboparser_runner.sh ' +
                          '{tweeboparser_location} {input_fil} {working_dir} {output_fil}'.format(
                                 tweeboparser_location=location_of_tweebo_parser,
@@ -58,7 +60,7 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename,gzi
         os.remove(output_filename+".inp")
 
         if gzip_final_output:
-            with open(output_filename, 'rb') as f_in:
+            with open(output_filename, 'r') as f_in:
                 with gzip.open(final_output_filename, 'wb') as f_out:
                     f_out.writelines(f_in)
             os.remove(output_filename)
