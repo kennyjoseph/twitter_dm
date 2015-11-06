@@ -244,7 +244,7 @@ class TwitterUser:
 
             out_fil.close()
 
-            print(" ".join(['WROTE OUT ', str(len(tweets_from_api)), ' FOR: ', self.screen_name]))
+            print 'WROTE OUT ', len(tweets_from_api), ' FOR: ', self.screen_name
             return out_fil_name
         return None
 

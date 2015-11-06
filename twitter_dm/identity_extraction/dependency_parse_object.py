@@ -57,11 +57,6 @@ class DependencyParseObject:
                 print 'UNRECOGNIZED FORMAT!!!!!!!!'
                 print line
                 sys.exit(-1)
-            try:
-                self.head_int = int(self.head)
-            except:
-                self.head_int = None
-
 
             wn_pos = penn_to_wn(self.postag)
             cleaned_text = get_cleaned_text(self.text)

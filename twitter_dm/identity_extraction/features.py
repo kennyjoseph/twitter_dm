@@ -346,7 +346,7 @@ def get_isin_array(dictionary_data,obj_inds):
 
 
 
-def look_in_dict(dep_parses,dictionary=None, sets=None,set_names=None):
+def look_in_dict(dep_parses,dictionary=None, sets=None,set_names=None, min_size=2):
 
     feature_dict = {}
     for dep_objs in dep_parses:
@@ -354,7 +354,7 @@ def look_in_dict(dep_parses,dictionary=None, sets=None,set_names=None):
         features = defaultdict(set)
 
         for i in range(len(dep_objs)):
-            for j in range(min(2,len(dep_objs) - i)):
+            for j in range(min(min_size,len(dep_objs) - i)):
                 dp_objs = dep_objs[i:(i+j+1)]
                 dp_obj = dp_objs[0] if len(dp_objs) == 1 else DependencyParseObject().join(dp_objs)
                 # Do dictionary lookups

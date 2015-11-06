@@ -51,23 +51,24 @@ class UserDataWorker(multiprocessing.Process):
                 user.populate_tweets_from_api(json_output_directory=os.path.join(self.out_dir,"json"))
 
                 if len(user.tweets) == 0:
-                    print(" ".join(['pickling and dumping: ', user.screen_name]))
-                    pickle.dump(user, open(os.path.join(self.out_dir,"obj",data), "wb"))
+                    if self.to_pickle or self.populate_lists or self.populate_friends or self.populate_followers:
+                        print 'pickling and dumping: ', user.screen_name
+                        pickle.dump(user, open(os.path.join(self.out_dir,"obj",data), "wb"))
                     continue
                 if self.populate_lists:
                     user.populate_lists()
 
                 if self.populate_friends:
-                    print(" ".join(['populating friends, ', user.screen_name]))
+                    print 'populating friends, ', user.screen_name
                     user.populate_friends()
 
                 if self.populate_followers:
-                    print(" ".join(['populating followers, ', user.screen_name]))
+                    print 'populating followers, ', user.screen_name
                     user.populate_followers()
 
                 if self.to_pickle or self.populate_lists or self.populate_friends or self.populate_followers:
                     # Pickle and dump user
-                    print(" ".join(['pickling and dumping (no tweets): ', user.screen_name]))
+                    print 'pickling and dumping (no tweets): ', user.screen_name
                     user.tweets = []
                     pickle.dump(user, open(os.path.join(self.out_dir,"obj",data), "wb"))
             except Exception:

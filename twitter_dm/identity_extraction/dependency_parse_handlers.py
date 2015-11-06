@@ -1,12 +1,13 @@
 __author__ = 'kjoseph'
 import itertools
-import Queue
-from collections import defaultdict
+from collections import defaultdict, deque
 
 from dependency_parse_object import DependencyParseObject, is_noun, is_verb
 
 
-def get_parse(dp_objs):
+def get_parse(dp_objs,
+              combine_mwe=True,combine_conj=False,
+              combine_nouns=False,combine_verbs=False):
     term_map = {}
 
     map_to_head = defaultdict(list)
@@ -16,22 +17,25 @@ def get_parse(dp_objs):
         term_map[parse_object.id] = parse_object
 
     # first manually combine MWE
-    mwe_to_combine = get_mwe_combinations(map_to_head,term_map)
-    for mwe in mwe_to_combine:
-        combine_terms(mwe,term_map,map_to_head)
+    if combine_mwe:
+        mwe_to_combine = get_mwe_combinations(map_to_head,term_map)
+        for mwe in mwe_to_combine:
+            combine_terms(mwe,term_map,map_to_head)
+    
+    if combine_conj:
+        conj_to_combine = get_conj_combinations(map_to_head,term_map)
+        for conj in conj_to_combine:
+            combine_terms(conj,term_map,map_to_head)
 
-    #conj_to_combine = get_conj_combinations(map_to_head,term_map)
-    #for conj in conj_to_combine:
-    #    combine_terms(conj,term_map,map_to_head)
+    if combine_nouns:
+        nouns_to_combine = get_noun_combinations(map_to_head,term_map)
+        for noun_set in nouns_to_combine:
+            combine_terms(noun_set,term_map, map_to_head)
 
-    # now manually chunk the nouns together
-    #nouns_to_combine = get_noun_combinations(map_to_head,term_map)
-    #for noun_set in nouns_to_combine:
-    #    combine_terms(noun_set,term_map, map_to_head)
-
-    #verbs_to_combine = get_verb_combinations(map_to_head,term_map)
-    #for verb_set in verbs_to_combine:
-    #    combine_terms(verb_set,term_map, map_to_head)
+    if combine_verbs:
+        verbs_to_combine = get_verb_combinations(map_to_head,term_map)
+        for verb_set in verbs_to_combine:
+            combine_terms(verb_set,term_map, map_to_head)
 
 
     roots =[]
@@ -43,11 +47,11 @@ def get_parse(dp_objs):
             non_terms.append(parse_object)
 
     # now build the parse tree
-    to_parse = Queue.LifoQueue()
+    parse_roots = deque()
     for root in reversed(roots):
-        to_parse.put([root,0])
+        parse_roots.append([root,0])
 
-    return to_parse, term_map, map_to_head, non_terms
+    return parse_roots, term_map, map_to_head, non_terms
 
 
 
@@ -148,14 +152,14 @@ def combine_terms(noun_set,term_map, map_to_head):
                 del map_to_head[id]
             del term_map[id]
 
-
-def print_parse(parse_out, term_map, map_to_head):
-    while not parse_out.empty():
-        curr_head,level = parse_out.get()
+from copy import deepcopy
+def print_parse(parse_roots, term_map, map_to_head):
+    parse_roots_copy = deepcopy(parse_roots)
+    while len(parse_roots_copy):
+        curr_head,level = parse_roots_copy.pop()
         print " "*level  + "  " +  curr_head.__unicode__()
         for child in reversed(map_to_head.get(curr_head.id,[])):
-            parse_out.put([term_map[child],level+1])
-
+            parse_roots_copy.append([term_map[child],level+1])
 
 def get_entities_from_parse(term_map):
     all_proper = []
