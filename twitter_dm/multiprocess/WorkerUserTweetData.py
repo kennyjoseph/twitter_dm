@@ -29,7 +29,8 @@ class UserDataWorker(multiprocessing.Process):
         self.to_pickle = to_pickle
         self.gets_user_id = gets_user_id
         self.populate_lists = populate_lists
-        self.populate_friends_and_followers = populate_friends_and_followers
+        self.populate_friends = populate_friends
+        self.populate_followers = populate_followers
     def run(self):
         print('Worker started')
         # do some initialization here
@@ -64,7 +65,7 @@ class UserDataWorker(multiprocessing.Process):
                     print(" ".join(['populating followers, ', user.screen_name]))
                     user.populate_followers()
 
-                if self.to_pickle or self.populate_lists or self.populate_friends_and_followers:
+                if self.to_pickle or self.populate_lists or self.populate_friends or self.populate_followers:
                     # Pickle and dump user
                     print(" ".join(['pickling and dumping (no tweets): ', user.screen_name]))
                     user.tweets = []
