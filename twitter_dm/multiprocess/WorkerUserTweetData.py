@@ -18,7 +18,9 @@ import traceback
 class UserDataWorker(multiprocessing.Process):
     def __init__(self, queue, api_hook, conn_number, out_dir,
                  to_pickle=False, gets_user_id=True,
-                 populate_lists=False, populate_friends_and_followers=False):
+                 populate_lists=False,
+                 populate_friends=False,
+                 populate_followers=False):
         multiprocessing.Process.__init__(self)
         self.queue = queue
         self.api_hook = api_hook
@@ -53,10 +55,14 @@ class UserDataWorker(multiprocessing.Process):
                     continue
                 if self.populate_lists:
                     user.populate_lists()
-                if self.populate_friends_and_followers:
-                    print(" ".join(['populating ff, ', user.screen_name]))
-                    user.populate_followers()
+
+                if self.populate_friends:
+                    print(" ".join(['populating friends, ', user.screen_name]))
                     user.populate_friends()
+
+                if self.populate_followers:
+                    print(" ".join(['populating followers, ', user.screen_name]))
+                    user.populate_followers()
 
                 if self.to_pickle or self.populate_lists or self.populate_friends_and_followers:
                     # Pickle and dump user
