@@ -15,7 +15,7 @@ import HTMLParser
 import string
 import regex
 from nltk.stem.isri import ISRIStemmer
-from nltk.stem import WordNetLemmatizer
+from nlp_helpers import lemmatize
 import twokenize
 
 ## globals
@@ -23,8 +23,7 @@ arabic_stemmer = ISRIStemmer()
 arabic_regex = regex.compile('[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]+',regex.U)
 POSSESSIVE_REGEX = regex.compile(u"['’′][^\s\.,?\"]*",regex.U)
 remove_punctuation_map = dict((ord(char), None) for char in string.punctuation)
-wnl = WordNetLemmatizer()
-lemmatize = wnl.lemmatize
+
 
 
 def getNGrams(temp_tokens, size=2):
@@ -105,7 +104,7 @@ def extract_tokens(text,
     # If the tweet is in Arabic
     if lemmatize:
         for i in range(len(tokens)):
-            temp = wnl.lemmatize(tokens[i])
+            temp = lemmatize(tokens[i])
             if temp is not None:
                 tokens[i] = temp
 

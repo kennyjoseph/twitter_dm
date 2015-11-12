@@ -13,6 +13,7 @@ from itertools import chain, groupby
 from sklearn.metrics import accuracy_score
 import gzip
 import numpy as np
+from ..nlp.nlp_helpers import *
 
 EXPERT_NON_IDENTITIES = {'i','me',"i'd","i've","i'm","i'll","my","myself",
                          'u','you',"your","you're",
@@ -27,40 +28,14 @@ EXPERT_NON_IDENTITIES = {'i','me',"i'd","i've","i'm","i'll","my","myself",
 STOP_WORD_REGEX = re.compile("(^(the|a|an|your|my|those|you|this|his|her|these|those|their|our|some)[ ]+)|(#)",re.IGNORECASE|re.UNICODE)
 POSSESSIVE_REGEX = re.compile(u"['’′]?[s]?['’′]?$",re.U|re.I)
 
-try:
-    # UCS-4
-    EMOTICONS = re.compile(u'[\U00010000-\U0010ffff]')
-    EMOTICONS_2 = re.compile(u'[\u2700-\u27BF\u2600-\u26FF\u2300-\u23FF]')
-except re.error:
-    # UCS-2
-    EMOTICONS = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
-    EMOTICONS_2 = re.compile(u'[\u2700-\u27BF\u2600-\u26FF\u2300-\u23FF]')
-emoji_block0 = re.compile(u'[\u2600-\u27BF]')
-emoji_block1 = re.compile(u'[\uD83C][\uDF00-\uDFFF]')
-emoji_block1b = re.compile(u'[\uD83D][\uDC00-\uDE4F]')
-emoji_block2 = re.compile(u'[\uD83D][\uDE80-\uDEFF]')
 
 
 
 def get_tweet_text_sub_emoticons(tweet):
     text = tweet.text
-    for e in [emoji_block2,emoji_block0,emoji_block1,emoji_block1b,EMOTICONS_2,EMOTICONS]:
+    for e in [emoji_block3,emoji_block0,emoji_block1,emoji_block3,EMOTICONS_2,EMOTICONS]:
         text = e.sub("*",text)
     return text
-
-
-def remove_emoji(text):
-    for expr in [emoji_block0,emoji_block1,emoji_block1b,emoji_block2]:
-        text = expr.sub("", text)
-    return text
-
-
-def get_cleaned_text(text):
-    try:
-        return remove_emoji(text.lower().replace("'s","").strip(string.punctuation))
-    except:
-        return text
-
 
 
 def get_wordforms_to_lookup(obj):

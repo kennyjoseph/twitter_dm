@@ -3,39 +3,59 @@ import itertools
 from collections import defaultdict, deque
 
 from dependency_parse_object import DependencyParseObject, is_noun, is_verb
-
+from util import get_wordforms_to_lookup
 
 def get_parse(dp_objs,
-              combine_mwe=True,combine_conj=False,
-              combine_nouns=False,combine_verbs=False):
+              combine_mwe=True,
+              combine_determiners_and_verb_preps=False,
+              combine_conj=False,
+              combine_nouns=False,
+              combine_verbs=False,
+              combination_set=None,
+              combination_set_range=3):
+
+    dp_objs = deepcopy(dp_objs)
     term_map = {}
 
     map_to_head = defaultdict(list)
+
     for parse_object in dp_objs:
         if parse_object.head > 0:
             map_to_head[parse_object.head].append(parse_object.id)
         term_map[parse_object.id] = parse_object
+
+    if combination_set:
+        dictionary_based_combine = get_dictionary_based_combinations(
+                                            dp_objs,combination_set,combination_set_range)
+        for d in dictionary_based_combine:
+            combine_terms(d,term_map,map_to_head)
 
     # first manually combine MWE
     if combine_mwe:
         mwe_to_combine = get_mwe_combinations(map_to_head,term_map)
         for mwe in mwe_to_combine:
             combine_terms(mwe,term_map,map_to_head)
-    
-    if combine_conj:
-        conj_to_combine = get_conj_combinations(map_to_head,term_map)
-        for conj in conj_to_combine:
-            combine_terms(conj,term_map,map_to_head)
-
-    if combine_nouns:
-        nouns_to_combine = get_noun_combinations(map_to_head,term_map)
-        for noun_set in nouns_to_combine:
-            combine_terms(noun_set,term_map, map_to_head)
 
     if combine_verbs:
         verbs_to_combine = get_verb_combinations(map_to_head,term_map)
         for verb_set in verbs_to_combine:
             combine_terms(verb_set,term_map, map_to_head)
+
+
+    if combine_conj:
+        conj_to_combine = get_conj_combinations(map_to_head,term_map)
+        for conj in conj_to_combine:
+            combine_terms(conj,term_map,map_to_head)
+
+    if combine_determiners_and_verb_preps:
+        det_to_combine = get_determiner_combinations(map_to_head,term_map)
+        for det in det_to_combine:
+            combine_terms(det,term_map,map_to_head)
+
+    if combine_nouns:
+        nouns_to_combine = get_noun_combinations(map_to_head,term_map)
+        for noun_set in nouns_to_combine:
+            combine_terms(noun_set,term_map, map_to_head)
 
 
     roots =[]
@@ -54,6 +74,18 @@ def get_parse(dp_objs,
     return parse_roots, term_map, map_to_head, non_terms
 
 
+def get_dictionary_based_combinations(dp_objs,combination_set,combination_set_range):
+    to_combine = []
+    for i in range(len(dp_objs)):
+        for j in range(2,min(combination_set_range,len(dp_objs) - i)):
+            curr_objs = dp_objs[i:(i+j+1)]
+            dp_obj = curr_objs[0] if len(curr_objs) == 1 else DependencyParseObject().join(curr_objs)
+            # Do dictionary lookups
+            word_forms = get_wordforms_to_lookup(dp_obj)
+            for w, val in word_forms.items():
+                if w in combination_set:
+                    to_combine.append(set([x+1 for x in range(i, i+j+1)]))
+    return to_combine
 
 def get_noun_combinations(map_to_head,term_map):
     to_combine = []
@@ -70,19 +102,35 @@ def get_noun_combinations(map_to_head,term_map):
     return get_combinations(to_combine)
 
 
+def get_determiner_combinations(map_to_head,term_map):
+    to_combine = []
+    for head_id, children in map_to_head.iteritems():
+        head = term_map[head_id]
+
+        for child_id in children:
+            child = term_map[child_id]
+
+            if (abs(child.id - max(head.all_original_ids))==1 or abs(child.id - min(head.all_original_ids))==1)\
+                    and (('N' in head.postag and child.postag == 'D') or ('V' in head.postag and child.postag in ['P','R'])):
+                to_combine.append({child.id, head.id})
+
+    return get_combinations(to_combine)
+
+
 def get_verb_combinations(map_to_head,term_map):
     to_combine = []
     for head_id, children in map_to_head.iteritems():
         head = term_map[head_id]
-        if len(children) == 0 or not is_verb(head.postag):
+        if not is_verb(head.postag) and head.postag != 'P':
             continue
 
         for child_id in children:
             child = term_map[child_id]
-            if is_verb(child.postag) and child.id == (head.id +1):
+            if abs(child.id -head.id) == 1 and (is_verb(child.postag) or child.postag=='P'):
                 to_combine.append({child.id, head.id})
 
     return get_combinations(to_combine)
+
 
 def get_mwe_combinations(map_to_head,term_map):
     to_combine = []
@@ -93,10 +141,11 @@ def get_mwe_combinations(map_to_head,term_map):
 
         for child_id in children:
             child = term_map[child_id]
-            if child.deprel == 'MWE':
+            if child.deprel == 'MWE' and abs(child.id - head.id)==1:
                 to_combine.append({child.id, head.id})
 
     return get_combinations(to_combine)
+
 
 def get_conj_combinations(map_to_head,term_map):
     to_combine = []
@@ -130,27 +179,35 @@ def get_combinations(to_combine):
                 removed.append(d[1])
     return to_combine
 
-def combine_terms(noun_set,term_map, map_to_head):
-    new_parse_obj = DependencyParseObject(object_ids=noun_set,term_map=term_map)
+def combine_terms(term_set, term_map, map_to_head):
+    new_parse_obj = DependencyParseObject(object_ids=term_set, term_map=term_map)
     # okay, we've created a new parse object
     # now we need to update the relations to it
-    for id in noun_set:
+    for id in term_set:
         if id == new_parse_obj.id:
             term_map[id] = new_parse_obj
 
             if id in map_to_head:
-                for child_id in noun_set:
+                for child_id in term_set:
                     if child_id in map_to_head[id]:
                         map_to_head[id].remove(child_id)
         else:
             # things dependent on this thing need to become dependent on the new parse object
             if id in map_to_head:
                 for child in map_to_head[id]:
-                    if child not in noun_set:
+                    if child not in term_set:
                         map_to_head[new_parse_obj.id].append(child)
                         term_map[child].head = new_parse_obj.id
                 del map_to_head[id]
             del term_map[id]
+
+            # have to ensure that this node is updated as a child of other nodes
+            for k, v in map_to_head.items():
+                if id in v:
+                    v.remove(id)
+                    if new_parse_obj.id not in v:
+                        v.append(new_parse_obj.id)
+
 
 from copy import deepcopy
 def print_parse(parse_roots, term_map, map_to_head):

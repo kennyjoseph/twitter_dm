@@ -9,13 +9,6 @@ import sys
 
 stopwords = get_stopwords()
 
-wordnet_lemmatizer = WordNetLemmatizer()
-
-singular_map = {"children" : "child",
-                "men" : "man",
-                "women" : "woman",
-                "people" : "person"
-                }
 
 class DependencyParseObject:
     def __init__(self, full_line=None, object_ids=[],  term_map=None, do_lemmatize=True, do_singular=True):
@@ -67,22 +60,30 @@ class DependencyParseObject:
             self.all_original_ids = [self.id]
             self.singular_form = cleaned_text
             if do_singular:
-                if self.singular_form in singular_map:
-                    self.singular_form = singular_map[self.singular_form]
-                elif self.singular_form.endswith("s"):
-                    self.singular_form = self.singular_form[:-1]
+                self.singular_form = get_singular_fast()
 
 
         elif len(object_ids):
             new_id = [obj_id for obj_id in object_ids if term_map[obj_id].head not in object_ids]
-            assert len(new_id) == 1
+            if len(new_id) > 1:
+                h = term_map[new_id[0]].head
+                for x in new_id[1:]:
+                    if term_map[x].head != h:
+                        print 'new_id len > 1 and not same head'
+                        assert False
+                print 'warn: new_id len > 1, but all same head, randomly picking first'
+
             self.id = new_id[0]
             self.text = ' '.join([term_map[x].text for x in sorted(object_ids)])
             self.postag = ' '.join([term_map[x].postag for x in sorted(object_ids)])
             self.head = term_map[self.id].head
             self.deprel = ' '.join([term_map[x].deprel for x in sorted(object_ids)])
             self.lemma= ' '.join([term_map[x].lemma for x in sorted(object_ids)])
-            self.label = ''
+            label = 'O'
+            for z in object_ids:
+                if term_map[z].label == 'Identity':
+                    label = 'Identity'
+            self.label = label
             self.singular_form = ' '.join([term_map[x].singular_form for x in sorted(object_ids)])
             original_term_maps = [term_map[x].all_original_ids for x in object_ids]
             self.all_original_ids = [item for sublist in original_term_maps for item in sublist]
@@ -181,13 +182,14 @@ class DependencyParseObject:
 
 
 NOUN_TAGS = set(['NN', 'NNS', 'NNP', 'NNPS','N','^','S','Z','M'])#,'O'
+VERB_TAGS = set(['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ','V','T'])
 def is_noun(tag):
     return tag in NOUN_TAGS\
            or len(set(tag.split(" ")).intersection(NOUN_TAGS)) > 0
 
 
 def is_verb(tag):
-    return tag in ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ','V','T']
+    return tag in VERB_TAGS or len(set(tag.split(" ")).intersection(VERB_TAGS)) > 0
 
 
 def is_adverb(tag):
@@ -196,6 +198,12 @@ def is_adverb(tag):
 
 def is_adjective(tag):
     return tag in ['JJ', 'JJR', 'JJS','A']
+
+def is_prep_or_det(tag):
+    return tag in ['P','D']
+
+def is_possessive(tag):
+    return tag == 'L'
 
 
 def penn_to_wn(tag):
