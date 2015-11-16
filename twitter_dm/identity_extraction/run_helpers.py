@@ -181,35 +181,38 @@ def write_out_predictions(outfile_name,test_data,obj_inds, test_inds, y, predict
     out_fil.close()
 
 
+def filter_user_tweets(user):
+    """
+    :param user:  A TwitterUser
+    :return: A list of the tweets retained by the applied filter
+    """
+    return [t for t in user.tweets if
+            (t.retweeted is None and len(t.urls) == 0 and 'http:' not in t.text
+             and langid.classify(t.text)[0] == 'en')]
 
-def gen_conll_data_for_prediction(user,ptb_filename, dp_filename,filter=True):
+
+def gen_conll_data_for_prediction(tweets, user_id,ptb_filename, dp_filename):
     if not os.path.exists(dp_filename) or not os.path.exists(ptb_filename):
         print 'NO DP OR PTB::: ', dp_filename, ptb_filename
         return None
 
     penntreebank = {x[0] : x[1:] for x in read_grouped_by_newline_file(ptb_filename)}
-    dependency_parse =  read_grouped_by_newline_file(dp_filename)
-
-    tweet_set = [(i,t) for i,t in enumerate(user.tweets) if not filter or
-            (t.retweeted is None and
-             len(t.urls) == 0 and 'http:' not in t.text and
-             langid.classify(t.text)[0] == 'en')]
-
+    dependency_parse = read_grouped_by_newline_file(dp_filename)
 
     data_to_return = []
-    for twit_it, tweet in tweet_set:
+    for i,tweet in enumerate(tweets):
 
         data_for_tweet = []
 
         ptb_for_tweet = penntreebank[str(tweet.id)]
-        dp_for_tweet = dependency_parse[twit_it]
+        dp_for_tweet = dependency_parse[i]
 
         if ptb_for_tweet[0].split("\t")[2] != DependencyParseObject(dp_for_tweet[0]).text:
             print 'ahhhhh, weird stuff'
             continue
 
         for i, p in enumerate(dp_for_tweet):
-            d = DependencyParseObject(tsn([p,tweet.id,user.user_id,tweet.created_at.strftime("%m-%d-%y")],newline=False))
+            d = DependencyParseObject(tsn([p,tweet.id,user_id,tweet.created_at.strftime("%m-%d-%y")],newline=False))
             # get java features
             spl_java = ptb_for_tweet[i].split("\t")
             java_id, penn_pos_tag,word = spl_java[:3]
