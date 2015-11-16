@@ -9,14 +9,14 @@ except re.error:
     # UCS-2
     EMOTICONS = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
     EMOTICONS_2 = re.compile(u'[\u2700-\u27BF\u2600-\u26FF\u2300-\u23FF]')
-emoji_block0 = re.compile(u'[\u2600-\u27BF]')
-emoji_block1 = re.compile(u'[\uD83C][\uDF00-\uDFFF]')
-emoji_block2 = re.compile(u'[\uD83D][\uDC00-\uDE4F]')
-emoji_block3 = re.compile(u'[\uD83D][\uDE80-\uDEFF]')
+_emoji_block0 = re.compile(u'[\u2600-\u27BF]')
+_emoji_block1 = re.compile(u'[\uD83C][\uDF00-\uDFFF]')
+_emoji_block2 = re.compile(u'[\uD83D][\uDC00-\uDE4F]')
+_emoji_block3 = re.compile(u'[\uD83D][\uDE80-\uDEFF]')
 
 
 def remove_emoji(text):
-    for expr in [emoji_block0,emoji_block1,emoji_block3,emoji_block4]:
+    for expr in [_emoji_block0,_emoji_block1,_emoji_block2,_emoji_block3]:
         text = expr.sub("", text)
     return text
 
@@ -27,9 +27,15 @@ def get_cleaned_text(text):
     except:
         return text
 
-wnl = WordNetLemmatizer()
-def lemmatize(text):
-    return wnl.lemmatize(text)
+_wnl = None
+
+def lemmatize(text,pos=None):
+    global _wnl
+    if not _wnl:
+        _wnl = WordNetLemmatizer()
+    if pos:
+        return _wnl.lemmatize(text,pos)
+    return _wnl.lemmatize(text)
 
 singular_map = {"children" : "child",
                 "men" : "man",

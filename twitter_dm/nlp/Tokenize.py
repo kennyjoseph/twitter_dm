@@ -42,7 +42,7 @@ def extract_tokens_twokenize_and_regex(text,
                                        gram_list=[],
                                        keep_hashtags_and_mentions=True,
                                        make_lowercase=True,
-                                       lemmatize=True,
+                                       do_lemmatize=True,
                                        remove_possessive=True,
                                        do_arabic_stemming=True):
     return extract_tokens(text,
@@ -51,7 +51,7 @@ def extract_tokens_twokenize_and_regex(text,
                            gram_list,
                            keep_hashtags_and_mentions,
                            make_lowercase,
-                           lemmatize,
+                           do_lemmatize,
                            remove_possessive,
                            do_arabic_stemming,
                            )
@@ -63,7 +63,7 @@ def extract_tokens(text,
                    gram_list= [],
                    keep_hashtags_and_mentions=True,
                    make_lowercase=True,
-                   lemmatize=True,
+                   do_lemmatize=True,
                    remove_possessive=True,
                    do_arabic_stemming=True,
                    ):
@@ -102,7 +102,7 @@ def extract_tokens(text,
 
     # If the tweet is in English, append lemmatized tokens using wordnet
     # If the tweet is in Arabic
-    if lemmatize:
+    if do_lemmatize:
         for i in range(len(tokens)):
             temp = lemmatize(tokens[i])
             if temp is not None:

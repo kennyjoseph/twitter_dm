@@ -1,8 +1,7 @@
 __author__ = 'kennyjoseph'
 
 import re
-from nltk.stem import WordNetLemmatizer
-from util import get_cleaned_text
+from ..nlp.nlp_helpers import *
 from ..utility.tweet_utils import get_stopwords
 from nltk.corpus import wordnet as wn
 import sys
@@ -53,14 +52,11 @@ class DependencyParseObject:
 
             wn_pos = penn_to_wn(self.postag)
             cleaned_text = get_cleaned_text(self.text)
-            if do_lemmatize and wn_pos is not None:
-                self.lemma = wordnet_lemmatizer.lemmatize(cleaned_text,wn_pos)
-            else:
-                self.lemma = wordnet_lemmatizer.lemmatize(cleaned_text)
+            self.lemma = lemmatize(cleaned_text, wn_pos)
             self.all_original_ids = [self.id]
             self.singular_form = cleaned_text
             if do_singular:
-                self.singular_form = get_singular_fast()
+                self.singular_form = get_singular_fast(cleaned_text)
 
 
         elif len(object_ids):
