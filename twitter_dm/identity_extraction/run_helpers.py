@@ -191,7 +191,7 @@ def filter_user_tweets(user):
              and langid.classify(t.text)[0] == 'en')]
 
 
-def gen_conll_data_for_prediction(tweets, user_id,ptb_filename, dp_filename):
+def gen_conll_data_for_prediction(tweets, ptb_filename, dp_filename):
     if not os.path.exists(dp_filename) or not os.path.exists(ptb_filename):
         print 'NO DP OR PTB::: ', dp_filename, ptb_filename
         return None
@@ -212,7 +212,7 @@ def gen_conll_data_for_prediction(tweets, user_id,ptb_filename, dp_filename):
             continue
 
         for i, p in enumerate(dp_for_tweet):
-            d = DependencyParseObject(tsn([p,tweet.id,user_id,tweet.created_at.strftime("%m-%d-%y")],newline=False))
+            d = DependencyParseObject(tsn([p,tweet.id,tweet.user['id'],tweet.created_at.strftime("%m-%d-%y")],newline=False))
             # get java features
             spl_java = ptb_for_tweet[i].split("\t")
             java_id, penn_pos_tag,word = spl_java[:3]
