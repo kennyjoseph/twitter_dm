@@ -2,7 +2,7 @@ __author__ = 'kennyjoseph'
 
 import numpy as np
 import pandas as pd
-from util import read_grouped_by_newline_file
+from ..utility.general_utils import read_grouped_by_newline_file
 from dependency_parse_object import DependencyParseObject
 import random
 

@@ -5,6 +5,10 @@ __author__ = 'kjoseph'
 
 
 import os
+import codecs
+import gzip
+from itertools import groupby
+
 from twitter_dm.TwitterApplicationHandler import TwitterApplicationHandler
 def mkdir_no_err(dir_name):
     try:
@@ -39,3 +43,15 @@ def powerset(iterable,combs=None):
     if not combs:
         combs = range(1,len(s)+1)
     return chain.from_iterable(combinations(s, r) for r in combs)
+
+
+def read_grouped_by_newline_file(filename):
+    if not filename.endswith(".gz"):
+        contents = codecs.open(filename,'r','utf8')
+    else:
+        zf = gzip.open(filename, 'rb')
+        reader = codecs.getreader("utf-8")
+        contents = reader(zf)
+    lines = (line.strip() for line in contents)
+    data = (grp for nonempty, grp in groupby(lines, bool) if nonempty)
+    return [list(g) for g in data]

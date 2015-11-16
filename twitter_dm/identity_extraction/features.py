@@ -8,6 +8,7 @@ from RitterDictionaries import Dictionaries
 import codecs
 from util import *
 from dependency_parse_handlers import *
+from ..utility.general_utils import *
 
 ######################################################################################################
 ######################################################################################################

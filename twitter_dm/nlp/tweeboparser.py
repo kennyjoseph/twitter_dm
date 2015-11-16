@@ -11,6 +11,7 @@ from twitter_dm.utility.general_utils import mkdir_no_err
 import shutil
 import re
 import gzip
+from ..utility.general_utils import read_grouped_by_newline_file
 
 DIRECTORY_I_EXIST_IN = os.path.dirname(os.path.realpath(__file__))
 
@@ -34,7 +35,7 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename,gzi
 
     if os.path.exists(final_output_filename):
         print 'found existing parse, returning'
-        return read_tweebo_parse(final_output_filename)
+        return {f[0] : f[1:] for f in read_grouped_by_newline_file(final_output_filename)}
     else:
         # create the input file
         tweebo_output_fil = codecs.open(output_filename+".inp","w","utf8")
@@ -59,20 +60,25 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename,gzi
         shutil.rmtree(output_filename+"_wd")
         os.remove(output_filename+".inp")
 
+        # rewrite file with tweet_ids
+        grouped = read_grouped_by_newline_file(output_filename)
+        fn = output_filename+"tmp"
+        with codecs.open(fn, 'w',"utf8") as f_in:
+            for i, g in enumerate(grouped):
+                f_in.write(str(tweets[i].id) + "\n")
+                f_in.write("\n".join(g))
+                f_in.write("\n\n")
+
+
         if gzip_final_output:
-            with open(output_filename, 'r') as f_in:
+            with codecs.open(fn, 'r',"utf8") as f_in:
                 with gzip.open(final_output_filename, 'wb') as f_out:
-                    f_out.writelines(f_in)
+                    for line in f_in:
+                        f_out.write(line.encode("utf8"))
             os.remove(output_filename)
+            os.remove(fn)
+        else:
+            shutil.move(fn, output_filename)
 
         print 'FINISHED dependency parse'
-    return read_tweebo_parse(final_output_filename)
-
-def read_tweebo_parse(filename):
-    if filename.endswith(".gz"):
-        zf = gzip.open(filename, 'rb')
-        reader = codecs.getreader("utf-8")
-        contents = reader(zf)
-        return "".join(contents).split("\n\n")
-    return "".join(codecs.open(filename,"r","utf8").readlines()).split("\n\n")
-
+    return {f[0] : f[1:] for f in read_grouped_by_newline_file(final_output_filename)}

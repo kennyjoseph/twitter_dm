@@ -61,17 +61,6 @@ def get_wordforms_to_lookup(obj):
     return to_ret
 
 
-def read_grouped_by_newline_file(filename):
-    if not filename.endswith(".gz"):
-        contents = codecs.open(filename,'r','utf8')
-    else:
-        zf = gzip.open(filename, 'rb')
-        reader = codecs.getreader("utf-8")
-        contents = reader(zf)
-    lines = (line.strip() for line in contents)
-    data = (grp for nonempty, grp in groupby(lines, bool) if nonempty)
-    return [list(g) for g in data]
-
 def extract_tarfile(tar_url, extract_path='.'):
     import tarfile
     print tar_url

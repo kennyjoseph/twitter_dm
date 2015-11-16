@@ -11,7 +11,8 @@ from twitter_dm.utility.tweet_utils import get_stopwords
 from datetime import datetime
 import os
 import langid
-from twitter_dm.utility.general_utils import tab_stringify_newline as tsn
+from ..utility.general_utils import tab_stringify_newline as tsn
+from ..utility.general_utils import read_grouped_by_newline_file
 
 npcat = partial(np.concatenate, axis=1)
 stopwords = get_stopwords()
@@ -197,15 +198,15 @@ def gen_conll_data_for_prediction(tweets, ptb_filename, dp_filename):
         return None
 
     penntreebank = {x[0] : x[1:] for x in read_grouped_by_newline_file(ptb_filename)}
-    dependency_parse = read_grouped_by_newline_file(dp_filename)
+    dependency_parse = {x[0] : x[1:] for x in read_grouped_by_newline_file(dp_filename)}
 
     data_to_return = []
-    for i,tweet in enumerate(tweets):
+    for tweet in tweets:
 
         data_for_tweet = []
 
         ptb_for_tweet = penntreebank[str(tweet.id)]
-        dp_for_tweet = dependency_parse[i]
+        dp_for_tweet = dependency_parse[str(tweet.id)]
 
         if ptb_for_tweet[0].split("\t")[2] != DependencyParseObject(dp_for_tweet[0]).text:
             print 'ahhhhh, weird stuff'
