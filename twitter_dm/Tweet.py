@@ -59,9 +59,9 @@ class Tweet:
 
         # get new lang field in tweet
         if 'lang' in jsn:
-            tw.lang = jsn['lang']
+            self.lang = jsn['lang']
         else:
-            tw.lang = 'none'
+            self.lang = 'none'
 
         self.geo = None
         if 'geo' in jsn and jsn['geo']:
