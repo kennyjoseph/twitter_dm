@@ -57,6 +57,12 @@ class Tweet:
         else:
             self.urls = []
 
+        # get new lang field in tweet
+        if 'lang' in jsn:
+            tw.lang = jsn['lang']
+        else:
+            tw.lang = 'none'
+
         self.geo = None
         if 'geo' in jsn and jsn['geo']:
             self.geo = jsn['geo']['coordinates']
