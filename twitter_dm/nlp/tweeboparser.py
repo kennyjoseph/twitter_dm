@@ -10,6 +10,7 @@ import subprocess
 from twitter_dm.utility.general_utils import mkdir_no_err
 import shutil
 import re
+from fuzzywuzzy import fuzz
 import gzip
 from ..utility.general_utils import read_grouped_by_newline_file
 
@@ -61,14 +62,31 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename,gzi
         os.remove(output_filename+".inp")
 
         # rewrite file with tweet_ids
+        # this is messy because of some funky bug, either
+        # in tweeboparser or in my code somewhere
+        # so we have to check (heuristically) that the output
+        # of the two files is equal for each line, there are some
+        # bogus lines in the dependency parse sometimes
         grouped = read_grouped_by_newline_file(output_filename)
         fn = output_filename+"tmp"
         with codecs.open(fn, 'w',"utf8") as f_in:
-            for i, g in enumerate(grouped):
-                f_in.write(str(tweets[i].id) + "\n")
-                f_in.write("\n".join(g))
+            tw_i = 0
+            dep_i = 0
+            len_tweets = len(tweets)
+            len_d = len(grouped)
+            while tw_i < len_tweets and dep_i < len_d:
+                f_in.write(str(tweets[tw_i].id) + "\n")
+                f_in.write("\n".join(grouped[dep_i]))
                 f_in.write("\n\n")
-
+                q = " ".join([x.split("\t")[1] for x in grouped[dep_i]])
+                if (len_tweets - tw_i != len_d - dep_i and
+                    fuzz.partial_ratio(tweets[tw_i].text,q) < 75 and
+                    fuzz.token_sort_ratio(tweets[tw_i].text,q) < 75):
+                    tw_i += 1
+                    dep_i += 2
+                else:
+                    dep_i += 1
+                    tw_i += 1
 
         if gzip_final_output:
             with codecs.open(fn, 'r',"utf8") as f_in:

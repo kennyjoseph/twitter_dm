@@ -208,7 +208,7 @@ def get_dependency_parse_features(dep_parses):
             if dp_obj.head > 0:
                 features[dp_obj.id-1].append("head_word:"+dep_objs[dp_obj.head-1].text)
 
-        parse_out, term_map, map_to_head, non_terms = get_parse(dep_objs)
+        parse_out, term_map, map_to_head, non_terms = process_dep_parse(dep_objs)
         entities, proper_nouns, entity_ids, proper_ids = get_entities_from_parse(term_map)
 
         for i, e in enumerate(entities):

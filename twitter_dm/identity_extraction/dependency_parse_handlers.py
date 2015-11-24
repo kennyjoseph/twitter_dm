@@ -5,14 +5,14 @@ from collections import defaultdict, deque
 from dependency_parse_object import DependencyParseObject, is_noun, is_verb
 from util import get_wordforms_to_lookup
 
-def get_parse(dp_objs,
-              combine_mwe=True,
-              combine_determiners_and_verb_preps=False,
-              combine_conj=False,
-              combine_nouns=False,
-              combine_verbs=False,
-              combination_set=None,
-              combination_set_range=3):
+def process_dep_parse(dp_objs,
+                      combine_mwe=True,
+                      combine_determiners_and_verb_preps=False,
+                      combine_conj=False,
+                      combine_nouns=False,
+                      combine_verbs=False,
+                      combination_set=None,
+                      combination_set_range=3):
 
     dp_objs = deepcopy(dp_objs)
     term_map = {}
