@@ -68,7 +68,7 @@ def get_singular_slow(text):
     return text
 
 
-def get_alternate_wordforms(text,do_lemmatize=True,do_slow_singular=False):
+def get_alternate_wordforms(text,do_lemmatize=True,do_slow_singular=False,pos_tag=None):
     to_ret = set()
 
     clean = get_cleaned_text(text.lower()).replace("'s","")
@@ -82,7 +82,10 @@ def get_alternate_wordforms(text,do_lemmatize=True,do_slow_singular=False):
         to_ret.add(get_singular_fast(clean))
 
     if do_lemmatize:
-        to_ret.add(lemmatize(clean))
+        if pos_tag:
+            to_ret.add(lemmatize(clean,pos_tag))
+        else:
+            to_ret.add(lemmatize(clean))
 
     spl = re.split("/|-",clean)
     if len(spl) > 1 and ' ' not in clean:

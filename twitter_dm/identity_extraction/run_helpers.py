@@ -205,8 +205,16 @@ def gen_conll_data_for_prediction(tweets, ptb_filename, dp_filename):
 
         data_for_tweet = []
 
+        if str(tweet.id) not in penntreebank or str(tweet.id) not in dependency_parse:
+            print 'tweet not in both files, continuing'
+            continue
+
         ptb_for_tweet = penntreebank[str(tweet.id)]
         dp_for_tweet = dependency_parse[str(tweet.id)]
+
+        if len(ptb_for_tweet) != len(dp_for_tweet):
+            print 'tokenizations did not match, continuing'
+            continue
 
         if ptb_for_tweet[0].split("\t")[2] != DependencyParseObject(dp_for_tweet[0]).text:
             print 'ahhhhh, weird stuff'

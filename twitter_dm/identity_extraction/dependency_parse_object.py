@@ -65,11 +65,11 @@ class DependencyParseObject:
                 h = term_map[new_id[0]].head
                 for x in new_id[1:]:
                     if term_map[x].head != h:
-                        print 'new_id len > 1 and not same head'
-                        assert False
-                print 'warn: new_id len > 1, but all same head, randomly picking first'
+                        print 'WARNING:::: gah, new_id len > 1 and not same head. dictionary-based issue'
+                        break
+                print 'WARNING:::: new_id len > 1, but all same head, randomly picking first'
 
-            self.id = new_id[0]
+            self.id = sorted(new_id)[0]
             self.text = ' '.join([term_map[x].text for x in sorted(object_ids)])
             self.postag = ' '.join([term_map[x].postag for x in sorted(object_ids)])
             self.head = term_map[self.id].head

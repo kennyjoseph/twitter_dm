@@ -195,7 +195,8 @@ def combine_terms(term_set, term_map, map_to_head):
             # things dependent on this thing need to become dependent on the new parse object
             if id in map_to_head:
                 for child in map_to_head[id]:
-                    if child not in term_set:
+                    # have to ensure no cycles b/c of some weirdness when doing dictionary-based substitions
+                    if child not in term_set and new_parse_obj.id not in map_to_head.get(child,[]):
                         map_to_head[new_parse_obj.id].append(child)
                         term_map[child].head = new_parse_obj.id
                 del map_to_head[id]
@@ -205,8 +206,12 @@ def combine_terms(term_set, term_map, map_to_head):
             for k, v in map_to_head.items():
                 if id in v:
                     v.remove(id)
-                    if new_parse_obj.id not in v:
+                    # ensure no cycles
+                    if new_parse_obj.id not in v and new_parse_obj.id != k and\
+                            k not in map_to_head.get(new_parse_obj.id,[]):
                         v.append(new_parse_obj.id)
+
+
 
 
 from copy import deepcopy
