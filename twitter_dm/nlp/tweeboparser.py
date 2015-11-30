@@ -5,7 +5,7 @@ the TweeboParser library from the ArkNLP lab.  You can find the parser at http:/
 __author__ = 'kjoseph'
 
 import os
-import codecs
+import io
 import subprocess
 from twitter_dm.utility.general_utils import mkdir_no_err
 import shutil
@@ -14,6 +14,9 @@ from fuzzywuzzy import fuzz
 import gzip
 from ..utility.general_utils import read_grouped_by_newline_file
 from nlp_helpers import CRAP_CHAR_REPLACEMENT
+import HTMLParser
+_tweebo_html_parser = HTMLParser.HTMLParser()
+
 
 DIRECTORY_I_EXIST_IN = os.path.dirname(os.path.realpath(__file__))
 
@@ -40,7 +43,7 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename,gzi
         return {f[0] : f[1:] for f in read_grouped_by_newline_file(final_output_filename)}
     else:
         # create the input file
-        tweebo_output_fil = codecs.open(output_filename+".inp","w","utf8")
+        tweebo_output_fil = io.open(output_filename+".inp","w")
         for tweet in tweets:
             to_output = replace_tweet_newlines(tweet.text)
             tweebo_output_fil.write(to_output + "\n")
@@ -63,33 +66,39 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename,gzi
         os.remove(output_filename+".inp")
 
         # rewrite file with tweet_ids
-        # this is messy because of some funky bug, either
-        # in tweeboparser or in my code somewhere
-        # so we have to check (heuristically) that the output
-        # of the two files is equal for each line, there are some
-        # bogus lines in the dependency parse sometimes
         grouped = read_grouped_by_newline_file(output_filename)
         fn = output_filename+"tmp"
-        with codecs.open(fn, 'w',"utf8") as f_in:
+
+
+        with io.open(fn, 'w') as f_in:
             tw_i = 0
             dep_i = 0
             len_tweets = len(tweets)
             len_d = len(grouped)
-            while tw_i < len_tweets and dep_i < len_d:
-                f_in.write(str(tweets[tw_i].id) + "\n")
-                f_in.write("\n".join(grouped[dep_i]))
-                f_in.write("\n\n")
-                q = " ".join([x.split("\t")[1] for x in grouped[dep_i]])
-                if (fuzz.partial_ratio(tweets[tw_i].text,q) < 75 and
-                    fuzz.token_sort_ratio(tweets[tw_i].text,q) < 75):
-                    tw_i += 1
-                    dep_i += 2
-                else:
-                    dep_i += 1
-                    tw_i += 1
+            if len_tweets != len_d:
+                # this is messy because of some funky bug, with mixed encodings
+                # I think I've snuffed it out, but keeping this fallback code in here just in case
+                while tw_i < len_tweets and dep_i < len_d:
+                    f_in.write(str(tweets[tw_i].id) + "\n")
+                    f_in.write("\n".join(grouped[dep_i]))
+                    f_in.write("\n\n")
+                    text = _tweebo_html_parser.unescape(tweets[tw_i].text)
+                    q = " ".join([x.split("\t")[1] for x in grouped[dep_i]])
+                    if fuzz.partial_ratio(text, q) < 75 and fuzz.token_sort_ratio(text, q) < 75:
+                        print 'WARNING::: in ', output_filename, 'tw_i: ', tw_i, ' and dep_i: ', dep_i, ' dont match!'
+                        tw_i += 1
+                        dep_i += 2
+                    else:
+                        dep_i += 1
+                        tw_i += 1
+            else:
+                for tw_i, tweet in enumerate(tweets):
+                    f_in.write(str(tweet.id) + "\n")
+                    f_in.write("\n".join(grouped[tw_i]))
+                    f_in.write("\n\n")
 
         if gzip_final_output:
-            with codecs.open(fn, 'r',"utf8") as f_in:
+            with io.open(fn) as f_in:
                 with gzip.open(final_output_filename, 'wb') as f_out:
                     for line in f_in:
                         f_out.write(line.encode("utf8"))
