@@ -46,7 +46,7 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename,gzi
         tweebo_output_fil = io.open(output_filename+".inp","w")
         for tweet in tweets:
             to_output = replace_tweet_newlines(tweet.text)
-            tweebo_output_fil.write(to_output + "\n")
+            tweebo_output_fil.write(to_output + u"\n")
         tweebo_output_fil.close()
 
         # create the working directory
@@ -79,9 +79,9 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename,gzi
                 # this is messy because of some funky bug, with mixed encodings
                 # I think I've snuffed it out, but keeping this fallback code in here just in case
                 while tw_i < len_tweets and dep_i < len_d:
-                    f_in.write(str(tweets[tw_i].id) + "\n")
+                    f_in.write(unicode(tweets[tw_i].id) + "\n")
                     f_in.write("\n".join(grouped[dep_i]))
-                    f_in.write("\n\n")
+                    f_in.write(u"\n\n")
                     text = _tweebo_html_parser.unescape(tweets[tw_i].text)
                     q = " ".join([x.split("\t")[1] for x in grouped[dep_i]])
                     if fuzz.partial_ratio(text, q) < 75 and fuzz.token_sort_ratio(text, q) < 75:
@@ -93,9 +93,9 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename,gzi
                         tw_i += 1
             else:
                 for tw_i, tweet in enumerate(tweets):
-                    f_in.write(str(tweet.id) + "\n")
+                    f_in.write(unicode(tweet.id) + "\n")
                     f_in.write("\n".join(grouped[tw_i]))
-                    f_in.write("\n\n")
+                    f_in.write(u"\n\n")
 
         if gzip_final_output:
             with io.open(fn) as f_in:
