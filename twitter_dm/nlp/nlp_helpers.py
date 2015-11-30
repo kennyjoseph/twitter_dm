@@ -15,15 +15,37 @@ _emoji_block2 = re.compile(u'[\uD83D][\uDC00-\uDE4F]')
 _emoji_block3 = re.compile(u'[\uD83D][\uDE80-\uDEFF]')
 
 
+CRAP_CHAR_REPLACEMENT = {
+    ord(u"\x85") : 8230,
+    ord(u'\x96') : 8211,             # u'\u2013' en-dash
+    ord(u'\x97') : 8212,             # u'\u2014' em-dash
+    ord(u'\x91') : 8216,             # u'\u2018' left single quote
+    ord(u'\x92') : 8217,             # u'\u2019' right single quote
+    ord(u'\x93') : 8220,             # u'\u201C' left double quote
+    ord(u'\x94') : 8221,             # u'\u201D' right double quote
+    ord(u'\x95') : 8226              # u'\u2022' bullet
+}
+
+CRAP_CHAR_REMOVAL = {
+    ord(u"\x85") : None,
+    ord(u'\x96') : None,             # u'\u2013' en-dash
+    ord(u'\x97') : None,             # u'\u2014' em-dash
+    ord(u'\x91') : None,             # u'\u2018' left single quote
+    ord(u'\x92') : None,             # u'\u2019' right single quote
+    ord(u'\x93') : None,             # u'\u201C' left double quote
+    ord(u'\x94') : None,             # u'\u201D' right double quote
+    ord(u'\x95') : None              # u'\u2022' bullet
+}
+
 def remove_emoji(text):
     for expr in [_emoji_block0,_emoji_block1,_emoji_block2,_emoji_block3]:
         text = expr.sub("", text)
-    return text
+    return text.translate(CRAP_CHAR_REPLACEMENT)
 
 
 def get_cleaned_text(text):
     try:
-        return remove_emoji(text.lower().replace("'s","").strip(string.punctuation))
+        return remove_emoji(text.lower().replace("'s","").strip(string.punctuation)).translate(CRAP_CHAR_REMOVAL)
     except:
         return text
 

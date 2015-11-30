@@ -13,11 +13,12 @@ import re
 from fuzzywuzzy import fuzz
 import gzip
 from ..utility.general_utils import read_grouped_by_newline_file
+from nlp_helpers import CRAP_CHAR_REPLACEMENT
 
 DIRECTORY_I_EXIST_IN = os.path.dirname(os.path.realpath(__file__))
 
 def replace_tweet_newlines(text):
-    return text.replace(r"\r\n","\n").replace("\n", "     ").replace("\r","    ")
+    return text.replace(r"\r\n","\n").replace("\n", "     ").replace("\r","    ").translate(CRAP_CHAR_REPLACEMENT)
 
 def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename,gzip_final_output=True):
     """
