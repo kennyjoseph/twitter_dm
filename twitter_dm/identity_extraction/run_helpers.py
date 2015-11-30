@@ -206,14 +206,14 @@ def gen_conll_data_for_prediction(tweets, ptb_filename, dp_filename):
         data_for_tweet = []
 
         if str(tweet.id) not in penntreebank or str(tweet.id) not in dependency_parse:
-            print 'tweet not in both files, continuing'
+            print 'tweet not in both files, continuing', ptb_filename
             continue
 
         ptb_for_tweet = penntreebank[str(tweet.id)]
         dp_for_tweet = dependency_parse[str(tweet.id)]
 
         if len(ptb_for_tweet) != len(dp_for_tweet):
-            print 'tokenizations did not match, continuing'
+            print 'tokenizations did not match, continuing', ptb_filename
             continue
 
         if ptb_for_tweet[0].split("\t")[2] != DependencyParseObject(dp_for_tweet[0]).text:
@@ -224,10 +224,11 @@ def gen_conll_data_for_prediction(tweets, ptb_filename, dp_filename):
             d = DependencyParseObject(tsn([p,tweet.id,tweet.user['id'],tweet.created_at.strftime("%m-%d-%y")],newline=False))
             # get java features
             spl_java = ptb_for_tweet[i].split("\t")
-            java_id, penn_pos_tag,word = spl_java[:3]
-            java_features = '' if len(spl_java) == 3 else spl_java[3]
-            d.features += [x for x in java_features.split("|") if x != '']
-            d.features.append("penn_treebank_pos="+penn_pos_tag)
+            if len(spl_java) >= 3:
+                java_id, penn_pos_tag,word = spl_java[:3]
+                java_features = '' if len(spl_java) == 3 else spl_java[3]
+                d.features += [x for x in java_features.split("|") if x != '']
+                d.features.append("penn_treebank_pos="+penn_pos_tag)
             data_for_tweet.append(d)
         data_to_return.append(data_for_tweet)
 

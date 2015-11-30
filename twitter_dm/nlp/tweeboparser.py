@@ -80,8 +80,7 @@ def dependency_parse_tweets(location_of_tweebo_parser,tweets,output_filename,gzi
                 f_in.write("\n".join(grouped[dep_i]))
                 f_in.write("\n\n")
                 q = " ".join([x.split("\t")[1] for x in grouped[dep_i]])
-                if (len_tweets - tw_i != len_d - dep_i and
-                    fuzz.partial_ratio(tweets[tw_i].text,q) < 75 and
+                if (fuzz.partial_ratio(tweets[tw_i].text,q) < 75 and
                     fuzz.token_sort_ratio(tweets[tw_i].text,q) < 75):
                     tw_i += 1
                     dep_i += 2
