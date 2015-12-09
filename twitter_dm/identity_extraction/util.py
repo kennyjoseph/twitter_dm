@@ -18,7 +18,7 @@ from ..nlp.nlp_helpers import *
 EXPERT_NON_IDENTITIES = {'i','me',"i'd","i've","i'm","i'll","my","myself",
                          'u','you',"your","you're",
                          'we','us','our',"let's","they're",
-                         "he","she"'his','her','him','shes','hes', "he's",
+                         "he","she",'his','her','him','shes','hes', "he's",
                          "others", "group of people","someone",'people',"anyone",
                          "everyone","y'all","humans", "human","human beings","nobody", "person","ppl",
                          "you guys",
@@ -28,14 +28,6 @@ EXPERT_NON_IDENTITIES = {'i','me',"i'd","i've","i'm","i'll","my","myself",
 STOP_WORD_REGEX = re.compile("(^(the|a|an|your|my|those|you|this|his|her|these|those|their|our|some)[ ]+)|(#)",re.IGNORECASE|re.UNICODE)
 POSSESSIVE_REGEX = re.compile(u"['’′]?[s]?['’′]?$",re.U|re.I)
 
-
-
-
-def get_tweet_text_sub_emoticons(tweet):
-    text = tweet.text
-    for e in [emoji_block3,emoji_block0,emoji_block1,emoji_block3,EMOTICONS_2,EMOTICONS]:
-        text = e.sub("*",text)
-    return text
 
 
 def get_wordforms_to_lookup(obj):

@@ -58,16 +58,22 @@ class DependencyParseObject:
             if do_singular:
                 self.singular_form = get_singular_fast(cleaned_text)
 
+            self.ptb_tag = None
+            for f in self.features:
+                if 'penn' in f:
+                    self.ptb_tag = f.replace("penn_treebank_pos=","")
+
+
 
         elif len(object_ids):
             new_id = [obj_id for obj_id in object_ids if term_map[obj_id].head not in object_ids]
             if len(new_id) > 1:
                 h = term_map[new_id[0]].head
-                for x in new_id[1:]:
-                    if term_map[x].head != h:
-                        print 'WARNING:::: gah, new_id len > 1 and not same head. dictionary-based issue'
-                        break
-                print 'WARNING:::: new_id len > 1, but all same head, randomly picking first'
+                #for x in new_id[1:]:
+                #    if term_map[x].head != h:
+                #        print 'WARNING:::: gah, new_id len > 1 and not same head. dictionary-based issue'
+                #        break
+                #print 'WARNING:::: new_id len > 1, but all same head, randomly picking first'
 
             self.id = sorted(new_id)[0]
             self.text = ' '.join([term_map[x].text for x in sorted(object_ids)])
@@ -75,6 +81,7 @@ class DependencyParseObject:
             self.head = term_map[self.id].head
             self.deprel = ' '.join([term_map[x].deprel for x in sorted(object_ids)])
             self.lemma= ' '.join([term_map[x].lemma for x in sorted(object_ids)])
+            self.ptb_tag = ' '.join([term_map[x].ptb_tag for x in sorted(object_ids)])
             label = 'O'
             for z in object_ids:
                 if term_map[z].label == 'Identity':

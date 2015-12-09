@@ -5,6 +5,10 @@ from collections import defaultdict, deque
 from dependency_parse_object import DependencyParseObject, is_noun, is_verb
 from util import get_wordforms_to_lookup
 
+
+PEOPLE_TERMS_SET = {"people","person","persons","ppl","peeps",'member','members'}
+NOT_TERMS_SET = {"never", "no","not"}
+
 def process_dep_parse(dp_objs,
                       combine_mwe=True,
                       combine_determiners_and_verb_preps=False,
@@ -12,7 +16,9 @@ def process_dep_parse(dp_objs,
                       combine_nouns=False,
                       combine_verbs=False,
                       combination_set=None,
-                      combination_set_range=3):
+                      combination_set_range=3,
+                      combine_people_with_mod=False,
+                      combine_not_with_parent=False):
 
     dp_objs = deepcopy(dp_objs)
     term_map = {}
@@ -36,6 +42,16 @@ def process_dep_parse(dp_objs,
         for mwe in mwe_to_combine:
             combine_terms(mwe,term_map,map_to_head)
 
+    if combine_people_with_mod:
+        to_combine = get_people_combinations(map_to_head,term_map)
+        for people_set in to_combine:
+            combine_terms(people_set,term_map, map_to_head)
+
+    if combine_not_with_parent:
+        to_combine = get_not_combinations(map_to_head,term_map)
+        for not_set in to_combine:
+            combine_terms(not_set,term_map,map_to_head)
+
     if combine_verbs:
         verbs_to_combine = get_verb_combinations(map_to_head,term_map)
         for verb_set in verbs_to_combine:
@@ -58,6 +74,7 @@ def process_dep_parse(dp_objs,
             combine_terms(noun_set,term_map, map_to_head)
 
 
+
     roots =[]
     non_terms = []
     for parse_object in term_map.values():
@@ -77,15 +94,15 @@ def process_dep_parse(dp_objs,
 def get_dictionary_based_combinations(dp_objs,combination_set,combination_set_range):
     to_combine = []
     for i in range(len(dp_objs)):
-        for j in range(2,min(combination_set_range,len(dp_objs) - i)):
+        for j in range(1,min(combination_set_range,len(dp_objs) - i)):
             curr_objs = dp_objs[i:(i+j+1)]
-            dp_obj = curr_objs[0] if len(curr_objs) == 1 else DependencyParseObject().join(curr_objs)
+            dp_obj = DependencyParseObject().join(curr_objs)
             # Do dictionary lookups
             word_forms = get_wordforms_to_lookup(dp_obj)
             for w, val in word_forms.items():
                 if w in combination_set:
                     to_combine.append(set([x+1 for x in range(i, i+j+1)]))
-    return to_combine
+    return get_combinations(to_combine)
 
 def get_noun_combinations(map_to_head,term_map):
     to_combine = []
@@ -97,6 +114,34 @@ def get_noun_combinations(map_to_head,term_map):
         for child_id in children:
             child = term_map[child_id]
             if is_noun(child.postag) or child.postag in ['D','@','A','R']:
+                to_combine.append({child.id, head.id})
+
+    return get_combinations(to_combine)
+
+def get_people_combinations(map_to_head,term_map):
+    to_combine = []
+    for head_id, children in map_to_head.iteritems():
+        head = term_map[head_id]
+        if len(children) == 0 or head.text.lower() not in PEOPLE_TERMS_SET:
+            continue
+
+        for child_id in children:
+            child = term_map[child_id]
+            if is_noun(child.postag) or child.postag == 'A':
+                to_combine.append({child.id, head.id})
+
+    return get_combinations(to_combine)
+
+def get_not_combinations(map_to_head,term_map):
+    to_combine = []
+    for head_id, children in map_to_head.iteritems():
+        head = term_map[head_id]
+        if len(children) == 0:
+            continue
+
+        for child_id in children:
+            child = term_map[child_id]
+            if child.text.lower() in NOT_TERMS_SET and abs(child.id - head.id) == 1:
                 to_combine.append({child.id, head.id})
 
     return get_combinations(to_combine)
@@ -170,7 +215,14 @@ def get_combinations(to_combine):
         for d in combos:
             if len([d[0] == r or d[1] == r for r in removed]):
                 continue
-            if len(d[0].intersection(d[1])) > 0:
+
+            if d[0].issuperset(d[1]):
+                [to_combine.remove(x) for x in to_combine if x == d[1]]
+                removed.append(d[1])
+            elif d[1].issuperset(d[0]):
+                [to_combine.remove(x) for x in to_combine if x == d[0]]
+                removed.append(d[0])
+            elif len(d[0].intersection(d[1])) > 0:
                 combination_found = True
                 to_combine.append(set.union(d[0],d[1]))
                 [to_combine.remove(x) for x in to_combine if x == d[0]]

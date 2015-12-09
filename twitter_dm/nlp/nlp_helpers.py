@@ -37,6 +37,15 @@ CRAP_CHAR_REMOVAL = {
     ord(u'\x95') : None              # u'\u2022' bullet
 }
 
+
+
+
+def get_tweet_text_sub_emoticons(tweet):
+    text = tweet.text
+    for e in [emoji_block3,emoji_block0,emoji_block1,emoji_block3,EMOTICONS_2,EMOTICONS]:
+        text = e.sub("*",text)
+    return text
+
 def remove_emoji(text):
     for expr in [_emoji_block0,_emoji_block1,_emoji_block2,_emoji_block3]:
         text = expr.sub("", text)
@@ -68,7 +77,7 @@ singular_map = {"children" : "child",
 def get_singular_fast(text):
     if text in singular_map:
         return singular_map[text]
-    elif text.endswith("s"):
+    elif text.endswith("s") and text != 'is':
         return text[:-1]
     elif text.endswith("'s") or text.endswith("s"):
         return text[:-2]
