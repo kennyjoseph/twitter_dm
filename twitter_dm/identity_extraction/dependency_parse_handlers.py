@@ -2,8 +2,8 @@ __author__ = 'kjoseph'
 import itertools
 from collections import defaultdict, deque
 
-from dependency_parse_object import DependencyParseObject, is_noun, is_verb
-from util import get_wordforms_to_lookup
+from dependency_parse_object import DependencyParseObject, is_noun, is_verb, penn_to_wn
+from ..nlp.nlp_helpers import get_alternate_wordforms
 
 
 PEOPLE_TERMS_SET = {"people","person","persons","ppl","peeps",'member','members'}
@@ -16,7 +16,7 @@ def process_dep_parse(dp_objs,
                       combine_nouns=False,
                       combine_verbs=False,
                       combination_set=None,
-                      combination_set_range=3,
+                      combination_set_range=2,
                       combine_people_with_mod=False,
                       combine_not_with_parent=False):
 
@@ -92,17 +92,22 @@ def process_dep_parse(dp_objs,
 
 
 def get_dictionary_based_combinations(dp_objs,combination_set,combination_set_range):
-    to_combine = []
+    to_combine = set()
     for i in range(len(dp_objs)):
         for j in range(1,min(combination_set_range,len(dp_objs) - i)):
             curr_objs = dp_objs[i:(i+j+1)]
-            dp_obj = DependencyParseObject().join(curr_objs)
+
+            # get all alternate forms
+            alt_forms = [get_alternate_wordforms(x.text,pos_tag=penn_to_wn(x.postag)) for x in curr_objs]
+            for x in alt_forms:
+                if not len(x):
+                    continue
             # Do dictionary lookups
-            word_forms = get_wordforms_to_lookup(dp_obj)
-            for w, val in word_forms.items():
-                if w in combination_set:
-                    to_combine.append(set([x+1 for x in range(i, i+j+1)]))
-    return get_combinations(to_combine)
+            for comb in itertools.product(*alt_forms):
+                if " ".join(comb) in combination_set:
+                    to_combine.add(tuple(x+1 for x in range(i, i+j+1)))
+
+    return get_combinations([set(x) for x in to_combine])
 
 def get_noun_combinations(map_to_head,term_map):
     to_combine = []
@@ -213,7 +218,8 @@ def get_combinations(to_combine):
         combos = itertools.combinations(to_combine,2)
         removed = []
         for d in combos:
-            if len([d[0] == r or d[1] == r for r in removed]):
+
+            if sum([(d[0] == r) or (d[1] == r) for r in removed]):
                 continue
 
             if d[0].issuperset(d[1]):

@@ -14,6 +14,7 @@ class DependencyParseObject:
         self.cpostag = None
         self.features = []
         self.all_original_ids = []
+
         if full_line is not None:
             line = full_line.split("\t")
             self.line = line
@@ -184,12 +185,16 @@ class DependencyParseObject:
         return self
 
 
-NOUN_TAGS = set(['NN', 'NNS', 'NNP', 'NNPS','N','^','S','Z','M'])#,'O'
+NOUN_TAGS = set(['NN', 'NNS', 'NNP', 'NNPS','N','^','S','Z','M','O'])#,'O'
 VERB_TAGS = set(['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ','V','T'])
+ADJECTIVE_TAGS = set(['JJ', 'JJR', 'JJS','A'])
+POSSESSIVE_TAGS = set(['L','S','Z'])
 def is_noun(tag):
     return tag in NOUN_TAGS\
            or len(set(tag.split(" ")).intersection(NOUN_TAGS)) > 0
 
+def is_possessive(tag):
+    return tag in POSSESSIVE_TAGS
 
 def is_verb(tag):
     return tag in VERB_TAGS or len(set(tag.split(" ")).intersection(VERB_TAGS)) > 0
@@ -200,7 +205,8 @@ def is_adverb(tag):
 
 
 def is_adjective(tag):
-    return tag in ['JJ', 'JJR', 'JJS','A']
+    return tag in ADJECTIVE_TAGS\
+           or len(set(tag.split(" ")).intersection(ADJECTIVE_TAGS)) > 0
 
 def is_prep_or_det(tag):
     return tag in ['P','D']
@@ -210,12 +216,12 @@ def is_possessive(tag):
 
 
 def penn_to_wn(tag):
-    if is_adjective(tag):
-        return wn.ADJ
-    elif is_noun(tag):
+    if is_noun(tag):
         return wn.NOUN
-    elif is_adverb(tag):
-        return wn.ADV
     elif is_verb(tag):
         return wn.VERB
+    elif is_adverb(tag):
+        return wn.ADV
+    elif is_adjective(tag):
+        return wn.ADJ
     return None

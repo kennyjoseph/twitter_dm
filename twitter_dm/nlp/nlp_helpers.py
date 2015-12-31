@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re
 import string
 from nltk.stem.wordnet import WordNetLemmatizer
@@ -38,7 +39,7 @@ CRAP_CHAR_REMOVAL = {
 }
 
 
-
+QUOTATION_REGEX = re.compile(u'[\'"`‘“’”’]')
 
 def get_tweet_text_sub_emoticons(tweet):
     text = tweet.text
@@ -54,7 +55,9 @@ def remove_emoji(text):
 
 def get_cleaned_text(text):
     try:
-        return remove_emoji(text.lower().replace("'s","").strip(string.punctuation)).translate(CRAP_CHAR_REMOVAL)
+        return QUOTATION_REGEX.sub("",
+                remove_emoji(
+                    text.lower().replace("'s","").replace(u"\u2026","").strip(string.punctuation)).translate(CRAP_CHAR_REMOVAL))
     except:
         return text
 
@@ -121,4 +124,4 @@ def get_alternate_wordforms(text,do_lemmatize=True,do_slow_singular=False,pos_ta
     spl = re.split("/|-",clean)
     if len(spl) > 1 and ' ' not in clean:
         to_ret |= set(spl)
-    return to_ret
+    return [x for x in to_ret if len(x)]
