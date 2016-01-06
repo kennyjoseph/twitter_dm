@@ -99,9 +99,8 @@ def get_dictionary_based_combinations(dp_objs,combination_set,combination_set_ra
 
             # get all alternate forms
             alt_forms = [get_alternate_wordforms(x.text,pos_tag=penn_to_wn(x.postag)) for x in curr_objs]
-            for x in alt_forms:
-                if not len(x):
-                    continue
+            if any([not len(x) for x in alt_forms]):
+                continue
             # Do dictionary lookups
             for comb in itertools.product(*alt_forms):
                 if " ".join(comb) in combination_set:
@@ -254,9 +253,13 @@ def combine_terms(term_set, term_map, map_to_head):
             if id in map_to_head:
                 for child in map_to_head[id]:
                     # have to ensure no cycles b/c of some weirdness when doing dictionary-based substitions
-                    if child not in term_set and new_parse_obj.id not in map_to_head.get(child,[]):
-                        map_to_head[new_parse_obj.id].append(child)
-                        term_map[child].head = new_parse_obj.id
+                    if child not in term_set:
+                        if new_parse_obj.id not in map_to_head.get(child,[]):
+                            map_to_head[new_parse_obj.id].append(child)
+                            term_map[child].head = new_parse_obj.id
+                        else:
+                            # ugh, they're each children of each other. just start a new root
+                            term_map[child].head = 0
                 del map_to_head[id]
             del term_map[id]
 
