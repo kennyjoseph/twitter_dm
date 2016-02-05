@@ -140,10 +140,11 @@ class TwitterUser:
             tweet = Tweet(t, noise_tokens=self.stopwords, **kwargs)
             self.tweets.append(tweet)
 
-            if tweet.created_at < self.earliest_tweet_time:
-                self.earliest_tweet_time = tweet.created_at
-            if tweet.created_at > self.latest_tweet_time:
-                self.latest_tweet_time = tweet.created_at
+            if tweet.created_at:
+                if tweet.created_at < self.earliest_tweet_time:
+                    self.earliest_tweet_time = tweet.created_at
+                if tweet.created_at > self.latest_tweet_time:
+                    self.latest_tweet_time = tweet.created_at
 
             ##mentions
             for mention in tweet.mentions:
