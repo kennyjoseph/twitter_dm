@@ -69,5 +69,3 @@ class TwitterMentionEgoNetwork(multiprocessing.Process):
 
             print 'finished collecting data for: ', user_id
             print 'added: ', added
-
-__author__ = 'mbenigni'

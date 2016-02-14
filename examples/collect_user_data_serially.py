@@ -1,8 +1,11 @@
 __author__ = 'kjoseph'
 
 import os, sys, glob, codecs
-from twitter_dm import TwitterUser
+from twitter_dm.TwitterUser import TwitterUser
 from twitter_dm.utility.general_utils import tab_stringify_newline, get_handles
+
+sys.argv = ['', '/Users/kennyjoseph/git/thesis/thesis_python/twitter_login_creds',
+            'out_here/', '']
 
 if len(sys.argv) != 4:
     print 'usage:  [known_user_dir] [output_dir] [user_screennames_file]'
@@ -13,7 +16,8 @@ print 'n authed users: ', len(handles)
 
 out_dir = sys.argv[2]
 
-user_sns = [line.strip() for line in open(sys.argv[3]).readlines()]
+#user_sns = [line.strip() for line in open(sys.argv[3]).readlines()]
+user_sns = ['ukhth']
 
 print 'num users: ', len(user_sns)
 
@@ -23,7 +27,7 @@ for i in range(len(user_sns)):
     user = TwitterUser(handles[i], screen_name=user_sns[i])
     user.populate_tweets_from_api(json_output_filename=out_dir+user_sns[i]+".json",
                                   sleep_var=False)
-    user.populate_follwers()
+    user.populate_followers()
     rts = 0
     gt = 0
     for t in user.tweets:
