@@ -62,7 +62,7 @@ class UserDataWorker(multiprocessing.Process):
                 print('Starting: ', data)
 
                 pickle_filename = os.path.join(self.out_dir,"obj",user_identifier)
-                json_filename = os.path.join(self.out_dir,"json",user_identifier)
+                json_filename = os.path.join(self.out_dir,"json",user_identifier+".json.gz")
 
                 # Get the user's data
                 if os.path.exists(pickle_filename) and os.path.exists(json_filename):
@@ -76,7 +76,7 @@ class UserDataWorker(multiprocessing.Process):
                         user = TwitterUser(self.api_hook, screen_name=user_identifier)
 
                     print 'populating tweets', user_identifier, ' to: ', json_filename
-                    user.populate_tweets_from_api(json_output_directory=json_filename)
+                    user.populate_tweets_from_api(json_output_filename=json_filename)
 
                     if self.populate_lists:
                         print 'populating lists', user.screen_name

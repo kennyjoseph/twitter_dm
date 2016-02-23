@@ -233,6 +233,7 @@ class TwitterUser:
             if is_gzip:
                 if not out_fil_name.endswith(".gz"):
                     out_fil_name += ".gz"
+                print 'OUTPUT FILE NAME: ', out_fil_name
                 out_fil = gzip.open(out_fil_name, "wb")
 
                 for tweet in tweets_from_api:
