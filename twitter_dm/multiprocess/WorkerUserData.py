@@ -56,10 +56,17 @@ class UserDataWorker(multiprocessing.Process):
 
             try:
                 if data is None:
-                    print('ALL FINISHED!!!!', self.conn_number)
+                    print 'ALL FINISHED!!!!'
                     break
 
-                print('Starting: ', data)
+                if len(data) == 2:
+                    user_identifier, snow_sample_number = data
+                else:
+                    user_identifier = data
+
+                user_identifier = str(user_identifier)
+
+                print 'Starting: ', data
 
                 pickle_filename = os.path.join(self.out_dir,"obj",user_identifier)
                 json_filename = os.path.join(self.out_dir,"json",user_identifier+".json.gz")
@@ -98,7 +105,7 @@ class UserDataWorker(multiprocessing.Process):
                         pickle.dump(user, open(pickle_filename, "wb"))
 
                 # now add to queue if necessary
-                if snow_sample_number and snow_sample_number < self.step_count:
+                if snow_sample_number is not None and snow_sample_number < self.step_count:
                     for user_identifier in self.add_users_to_queue_function(user):
                         self.queue.put([str(user_identifier),snow_sample_number+1])
 

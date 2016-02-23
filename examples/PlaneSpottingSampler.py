@@ -20,7 +20,7 @@ if len(sys.argv) != 4:
 OUTPUT_DIRECTORY = sys.argv[2]
 
 # get all the handles we have to the api
-handles = general_utils.get_handles(glob.glob(os.path.join(sys.argv[1],"jyc*.txt")))
+handles = general_utils.get_handles(glob.glob(os.path.join(sys.argv[1],"*.txt")))
 
 print len(handles)
 print 'n authed users: ', len(handles)
@@ -28,7 +28,7 @@ print 'n authed users: ', len(handles)
 step_count = int(sys.argv[3])
 
 # user screen names we are interested in
-user_sns = ['SanteriSanttus','OneworldLover','ManchesterMJC','Aviationeuro','superD99bc','DLplanespotter',
+user_sns = ['ManchesterMJC','Aviationeuro','superD99bc','DLplanespotter','SanteriSanttus','OneworldLover',
             'ENORsquawker','plane_spotters','MANSpotter99','Planespotting12','PercyPlanespot1','BennyPlanespot']
 
 pickle_dir = OUTPUT_DIRECTORY +"/obj/"
@@ -42,7 +42,7 @@ multiprocess_setup.init_good_sync_manager()
 
 # put data on the queue
 request_queue = multiprocess_setup.load_request_queue(
-        [(x,0) for x in user_sns], len(handles), add_nones=True)
+        [(x,0) for x in user_sns], len(handles), add_nones=False)
 
 processes = []
 
@@ -55,7 +55,7 @@ def get_mentions_2012(user):
     return sns_mentioned
 
 
-for h in handles[:3]:
+for h in handles:
 
     p = UserDataWorker(queue=request_queue,
                        api_hook=h,
