@@ -71,12 +71,9 @@ class Tweet:
 
         self.created_at = get_created_at(jsn)
 
-        print 'created at: ', self.created_at
         # weird junk date
         if self.created_at.year < 2000 or self.created_at.year > 2020:
             self.created_at = None
-
-        print 'created at here: ', self.created_at
 
         self.user = dict(id=get_id(jsn['user']),
                          screen_name=lookup(jsn, 'user.screen_name'),
