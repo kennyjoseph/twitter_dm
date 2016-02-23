@@ -12,7 +12,7 @@ import sys
 import glob
 from twitter_dm import TwitterApplicationHandler
 from twitter_dm.utility import general_utils
-from twitter_dm.multiprocess.WorkerUserSimpleData import UserSimpleDataWorker
+from twitter_dm.multiprocess.WorkerSimpleUserLookup import SimpleUserLookupWorker
 from twitter_dm.multiprocess import multiprocess_setup
 
 if len(sys.argv) != 4:
@@ -52,8 +52,7 @@ request_queue = multiprocess_setup.load_request_queue([x for x in user_data_chun
 
 processes = []
 for i in range(len(handles)):
-    
-    p = UserSimpleDataWorker(request_queue,handles[i],i, out_dir)
+    p = SimpleUserLookupWorker(request_queue,handles[i],i, out_dir)
     p.start()
     processes.append(p)
 

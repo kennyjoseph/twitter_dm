@@ -1,14 +1,18 @@
 """
 An example of how to use the TwitterFollowingNetworkWorker to perform a snowball sampling
 """
-import glob,sys, os
-from twitter_dm.multiprocess.WorkerTwitterMentionEgoNetwork import TwitterMentionEgoNetwork
-from twitter_dm.utility import general_utils
+import glob
+import os
+import sys
+
+from twitter_dm.multiprocess.WorkerUserData import UserDataWorker
+
 from twitter_dm.TwitterUser import get_user_ids_and_sn_data_from_list
 from twitter_dm.multiprocess import multiprocess_setup
+from twitter_dm.utility import general_utils
 
-sys.argv = ['', '/Users/kennyjoseph/git/thesis/thesis_python/twitter_login_creds',
-            'out_here', '1']
+#sys.argv = ['', '/Users/kennyjoseph/git/thesis/thesis_python/twitter_login_creds',
+#            'out_here', '1']
 if len(sys.argv) != 4:
     print 'usage:  [known_user_dir] [output_dir][step_count]'
     sys.exit(-1)
@@ -27,10 +31,6 @@ step_count = int(sys.argv[3])
 user_sns = ['SanteriSanttus','OneworldLover','ManchesterMJC','Aviationeuro','superD99bc','DLplanespotter',
             'ENORsquawker','plane_spotters','MANSpotter99','Planespotting12','PercyPlanespot1','BennyPlanespot']
 
-# Get a bit more data on users
-user_screenname_id_pairs = get_user_ids_and_sn_data_from_list(user_sns,handles,True)
-print 'got screen names, ', len(user_screenname_id_pairs)
-
 pickle_dir = OUTPUT_DIRECTORY +"/obj/"
 network_dir = OUTPUT_DIRECTORY+"/json/" # what does the network directory do for me?
 
@@ -42,11 +42,17 @@ multiprocess_setup.init_good_sync_manager()
 
 # put data on the queue
 request_queue = multiprocess_setup.load_request_queue(
-        [(x[1],0) for x in user_screenname_id_pairs], len(handles), add_nones=False)
+        [(x,0) for x in user_sns], len(handles), add_nones=True)
 
 processes = []
-for i in range(len(handles)):
-    p = TwitterMentionEgoNetwork(request_queue,handles[i],OUTPUT_DIRECTORY,step_count)
+for h in handles[:3]:
+
+    p = UserDataWorker(queue=request_queue,
+                       api_hook=h,
+                       out_dir=OUTPUT_DIRECTORY,
+                       gets_user_id=False,
+                       populate_followers=True,
+                       populate_friends=True)
     p.start()
     processes.append(p)
 

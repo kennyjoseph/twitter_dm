@@ -3,10 +3,12 @@ An example of how to use the TwitterFollowingNetworkWorker to perform a snowball
 """
 __author__ = 'mbenigni'
 
-import os, sys, glob
-from twitter_dm.multiprocess.WorkerUserTweetData import UserDataWorker
-from twitter_dm.utility import general_utils
+import glob
+import os
+import sys
+
 from twitter_dm.multiprocess import multiprocess_setup
+from twitter_dm.utility import general_utils
 
 if len(sys.argv) != 5:
     print 'usage:  [known_user_dir] [output_dir] [seed_agent_file] [step_count] '

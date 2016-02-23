@@ -8,7 +8,7 @@ worker gets all of that person's friends and then adds them to the queue
 of people to get. When the code gets to the edge of the snowball sample, it
 stops getting data
 """
-from ..TwitterUser import TwitterUser
+from twitter_dm.TwitterUser import TwitterUser
 
 import codecs
 import glob

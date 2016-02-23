@@ -10,11 +10,14 @@ when you're creating the workers
 
 __author__ = 'kjoseph'
 
-import os, sys, glob
-from twitter_dm.multiprocess.WorkerUserTweetData import UserDataWorker
-from twitter_dm.utility import general_utils
-from twitter_dm.multiprocess import multiprocess_setup
+import glob
+import os
+import sys
 
+from twitter_dm.multiprocess.WorkerUserData import UserDataWorker
+
+from twitter_dm.multiprocess import multiprocess_setup
+from twitter_dm.utility import general_utils
 
 if __name__ == "__main__":
      freeze_support()
@@ -46,9 +49,10 @@ if __name__ == "__main__":
 
     processes = []
     for i in range(len(handles)):
-        p = UserDataWorker( request_queue,handles[i],i,out_dir,
-                            to_pickle=True,gets_user_id=False,
-                            populate_lists=False,populate_friends_and_followers=True)
+        p = UserDataWorker(request_queue,handles[i],out_dir,
+                        always_pickle=True,gets_user_id=False,
+                        populate_lists=False,populate_friends=True,
+                        populate_followers=True)
         p.start()
         processes.append(p)
 

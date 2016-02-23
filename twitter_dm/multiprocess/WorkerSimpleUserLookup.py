@@ -14,7 +14,7 @@ import traceback
 from time import sleep
 from twitter_dm.utility.general_utils import tab_stringify_newline
 
-class UserSimpleDataWorker(multiprocessing.Process):
+class SimpleUserLookupWorker(multiprocessing.Process):
     def __init__(self, queue, api_hook, conn_number, out_dir,
                  gets_user_id=True):
         multiprocessing.Process.__init__(self)

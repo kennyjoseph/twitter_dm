@@ -1,11 +1,15 @@
 """
 An example of how to use the TwitterFollowingNetworkWorker to perform a snowball sampling
 """
-import glob,sys, os
-from twitter_dm.multiprocess.WorkerTwitterFollowerEgoNetwork import TwitterFollowingNetworkWorker
-from twitter_dm.utility import general_utils
+import glob
+import os
+import sys
+
+from twitter_dm.multiprocess.old.WorkerTwitterFollowerEgoNetwork import TwitterFollowingNetworkWorker
+
 from twitter_dm.TwitterUser import get_user_ids_and_sn_data_from_list
 from twitter_dm.multiprocess import multiprocess_setup
+from twitter_dm.utility import general_utils
 
 if len(sys.argv) != 4:
     print 'usage:  [known_user_dir] [output_dir] [user_sn_file]'

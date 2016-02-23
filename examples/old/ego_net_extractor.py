@@ -1,7 +1,11 @@
-import glob,sys, os
-from twitter_dm.utility import general_utils
-from twitter_dm.multiprocess.WorkerTwitterEgoNetwork import TwitterEgoNetworkWorker
+import glob
+import os
+import sys
+
+from twitter_dm.multiprocess.WorkerUserData import UserDataWorker
+
 from twitter_dm.multiprocess import multiprocess_setup
+from twitter_dm.utility import general_utils
 
 if len(sys.argv) != 4:
     print 'usage:  [login_credentials_directory] [output_dir] [user_sn_file]'
@@ -30,6 +34,7 @@ multiprocess_setup.init_good_sync_manager()
 
 ##put data on the queue
 request_queue = multiprocess_setup.load_request_queue(user_screenname_id_pairs, len(handles))
+
 
 processes = []
 for i in range(len(handles)):

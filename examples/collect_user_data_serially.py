@@ -7,6 +7,8 @@ from twitter_dm.utility.general_utils import tab_stringify_newline, get_handles
 sys.argv = ['', '/Users/kennyjoseph/git/thesis/thesis_python/twitter_login_creds',
             'out_here/', '']
 
+os.mkdir("out_here/")
+
 if len(sys.argv) != 4:
     print 'usage:  [known_user_dir] [output_dir] [user_screennames_file]'
     sys.exit(-1)
@@ -17,7 +19,7 @@ print 'n authed users: ', len(handles)
 out_dir = sys.argv[2]
 
 #user_sns = [line.strip() for line in open(sys.argv[3]).readlines()]
-user_sns = ['ukhth']
+user_sns = ['Neuro_Skeptic']
 
 print 'num users: ', len(user_sns)
 
