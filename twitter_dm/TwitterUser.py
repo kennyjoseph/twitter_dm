@@ -197,7 +197,9 @@ class TwitterUser:
 
 
 
-    def populate_tweets_from_api(self, json_output_directory=None,json_output_filename=None,sleep_var=True, is_gzip=True):
+    def populate_tweets_from_api(self, json_output_directory=None,
+                                 json_output_filename=None,
+                                 sleep_var=True, is_gzip=True):
         """
         Gets the last ~3200 tweets for the user from the Twitter REST API
         """
@@ -229,11 +231,9 @@ class TwitterUser:
                 else:
                     out_fil_name = self.user_id+".json"
 
-
             if is_gzip:
                 if not out_fil_name.endswith(".gz"):
                     out_fil_name += ".gz"
-                print 'OUTPUT FILE NAME: ', out_fil_name
                 out_fil = gzip.open(out_fil_name, "wb")
 
                 for tweet in tweets_from_api:

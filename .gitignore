@@ -3,3 +3,4 @@ build/
 dist/
 twitter_dm.egg-info/
 *.pyc
+.DS_Store

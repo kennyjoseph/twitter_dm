@@ -45,14 +45,26 @@ request_queue = multiprocess_setup.load_request_queue(
         [(x,0) for x in user_sns], len(handles), add_nones=True)
 
 processes = []
+
+def get_mentions_2012(user):
+    sns_mentioned = set()
+    for t in user.tweets:
+        if t.created_at.year > 2012:
+            for m in t.mentions_sns:
+                print 'adding mention: ', m
+                sns_mentioned.add(m)
+    print 'returning mentioned: ', sns_mentioned
+    return sns_mentioned
+
+
 for h in handles[:3]:
 
     p = UserDataWorker(queue=request_queue,
                        api_hook=h,
                        out_dir=OUTPUT_DIRECTORY,
                        gets_user_id=False,
-                       populate_followers=True,
-                       populate_friends=True)
+                       step_count=1,
+                       add_users_to_queue_function=get_mentions_2012)
     p.start()
     processes.append(p)
 
