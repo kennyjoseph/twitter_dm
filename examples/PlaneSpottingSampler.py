@@ -51,9 +51,7 @@ def get_mentions_2012(user):
     for t in user.tweets:
         if t.created_at.year > 2012:
             for m in t.mentions_sns:
-                print 'adding mention: ', m
                 sns_mentioned.add(m)
-    print 'returning mentioned: ', sns_mentioned
     return sns_mentioned
 
 
