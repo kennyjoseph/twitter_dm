@@ -19,6 +19,7 @@ if len(sys.argv) != 5:
     sys.exit(-1)
 
 OUTPUT_DIRECTORY = sys.argv[2]
+step_count = int(sys.argv[3])
 
 # get all the handles we have to the api
 handles = general_utils.get_handles(glob.glob(os.path.join(sys.argv[1],"*.txt")))
@@ -26,7 +27,7 @@ handles = general_utils.get_handles(glob.glob(os.path.join(sys.argv[1],"*.txt"))
 print len(handles)
 print 'n authed users: ', len(handles)
 
-step_count = int(sys.argv[3])
+
 
 # user screen names we are interested in
 user_sns = ['ManchesterMJC','Aviationeuro','SanteriSanttus','OneworldLover',
