@@ -11,10 +11,11 @@ from twitter_dm.TwitterUser import get_user_ids_and_sn_data_from_list
 from twitter_dm.multiprocess import multiprocess_setup
 from twitter_dm.utility import general_utils
 
+
 #sys.argv = ['', '/Users/kennyjoseph/git/thesis/thesis_python/twitter_login_creds',
 #            'out_here', '1']
-if len(sys.argv) != 4:
-    print 'usage:  [known_user_dir] [output_dir][step_count]'
+if len(sys.argv) != 5:
+    print 'usage:  [known_user_dir] [output_dir][step_count][friends or mentions]'
     sys.exit(-1)
 
 OUTPUT_DIRECTORY = sys.argv[2]
@@ -28,8 +29,9 @@ print 'n authed users: ', len(handles)
 step_count = int(sys.argv[3])
 
 # user screen names we are interested in
-user_sns = ['ManchesterMJC','Aviationeuro','superD99bc','DLplanespotter','SanteriSanttus','OneworldLover',
-            'ENORsquawker','plane_spotters','MANSpotter99','Planespotting12','PercyPlanespot1','BennyPlanespot']
+user_sns = ['ManchesterMJC','Aviationeuro','SanteriSanttus','OneworldLover',
+            'ENORsquawker','plane_spotters','MANSpotter99','BennyPlanespot','PlanespotterGuy','planespotterWal']
+
 
 pickle_dir = OUTPUT_DIRECTORY +"/obj/"
 network_dir = OUTPUT_DIRECTORY+"/json/" # what does the network directory do for me?
@@ -41,18 +43,34 @@ general_utils.mkdir_no_err(network_dir)
 multiprocess_setup.init_good_sync_manager()
 
 # put data on the queue
+user_screenname_id_pairs = get_user_ids_and_sn_data_from_list(user_sns,handles,True)
+print 'got screen names, ', len(user_screenname_id_pairs)
+
+# put data on the queue
 request_queue = multiprocess_setup.load_request_queue(
-        [(x,0) for x in user_sns], len(handles), add_nones=False)
+[(x[1],0) for x in user_screenname_id_pairs], len(handles), add_nones=False)
 
 processes = []
 
-def get_mentions_2012(user):
-    sns_mentioned = set()
+def get_mentions(user):
+    sns_list = set()
     for t in user.tweets:
         if t.created_at.year > 2012:
-            for m in t.mentions_sns:
-                sns_mentioned.add(m)
-    return sns_mentioned
+            for m in t.mentions:
+                sns_list.add(m)
+    return sns_list
+
+def get_friends(user):
+    sns_list = set()
+    for f in user.friend_ids:
+        sns_list.add(f)
+    return sns_list
+
+if sys.argv[4] == 'mentions':
+    snowball_func = get_mentions
+else:
+    snowball_func = get_friends
+
 
 
 for h in handles:
@@ -61,8 +79,10 @@ for h in handles:
                        api_hook=h,
                        out_dir=OUTPUT_DIRECTORY,
                        gets_user_id=False,
-                       step_count=1,
-                       add_users_to_queue_function=get_mentions_2012)
+                       step_count=step_count,
+                       populate_friends=True,
+                       populate_followers=False,
+                       add_users_to_queue_function= snowball_func)
     p.start()
     processes.append(p)
 
