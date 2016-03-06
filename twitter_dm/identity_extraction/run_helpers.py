@@ -229,6 +229,7 @@ def gen_conll_data_for_prediction(tweets, ptb_filename, dp_filename):
                 java_features = '' if len(spl_java) == 3 else spl_java[3]
                 d.features += [x for x in java_features.split("|") if x != '']
                 d.features.append("penn_treebank_pos="+penn_pos_tag)
+                d.ptb_tag = penn_pos_tag
             data_for_tweet.append(d)
         data_to_return.append(data_for_tweet)
 
