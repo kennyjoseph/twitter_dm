@@ -455,7 +455,6 @@ moreover
 most
 mostly
 much
-mug
 must
 my
 myself
@@ -534,7 +533,6 @@ past
 per
 perhaps
 placed
-please
 plus
 poorly
 possible
@@ -569,7 +567,6 @@ regardless
 regards
 related
 relatively
-research
 respectively
 resulted
 resulting
@@ -652,9 +649,6 @@ tell
 tends
 th
 than
-thank
-thanks
-thanx
 that
 that'll
 thats
@@ -911,7 +905,6 @@ interesting
 asked
 area
 opens
-smallest
 works
 downing
 thoughts
@@ -949,7 +942,6 @@ asks
 zclear
 areas
 sides
-better
 point
 furthered
 facts

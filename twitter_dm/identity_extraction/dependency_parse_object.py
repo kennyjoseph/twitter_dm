@@ -10,7 +10,7 @@ stopwords = get_stopwords()
 
 
 class DependencyParseObject:
-    def __init__(self, full_line=None, object_ids=[],  term_map=None, do_lemmatize=True, do_singular=True):
+    def __init__(self, full_line=None, object_ids=[],  term_map=None, do_singular=True):
         self.cpostag = None
         self.features = []
         self.all_original_ids = []
@@ -20,6 +20,7 @@ class DependencyParseObject:
             self.line = line
             self.id = int(line[0])
             self.text = line[1]
+            self.lemma = None
             if line[2] != '_':
                 self.lemma = line[2]
             self.postag = line[4]
@@ -53,7 +54,9 @@ class DependencyParseObject:
 
             wn_pos = penn_to_wn(self.postag)
             cleaned_text = get_cleaned_text(self.text)
-            self.lemma = lemmatize(cleaned_text, wn_pos)
+            if self.lemma is None:
+                print 'here'
+                self.lemma = lemmatize(cleaned_text, wn_pos)
             self.all_original_ids = [self.id]
             self.singular_form = cleaned_text
             if do_singular:
@@ -189,6 +192,12 @@ NOUN_TAGS = set(['NN', 'NNS', 'NNP', 'NNPS','N','^','S','Z','M','O'])#,'O'
 VERB_TAGS = set(['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ','V','T'])
 ADJECTIVE_TAGS = set(['JJ', 'JJR', 'JJS','A'])
 POSSESSIVE_TAGS = set(['L','S','Z'])
+
+WN_NOUN = wn.NOUN
+WN_VERB = wn.VERB
+WN_ADV = wn.ADV
+WN_ADJ = wn.ADJ
+
 def is_noun(tag):
     return tag in NOUN_TAGS\
            or len(set(tag.split(" ")).intersection(NOUN_TAGS)) > 0
@@ -217,11 +226,11 @@ def is_possessive(tag):
 
 def penn_to_wn(tag):
     if is_noun(tag):
-        return wn.NOUN
+        return WN_NOUN
     elif is_verb(tag):
-        return wn.VERB
+        return WN_VERB
     elif is_adverb(tag):
-        return wn.ADV
+        return WN_ADV
     elif is_adjective(tag):
-        return wn.ADJ
+        return WN_ADJ
     return None
