@@ -66,7 +66,6 @@ MIN_TWEET_DATE = datetime(int(min_tweet_date[1]),int(min_tweet_date[0]),1)
 
 def gen_output(data, json_data_dir):
 
-
     term,is_reply,tweets_needed = data
 
     dataset = []
@@ -131,5 +130,3 @@ partial_run = partial(gen_output, json_data_dir=json_data_dir)
 #pool = multiprocessing.Pool(processes=cpu_count)
 #output = pool.map(partial_run, datasets_to_collect)
 partial_run(datasets_to_collect[0])
-
-print output

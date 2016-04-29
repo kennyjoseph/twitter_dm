@@ -18,9 +18,10 @@ from twitter_dm.multiprocess.WorkerUserData import UserDataWorker
 
 from twitter_dm.multiprocess import multiprocess_setup
 from twitter_dm.utility import general_utils
+from multiprocessing import freeze_support
 
 if __name__ == "__main__":
-     freeze_support()
+    freeze_support()
 
     if len(sys.argv) != 4:
         print 'usage:  [known_user_dir] [output_dir] [tweet_id_file]'

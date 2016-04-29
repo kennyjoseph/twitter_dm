@@ -175,7 +175,7 @@ def get_verb_combinations(map_to_head,term_map):
 
         for child_id in children:
             child = term_map[child_id]
-            if abs(child.id -head.id) == 1 and (is_verb(child.postag) or child.postag=='P'):
+            if abs(child.id -head.id) == 1 and (is_verb(child.postag) or child.postag=='P') and not child.ptb_tag[0] == 'N':
                 to_combine.append({child.id, head.id})
 
     return get_combinations(to_combine)

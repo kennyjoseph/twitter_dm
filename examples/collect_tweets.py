@@ -23,7 +23,6 @@ handles =  general_utils.get_handles(glob.glob(os.path.join(sys.argv[1],"*.txt")
 print 'n authed users: ', len(handles)
 
 
-
 # get tweet ids to hydrate
 f = open(sys.argv[3])
 tweet_ids = []

@@ -13,6 +13,7 @@ from collections import defaultdict, Counter
 import ujson as json
 import numpy as np
 import codecs, langid
+import gzip
 
 
 def parse_tweet_json_to_tweet_list(status):
@@ -79,14 +80,17 @@ def return_users_from_json_file(file_name,
                                 stopwords=None,
                                 return_tweet_json=False):
 
-    in_fil = codecs.open(file_name,"r","utf-8")
+    if file_name.endswith(".gz"):
+        reader = [z.decode("utf8") for z in gzip.open(file_name).read().splitlines()]
+    else:
+        reader = codecs.open(file_name,"r","utf8")
 
     users = defaultdict(list)
 
     n_tweets = 0
     n_non_english = 0
 
-    for line in in_fil:
+    for line in reader:
         n_tweets+=1
 
         try:
@@ -94,13 +98,16 @@ def return_users_from_json_file(file_name,
         except:
             print 'failed tweet'
             pass
-        if not only_english or (only_english and langid.classify(tweet['text'])[0] == 'en'):
+        lang = tweet['lang'] if 'lang' in tweet else langid.classify(tweet['text'])[0]
+        if not only_english or (only_english and lang == 'en'):
             # ignore the old tweets for now
             users[tweet['user'][user_id_field]].append(tweet)
         else:
             n_non_english += 1
 
-    in_fil.close()
+    if not file_name.endswith(".gz"):
+        reader.close()
+
     n_tweets = float(n_tweets)
 
     if n_tweets == 0 or (only_english and (n_tweets-n_non_english) == 0):
@@ -126,7 +133,6 @@ def return_users_from_json_file(file_name,
 
     if not return_tweet_json:
         return twitter_users
-
 
     tweet_dict = {}
     if return_tweet_json:
