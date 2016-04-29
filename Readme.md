@@ -1,20 +1,55 @@
 # Introduction
 
-This library has chiefly been developed for three purposes:
+This library has chiefly been developed for a few purposes (in order of importance to us):
 
-1. Rapidly collect data from the Twitter *Search* API. We hopefully will be able to integrate it with ```tweepy```
-at some point soon so it can also handle the Streaming API.  The main goal here has been to leverage multiple 
+1. Rapidly collect data from the Twitter *Search* API. The main goal here has been to leverage multiple 
 connections, or "handles" to the API via multiprocessing. The ```examples``` directory contains a bunch of examples
-of how this is done, and you can start with the ```twitter_dm/multiprocess``` folder to see how we extend the Worker
-class of Twitter's multiprocessing library to do what we want to do fast and with a bunch of handles.  
+of how this is done, and you can "extend" the classes in ```twitter_dm/multiprocess``` folder either by adding various function (e.g. to change how a snowball search is done) or by actually extending them in the OOP sense. These classes are all subclasses of Twitter's multiprocessing library that help to do what we want to do fast and with a bunch of handles.  
 
-2. Provide a convenient way to manipulate and access data from Twitter users and Tweets in an object-oriented, extendible
-fashion.  The classes in Tweet.py and TwitterUser.py are convenient representations that make accessing data about 
-users and tweets relatively painless.
+2. Provide a repeatable way to tokenize, part-of-speech-tag, and dependency parse a Tweet in python. We use the great work by Brendan O'Connor, Myle Ott, Lingpeng Kong and others who did all the hard work of creating great Twitter NLP tools and put a few wrappers around them to hopefully make it slightly more easy to integrate into your workflow. 
 
-3. Provide a repeatable way to tokenize, part-of-speech-tag, and dependency parse a Tweet in python. We leverage the great work by Brendan O'Connor, Myle Ott, Lingpeng Kong and others who did all the hard work of creating great Twitter NLP tools and put a few wrappers around them to hopefully make it slightly more easy to integrate into your workflow. 
+3. [new!] We added a way to extract social identities from text - see ```examples/run_identity_extractor.py``` to get started!  
 
-4. [new!] We added a way to extract social identities from text - see ```examples/run_identity_extractor.py``` to get started!  If you do, please cite the following paper:
+4. Provide a convenient way to manipulate and access data from Twitter users and Tweets in an object-oriented, extendible
+fashion.  The classes in ```Tweet.py``` and ```TwitterUser.py``` are convenient representations that make accessing data about users and tweets relatively painless.
+
+The documentation and examples here are woefully incomplete, and testing is non-existent. However, I and several others at least have been using and developing the library for the last 2 years or so, and so it is fairly stable.
+
+# Citations
+
+If you use the tokenizer, please cite:
+```
+@inproceedings{oconnor_tweetmotif:_2010,
+	title = {{TweetMotif}: {Exploratory} {Search} and {Topic} {Summarization} for {Twitter}.},
+	url = {http://www.aaai.org/ocs/index.php/ICWSM/ICWSM10/paper/viewFile/1540/1907/},
+	urldate = {2014-03-30},
+	booktitle = {{ICWSM}},
+	author = {O'Connor, Brendan and Krieger, Michel and Ahn, David},
+	year = {2010}
+}
+```
+If you use the POS tagger, please cite:
+```
+@inproceedings{owoputi_improved_2013,
+	title = {Improved part-of-speech tagging for online conversational text with word clusters},
+	booktitle = {Proceedings of {NAACL}},
+	author = {Owoputi, Olutobi and O’Connor, Brendan and Dyer, Chris and Gimpel, Kevin and Schneider, Nathan and Smith, Noah A},
+	year = {2013}
+}
+```
+
+If you use the dependency parser, please cite:
+```
+@inproceedings{kong_dependency_2014,
+	title = {A dependency parser for tweets},
+	urldate = {2015-01-05},
+	booktitle = {Proceedings of the {Conference} on {Empirical} {Methods} in {Natural} {Language} {Processing}, {Doha}, {Qatar}, to appear},
+	author = {Kong, Lingpeng and Schneider, Nathan and Swayamdipta, Swabha and Bhatia, Archna and Dyer, Chris and Smith, Noah A.},
+	year = {2014}
+}
+```
+
+If you use the social identity extractor, please cite:
 ```
 @inproceedings{joseph_exploring_2016,
 	title = {Exploring patterns of identity usage in tweets: a new problem, solution and case study},
@@ -23,8 +58,6 @@ users and tweets relatively painless.
 	year = {2016}
 }
 ```
-
-The documentation and examples here are woefully incomplete, and testing is non-existent. However, I and several others at least have been using and developing the library for the last 2 years or so, and so it is fairly stable.
 
 # Getting Started
 
