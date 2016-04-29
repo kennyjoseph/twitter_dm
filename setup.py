@@ -52,7 +52,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['requests', 'ujson', 'rauth',
                       'langid', 'nltk', 'openpyxl', 'regex','numpy','pandas',
-                      'fuzzywuzzy'],
+                      'fuzzywuzzy','joblib'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
@@ -67,7 +67,8 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-       'twitter_dm': ['data/*'], 'twitter_dm.nlp' : ['tweeboparser_runner.sh']
+       'twitter_dm': ['data/*'], 'twitter_dm.nlp' : ['tweeboparser_runner.sh'],
+       'twitter_dm.identity_extraction' : ['rule_based_model.jar']
     },
 
     # Although 'package_data' is the preferred approach, in some case you may

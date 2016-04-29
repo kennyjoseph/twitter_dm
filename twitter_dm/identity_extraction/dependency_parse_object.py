@@ -55,7 +55,6 @@ class DependencyParseObject:
             wn_pos = penn_to_wn(self.postag)
             cleaned_text = get_cleaned_text(self.text)
             if self.lemma is None:
-                print 'here'
                 self.lemma = lemmatize(cleaned_text, wn_pos)
             self.all_original_ids = [self.id]
             self.singular_form = cleaned_text

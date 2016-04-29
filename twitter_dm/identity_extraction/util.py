@@ -13,6 +13,8 @@ from itertools import chain, groupby
 from sklearn.metrics import accuracy_score
 import gzip
 import numpy as np
+from pkg_resources import *
+import joblib
 from ..nlp.nlp_helpers import *
 
 EXPERT_NON_IDENTITIES = {'i','me',"i'd","i've","i'm","i'll","my","myself",
@@ -75,6 +77,9 @@ def create_dp_text(dp_terms):
 
     return dp_text
 
-
-
-
+def get_identity_model_and_features():
+    model_fn = resource_filename('twitter_dm', 'data/trained_identity_model.p')
+    model = joblib.load(model_fn)
+    feature_fn = resource_filename('twitter_dm', 'data/feature_names.p')
+    feature = joblib.load(feature_fn)
+    return model, feature

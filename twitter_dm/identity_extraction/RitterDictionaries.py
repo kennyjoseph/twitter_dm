@@ -11,10 +11,14 @@ def normalize(s):
 
 class Dictionaries:
 
-    def __init__(self, dict_dir):
+    def __init__(self, dict_dir=None, list_of_files=None):
         self.word2dictionaries = defaultdict(set)
         self.dictionaries = []
-        for fil in glob(dict_dir):
+
+        if dict_dir:
+            list_of_files = glob(dict_dir)
+
+        for fil in list_of_files:
             fil_basename = os.path.basename(fil)
             if re.search(r'.conf~?$', fil):       #Skip .conf files
                 continue

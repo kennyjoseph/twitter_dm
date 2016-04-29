@@ -9,6 +9,7 @@ import codecs
 from util import *
 from dependency_parse_handlers import *
 from ..utility.general_utils import *
+from pkg_resources import *
 
 ######################################################################################################
 ######################################################################################################
@@ -18,14 +19,24 @@ from ..utility.general_utils import *
 ######################################################################################################
 ######################################################################################################
 
-def get_init_data(model_file, ark_file, dict_filepath, twit_dict_file):
+
+def get_init_data(model_file, ark_file):
     from gensim.models.word2vec import Word2Vec
+
     model = Word2Vec.load_word2vec_format(model_file, binary=False)
     ark_clusters = get_ark_clusters(ark_file)
-    all_dictionaries = Dictionaries(dict_filepath)
+
+    files = [resource_filename('twitter_dm', 'data/identity_dictionaries/identity/'+x) for x in
+             resource_listdir('twitter_dm', 'data/identity_dictionaries/identity/')]
+
+    files += [resource_filename('twitter_dm', 'data/identity_dictionaries/non_identity_words/'+x) for x in
+             resource_listdir('twitter_dm', 'data/identity_dictionaries/non_identity_words/')]
+
+    all_dictionaries = Dictionaries(list_of_files=files)
     twit_sets = []
     stopwords = get_stopwords()
-    tw_distant_supervision_identity_dat = get_twitter_distant_supervision_identity_dat(twit_dict_file)
+
+    tw_distant_supervision_identity_dat = get_twitter_distant_supervision_identity_dat(None)
 
     for v in [10, 100, 1000, 10000,50000]:
         twit_id = set(tw_distant_supervision_identity_dat[
@@ -300,7 +311,8 @@ def get_vector_rep_from_wordlist(word_list, model, size, clean_vector_first=Fals
 
 def get_twitter_distant_supervision_identity_dat(filename):
     stopwords = get_stopwords()
-    identity_dat = pd.DataFrame.from_csv(filename,sep='\t',header=None,encoding="utf8").reset_index()
+    file_name = resource_filename('twitter_dm', 'data/twitter_supervised_results.tsv')
+    identity_dat = pd.DataFrame.from_csv(file_name,sep='\t',header=None,encoding="utf8").reset_index()
     identity_dat.columns = ['rule','term','count']
     identity_dat.term = identity_dat.term.apply(get_cleaned_text)
     identity_dat = identity_dat[identity_dat.term != '']
