@@ -23,12 +23,14 @@ def init_good_sync_manager():
 
 
 def load_request_queue(data, n_terminals, add_nones=True):
-    from multiprocessing import Queue
-    request_queue = Queue()
+    from multiprocessing import Manager
+    m = Manager()
+    request_queue = m.Queue()
 
     print 'loading ', len(data), ' objects onto queue'
     for d in data:
         request_queue.put( d)
+
     # Sentinel objects to allow clean shutdown: 1 per worker.
     if add_nones:
         for i in range(n_terminals):

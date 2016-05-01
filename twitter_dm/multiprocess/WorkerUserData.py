@@ -24,7 +24,11 @@ class UserDataWorker(multiprocessing.Process):
                  populate_friends=False,
                  populate_followers=False,
                  step_count = None,
-                 add_users_to_queue_function=None):
+                 add_users_to_queue_function=None,
+                 post_process_function=None,
+                 save_user_tweets = True,
+                 save_user_data=True,
+                 ):
         multiprocessing.Process.__init__(self)
         self.queue = queue
         self.api_hook = api_hook
@@ -36,6 +40,9 @@ class UserDataWorker(multiprocessing.Process):
         self.populate_followers = populate_followers
         self.step_count = step_count
         self.add_users_to_queue_function = add_users_to_queue_function
+        self.post_process_function = post_process_function
+        self.save_user_tweets= save_user_tweets
+        self.save_user_data = save_user_data
         if ((step_count and not add_users_to_queue_function) or
             (not step_count and add_users_to_queue_function)):
             print 'WARNING: you supplied a step count but no function, or vice versa, ',
@@ -47,12 +54,6 @@ class UserDataWorker(multiprocessing.Process):
         snow_sample_number = None
         while True:
             data = self.queue.get(True)
-            if len(data) == 2:
-                user_identifier, snow_sample_number = data
-            else:
-                user_identifier = data
-
-            user_identifier = str(user_identifier)
 
             try:
                 if data is None:
@@ -82,8 +83,12 @@ class UserDataWorker(multiprocessing.Process):
                     else:
                         user = TwitterUser(self.api_hook, screen_name=user_identifier)
 
-                    print 'populating tweets', user_identifier, ' to: ', json_filename
-                    user.populate_tweets_from_api(json_output_filename=json_filename)
+                    print 'populating tweets', user_identifier
+                    if self.save_user_tweets:
+                        print 'saving tweets to: ', json_filename
+                        user.populate_tweets_from_api(json_output_filename=json_filename)
+                    else:
+                        user.populate_tweets_from_api()
 
                     if self.populate_lists:
                         print 'populating lists', user.screen_name
@@ -97,8 +102,9 @@ class UserDataWorker(multiprocessing.Process):
                         print 'populating followers, ', user.screen_name
                         user.populate_followers()
 
-                    if (self.always_pickle or self.populate_lists
-                        or self.populate_friends or self.populate_followers):
+                    if self.save_user_data and \
+                        (self.always_pickle or self.populate_lists
+                         or self.populate_friends or self.populate_followers):
                         # Pickle and dump user
                         print 'pickling and dumping (no tweets): ', user.screen_name
                         user.tweets = []
@@ -108,6 +114,9 @@ class UserDataWorker(multiprocessing.Process):
                 if snow_sample_number is not None and snow_sample_number < self.step_count:
                     for user_identifier in self.add_users_to_queue_function(user):
                         self.queue.put([str(user_identifier),snow_sample_number+1])
+
+                if self.post_process_function:
+                    self.post_process_function(user)
 
             except Exception:
                 print('FAILED:: ', data)
