@@ -195,6 +195,27 @@ class TwitterUser:
         self.following_count = user_data.get('friends_count', -1)
 
 
+    def gen_user_info_dict(self):
+        if self.tweets:
+            n_captured_tweets = len(self.tweets)
+        else:
+            n_captured_tweets = 0
+
+        return {
+            "user_id" : self.user_id,
+            "screen_name" : self.screen_name,
+            "name" : self.name,
+            "description" : self.description,
+            "n_total_tweets" : self.n_total_tweets,
+            "n_captured_tweets": n_captured_tweets,
+            "creation_date" : self.creation_date,
+            "location" : self.location,
+            "homepage" : self.homepage,
+            "times_listed" : self.times_listed,
+            "utc_offset" : self.utc_offset,
+            "followers_count" : self.followers_count,
+            "following_count" : self.following_count
+        }
 
 
     def populate_tweets_from_api(self, json_output_directory=None,
