@@ -267,6 +267,7 @@ def get_dependency_parse_features(dep_parses):
 
 def get_vector_rep_from_wordlist(word_list, model, size, clean_vector_first=False):
     dat = np.zeros((len(word_list),size))
+    model.init_sims()
     for i,w in enumerate(word_list):
         w = w.lower()
         if not len(w):
