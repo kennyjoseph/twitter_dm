@@ -15,6 +15,28 @@ fashion.  The classes in ```Tweet.py``` and ```TwitterUser.py``` are convenient 
 
 The documentation and examples here are woefully incomplete, and testing is non-existent. However, I and several others at least have been using and developing the library for the last 2 years or so, and so it is fairly stable.
 
+
+# Getting Started
+
+Once you've cloned the repo, install the package and its dependencies
+
+```$ python setup.py install```
+
+Then, open up the examples and check out how they work.  I recommend starting with ```collect_user_data_serially.py``` for single-process collection of tweets, ```snowball_sample_custom_function_example.py``` for multithreaded collection and 
+and ```run_identity_extraction.py``` for NLP stuff.
+
+Anything where you're collecting from the API will require you to have access to the API - that is, you'll need a consumer key & secret (an application) and an acces token & secret (a user who has subscribed to the API). ```twitter_dm``` can either help you set up new credentials (see ```examples/auth_example.py```) or can handle credentials stored in text files in the following way (one text file per application):
+
+```
+consumer_key,consumer_secret
+user_sn_1 (or blank, this is not needed), user_1_access_token, user_1_access_token_secret
+user_sn_2 (or blank, this is not needed), user_2_access_token, user_2_access_token_secret
+...
+```
+
+You may also want to check out ```Tweet.py``` and ```TwitterUser.py``` if you're interested in the Object Oriented
+approach to Twitter data.
+
 # Citations
 
 If you use the tokenizer, please cite:
@@ -59,26 +81,6 @@ If you use the social identity extractor, please cite:
 }
 ```
 
-# Getting Started
-
-Once you've cloned the repo, install the package and its dependencies
-
-```$ python setup.py install```
-
-Then, open up the examples and check out how they work.  I recommend starting with ```collect_user_data_serially.py``` for single-process collection of tweets, ```snowball_sample_custom_function_example.py``` for multithreaded collection and 
-and ```run_identity_extraction.py``` for NLP stuff.
-
-Anything where you're collecting from the API will require you to have access to the API - that is, you'll need a consumer key & secret (an application) and an acces token & secret (a user who has subscribed to the API). ```twitter_dm``` can either help you set up new credentials (see ```examples/auth_example.py```) or can handle credentials stored in text files in the following way (one text file per application):
-
-```
-consumer_key,consumer_secret
-user_sn_1 (or blank, this is not needed), user_1_access_token, user_1_access_token_secret
-user_sn_2 (or blank, this is not needed), user_2_access_token, user_2_access_token_secret
-...
-```
-
-You may also want to check out ```Tweet.py``` and ```TwitterUser.py``` if you're interested in the Object Oriented
-approach to Twitter data.
 
 # Notes
 - Importantly, the multiprocess stuff won't work on a OSX because of some crazy bug in urllib2.  Give it a try, feel free to 
