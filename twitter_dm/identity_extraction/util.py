@@ -83,3 +83,4 @@ def get_identity_model_and_features():
     feature_fn = resource_filename('twitter_dm', 'data/feature_names.p')
     feature = joblib.load(feature_fn)
     return model, feature
+

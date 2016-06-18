@@ -67,7 +67,10 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-       'twitter_dm': ['data/*'], 'twitter_dm.nlp' : ['tweeboparser_runner.sh'],
+       'twitter_dm': ['data/identity_dictionaries/identity/*','data/identity_dictionaries/non_identity_words/*',
+                      'data/feature_names.p','data/stopwords.txt','data/trained_identity_model.p',
+                      'data/twitter_supervised_results.tsv'],
+       'twitter_dm.nlp' : ['tweeboparser_runner.sh'],
        'twitter_dm.identity_extraction' : ['rule_based_model.jar']
     },
 

@@ -17,7 +17,7 @@ from twitter_dm.Tweet import Tweet
 from twitter_dm.nlp.tweeboparser import *
 from twitter_dm.identity_extraction.run_helpers import gen_conll_data_for_prediction
 import ujson as json
-
+from copy import copy
 from twitter_dm.TwitterUser import TwitterUser
 from twitter_dm import dependency_parse_tweets
 import subprocess
@@ -80,6 +80,12 @@ parser.add_argument('--path_to_twitter_credentials_file',
 
 parser.add_argument('--output_directory',
                    help="""Directory to output results into""", default="./identity_model")
+
+parser.add_argument('--file_of_keywords_to_focus_on',
+                   help="""If you provide a filename here, the script will read that file and
+                   will only output tweets containing one or more of those terms. Note that if you're focused
+                   on hashtags, the script here strips the # before it, so you'll want to
+                   just put the term without the # in your file""", default=None)
 
 args = parser.parse_args()
 
@@ -148,7 +154,7 @@ word_vector_model, all_dictionaries, ark_clusters, sets, names = get_init_data(G
                                                                                BROWN_CLUSTER_LOCATION)
 print 'MODEL HAS BEEN LOADED'
 
-def gen_json_for_tweets_of_interest(input_filename, output_filename):
+def gen_json_for_tweets_of_interest(input_filename, output_filename,keep_only_tweets_with_terms=None):
     """
     This function generates a cleaned json file so that the identity
     extraction only happens on "interesting" tweets.  Right now,
@@ -157,6 +163,8 @@ def gen_json_for_tweets_of_interest(input_filename, output_filename):
 
     :param input_filename: input json file name (Can be gzipped)
     :param output_filename: cleaned output json filename
+    :param keep_only_tweets_with_terms: If you only want to keep tweets containing a specific
+            set of terms, you can use this argument and pass in a set of terms here
     :return:
     """
     tweets_to_write = []
@@ -165,7 +173,20 @@ def gen_json_for_tweets_of_interest(input_filename, output_filename):
         try:
             u = TwitterUser()
             u.populate_tweets_from_file(input_filename,store_json=True)
-            tweets_to_keep = [t for t in u.tweets if not t.retweeted and len(t.tokens) > 4]
+            tweets = [t for t in u.tweets if not t.retweeted and len(t.tokens) > 4]
+            tweets_to_keep = []
+
+            if keep_only_tweets_with_terms:
+                expanded_token_set = copy(t.tokens)
+                for t in tweets:
+                    for token in t.tokens:
+                        expanded_token_set += get_alternate_wordforms(token)
+                    if len(set(expanded_token_set) & keep_only_tweets_with_terms):
+                        tweets_to_keep.append(t)
+            else:
+                tweets_to_keep = tweets
+
+
             tweets_to_write += tweets_to_keep
         except:
             print 'FAILED TO PARSE JSON FILE: ', input_filename
@@ -261,6 +282,10 @@ files_to_run_on = [args.json_file_or_folder]\
                     if not os.path.isdir(args.json_file_or_folder) \
                     else glob(args.json_file_or_folder)
 
+term_restrictions_set = None
+if args.file_of_keywords_to_focus_on:
+    term_restrictions_set = set([x.strip() for x in io.open(args.file_of_keywords_to_focus_on)])
+
 for json_input_name in files_to_run_on:
     basename = os.path.basename(json_input_name).replace(".json","").replace(".gz","")
     print 'running on file: ', json_input_name
@@ -268,7 +293,7 @@ for json_input_name in files_to_run_on:
 
     print '\t cleaning json'
     clean_json_name = os.path.join(JSON_OUTPUT_DIRECTORY, basename+".json.gz")
-    gen_json_for_tweets_of_interest(json_input_name,clean_json_name)
+    gen_json_for_tweets_of_interest(json_input_name,clean_json_name,term_restrictions_set)
 
     print '\t running part of speech, rule based model'
     ptb_name = os.path.join(RULE_MODEL_OUTPUT_DIRECTORY,basename+".ptb.gz")
