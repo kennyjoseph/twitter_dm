@@ -8,7 +8,7 @@ of how this is done, and you can "extend" the classes in ```twitter_dm/multiproc
 
 2. Provide a repeatable way to tokenize, part-of-speech-tag, and dependency parse a Tweet in python. We use the great work by Brendan O'Connor, Myle Ott, Lingpeng Kong and others who did all the hard work of creating great Twitter NLP tools and put a few wrappers around them to hopefully make it slightly more easy to integrate into your workflow. 
 
-3. [new!] We added a way to extract social identities from text - see ```examples/run_identity_extractor.py``` to get started!  
+3. [new!] We added a way to extract social identities from text - see ```examples/run_identity_extractor.py``` to get started!  See below for the format in which this data is outputted.
 
 4. Provide a convenient way to manipulate and access data from Twitter users and Tweets in an object-oriented, extendible
 fashion.  The classes in ```Tweet.py``` and ```TwitterUser.py``` are convenient representations that make accessing data about users and tweets relatively painless.
@@ -36,6 +36,24 @@ user_sn_2 (or blank, this is not needed), user_2_access_token, user_2_access_tok
 
 You may also want to check out ```Tweet.py``` and ```TwitterUser.py``` if you're interested in the Object Oriented
 approach to Twitter data.
+
+
+# Modified Co-NLL format for the identity extraction work
+
+The final output for the identity extraction is sent to a subdirectory called ```fin``` in the output directory you specify. Each file in that directory is formatted as a modified Co-NLL format - essentially, just the Co-NLL format with some extra information tagged on to the end. An example of two fields of the output for a single tweet are below:
+```
+1	@theScore	thescore	@	@	penn_treebank_pos=USR	-1	_	_	_	582192856980410368	147290321	03-29-15	O
+2	hey	hey	!	!	penn_treebank_pos=UH	0	_	_	_	582192856980410368	147290321	03-29-15	O
+```
+
+A single output file will have multiple tweets, separated by a newline.  The first eight fields of the output format correspond to the existing CoNLL format described at http://ilk.uvt.nl/conll/#dataformat.
+
+The next fields may or may not be present in a particular file (though all generally are in the files described here).  The  file ```twitter_dm/identity_extraction/dependency_parse_object.py``` employs the logic used to read these files.
+
+- Field 9: The ID of this tweet
+- Field 10: The ID of the user who sent this tweet
+- Field 11: The date on which this tweet was sent
+- Field 12: The label for that term in the tweet - an O is for Outside an identity label (i.e. not an identity label); an I is for Inside an identity label (i.e. part of an identity label)
 
 # Citations
 
@@ -86,7 +104,6 @@ If you use the social identity extractor, please cite:
 - Importantly, the multiprocess stuff won't work on a OSX because of some crazy bug in urllib2.  Give it a try, feel free to 
 submit a fix/tell me what I'm doing wrong, but I have traced it all the way into urllib2 and where it interacts with
  the OS as a heads up.
- 
 
 # Todo:
 
