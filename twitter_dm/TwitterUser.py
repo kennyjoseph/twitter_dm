@@ -311,21 +311,23 @@ class TwitterUser:
             for l in self.lists:
                 print(l)
 
-    def populate_friends(self, print_output=False):
+    def populate_friends(self, print_output=False, sleep_var=True):
         self.friend_ids = self.api_hook.get_with_cursor_for_user(
             "friends/ids.json",
             "ids",
             self.screen_name,
-            self.user_id)
+            self.user_id,
+            sleep_var=sleep_var)
         if print_output:
             print('NUM FRIENDS: ', len(self.friend_ids))
 
-    def populate_followers(self, print_output=False):
+    def populate_followers(self, print_output=False, sleep_var=True):
         self.follower_ids = self.api_hook.get_with_cursor_for_user(
             "followers/ids.json",
             "ids",
             self.screen_name,
-            self.user_id)
+            self.user_id,
+            sleep_var=sleep_var)
         if print_output:
             print('NUM FOLLOWERS: ', len(self.follower_ids))
 

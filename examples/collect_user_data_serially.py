@@ -4,19 +4,18 @@ import os, sys, glob, codecs
 from twitter_dm.TwitterUser import TwitterUser
 from twitter_dm.utility.general_utils import tab_stringify_newline, get_handles
 
-sys.argv = ['', '/Users/kennyjoseph/git/thesis/thesis_python/twitter_login_creds',
-            'out_here/', '']
-
-os.mkdir("out_here/")
 
 if len(sys.argv) != 4:
-    print 'usage:  [known_user_dir] [output_dir] [user_screennames_file]'
+    print 'usage:  [known_user_dir - a directory of config files- see readme for format] ',
+    print '[output_dir] [user_screennames_file]'
     sys.exit(-1)
+
 # Get the handles to the Twitter API
 handles = get_handles(glob.glob(os.path.join(sys.argv[1],"*.txt")))
 print 'n authed users: ', len(handles)
 
 out_dir = sys.argv[2]
+os.mkdir(out_dir)
 
 #user_sns = [line.strip() for line in open(sys.argv[3]).readlines()]
 user_sns = ['Neuro_Skeptic']

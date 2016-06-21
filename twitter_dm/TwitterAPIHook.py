@@ -14,6 +14,7 @@ import ujson as json
 from rauth import OAuth1Service
 import requests
 from time import sleep
+import sys
 
 # @TODO: Eventually we should handle limits like this
 #  r2 = this_session.get('application/rate_limit_status.json',params=params,verify=True)
@@ -22,9 +23,29 @@ from time import sleep
 
 class TwitterAPIHook:
 
-    def __init__(self, CONSUMER_KEY, CONSUMER_SECRET, session):
+    def __init__(self, CONSUMER_KEY, CONSUMER_SECRET,
+                 session=None,
+                 access_token=None, access_token_secret=None):
+
         self.CONSUMER_KEY = CONSUMER_KEY
         self.CONSUMER_SECRET = CONSUMER_SECRET
+
+        if not session:
+            if not access_token or not access_token_secret:
+                print 'YOU NEED TO PROVIDE A SESSION OR AN APPLICATION KEY OR APPLICATION SECRET!'
+                sys.exit(-1)
+            else:
+                self.session = (OAuth1Service(
+                                    name='twitter',
+                                    consumer_key=self.CONSUMER_KEY,
+                                    consumer_secret=self.CONSUMER_SECRET,
+                                    request_token_url='https://api.twitter.com/oauth/request_token',
+                                    access_token_url='https://api.twitter.com/oauth/access_token',
+                                    authorize_url='https://api.twitter.com/oauth/authorize',
+                                    base_url='https://api.twitter.com/1.1/')
+                                .get_session((access_token, access_token_secret)))
+        else:
+            self.session = session
 
         # FOR RECONNECTIONS
         self.twitter = OAuth1Service(
@@ -35,8 +56,6 @@ class TwitterAPIHook:
             access_token_url='https://api.twitter.com/oauth/access_token',
             authorize_url='https://api.twitter.com/oauth/authorize',
             base_url='https://api.twitter.com/1.1/')
-
-        self.session = session
 
     def call_to_api(self, url, params, name=""):
         request_completed = False
@@ -90,7 +109,7 @@ class TwitterAPIHook:
             return
         raise Exception('No user info provided', 'Please provide user info')
 
-    def get_with_cursor_for_user(self, url, json_payload_name, screen_name=None, user_id=None, params=None):
+    def get_with_cursor_for_user(self, url, json_payload_name, screen_name=None, user_id=None, params=None,sleep_var=True):
         if params is None:
             params = {}
         self.get_user_params(params, screen_name, user_id)
@@ -98,7 +117,8 @@ class TwitterAPIHook:
 
         data = []
         while True:
-            sleep(70)
+            if sleep_var:
+                sleep(70)
             r = self.call_to_api(url, params)
             if r is None:
                 break
