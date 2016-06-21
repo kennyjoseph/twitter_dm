@@ -22,7 +22,7 @@ Once you've cloned the repo, install the package and its dependencies
 
 ```$ python setup.py install```
 
-Then, open up the examples and check out how they work.  I recommend starting with ```collect_user_data_serially.py``` for single-process collection of tweets, ```snowball_sample_custom_function_example.py``` for multithreaded collection and 
+Then, open up the examples and check out how they work.  I recommend starting with ```simple_pull_down_user_data_print.py```, which shows how to use the tool with a single API "hook", a la ```tweepy```. From there, it makes sense to move on to ```collect_user_data_serially.py``` for single-process collection of tweets, ```snowball_sample_custom_function_example.py``` for multithreaded collection and 
 and ```run_identity_extraction.py``` for NLP stuff.
 
 Anything where you're collecting from the API will require you to have access to the API - that is, you'll need a consumer key & secret (an application) and an acces token & secret (a user who has subscribed to the API). ```twitter_dm``` can either help you set up new credentials (see ```examples/auth_example.py```) or can handle credentials stored in text files in the following way (one text file per application):
