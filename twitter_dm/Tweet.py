@@ -70,7 +70,7 @@ class Tweet:
         self.geocode_info = get_geo_record_for_tweet(jsn)
 
         self.created_at = get_created_at(jsn)
-
+        self.source=jsn['source']
         # weird junk date
         if self.created_at.year < 2000 or self.created_at.year > 2020:
             self.created_at = None
