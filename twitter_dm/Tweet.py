@@ -70,7 +70,7 @@ class Tweet:
         self.geocode_info = get_geo_record_for_tweet(jsn)
 
         self.created_at = get_created_at(jsn)
-
+        self.source=jsn['source']
         # weird junk date
         if self.created_at.year < 2000 or self.created_at.year > 2020:
             self.created_at = None
@@ -89,7 +89,7 @@ class Tweet:
         self.reply_to = get_reply_to(jsn, return_id=(True and 'id' in jsn['user']))
         self.reply_to_sn = get_reply_to(jsn, return_id=False)
         self.retweeted = get_retweeted_user(jsn, return_id=(True and 'id' in jsn['user']))
-        self.retweeted_sn = get_retweeted_user(jsn, return_id=False)
+        self.retweeted_sn = get_retweeted_user(jsn, return_id=True)
 
         # See if this tweet was the user's own and it got retweeted
         self.retweeted_user_tweet_count = get_retweeted_count(jsn)
