@@ -64,8 +64,12 @@ class Tweet:
             self.lang = 'none'
 
         self.geo = None
-        if 'geo' in jsn and jsn['geo']:
+        if 'coordinates' in jsn and jsn['coordinates']:
+            self.geo = jsn['coordinates']
+        elif 'geo' in jsn and jsn['geo']:
             self.geo = jsn['geo']['coordinates']
+
+        self.place = lookup(jsn,'place')
 
         self.geocode_info = get_geo_record_for_tweet(jsn)
 
@@ -131,7 +135,10 @@ LatLong = re.compile(OneCoord + Separator + OneCoord, re.U)
 
 
 def get_geo_record_for_tweet(tweet):
-    geo = lookup(tweet, 'geo')
+    geo = lookup(tweet,'coordinates')
+    if not geo:
+        geo = lookup(tweet, 'geo')
+        
     if geo and geo['type'] == 'Point':
         lat, lon = geo['coordinates']
         loc_type = 'OFFICIAL'

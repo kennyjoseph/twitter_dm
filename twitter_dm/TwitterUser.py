@@ -97,6 +97,7 @@ class TwitterUser:
         self.utc_offset =None
         self.followers_count = -1
         self.following_count = -1
+        self.lang = None
         ##############
 
 
@@ -193,7 +194,7 @@ class TwitterUser:
         self.utc_offset = user_data.get('utc_offset', None)
         self.followers_count = user_data.get('followers_count', -1)
         self.following_count = user_data.get('friends_count', -1)
-
+        self.lang = user_data.get('lang','')
 
     def gen_user_info_dict(self):
         if self.tweets:

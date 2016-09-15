@@ -22,6 +22,11 @@ class SimpleUserLookupWorker(multiprocessing.Process):
         self.api_hook = api_hook
         self.out_file = io.open(os.path.join(out_dir,str(conn_number)+"_nonactive_users.txt"),"w")
         self.user_info_out_file = io.open(os.path.join(out_dir,str(conn_number)+"_user_info.txt"),"w")
+        #self.user_info_out_file.write(tab_stringify_newline(["id","name","screen_name","url",
+        #                                                     "protected","location","description","followers_count",
+        #                                                     "friends_count","created_at","utc_offset","time_zone",
+        #                                                     "statuses_count","user_lang","status_created_at",
+        #                                                     "status_coordinates","status_lang"])
         self.conn_number = conn_number
         self.gets_user_id = gets_user_id
 
@@ -50,21 +55,26 @@ class SimpleUserLookupWorker(multiprocessing.Process):
 
                 for user in user_data:
                     output_data = [user["id"],
-                                   user["name"],
+                                   user["name"] if user['name'] else '',
                                    user["screen_name"],
-                                   user["location"],
-                                   user["description"],
+                                   user['url'] if user['url'] else '',
+                                   user['protected'],
+                                   user["location"] if user['location'] else '',
+                                   user["description"] if user['description'] else '',
                                    user["followers_count"],
                                    user["friends_count"],
                                    user["created_at"],
-                                   user["utc_offset"],
-                                   user["time_zone"],
+                                   user["utc_offset"] if user['utc_offset'] else '',
+                                   user["time_zone"]  if user['time_zone'] else '',
                                    user["statuses_count"],
-                                   user["lang"],
-                                   user["status_created_at"],
-                                   user["status_coordinates"],
-                                   user["status_lang"]]
-                    self.user_info_out_file.write(tab_stringify_newline(output_data))
+                                   user["lang"]]
+                    if 'status' in user:
+                        output_data += [user["status"]["created_at"],
+                                        user["status"]["coordinates"] if user['status']['coordinates'] else '',
+                                        user["status"]["lang"]]
+                    else:
+                        output_data += ['','','']
+                    self.user_info_out_file.write(tab_stringify_newline(output_data).replace("\n","  ")+"\n")
 
                 sleep(20)
 
