@@ -91,7 +91,13 @@ class Tweet:
         self.mentions_sns = get_mentions(jsn, False)
 
         self.reply_to = get_reply_to(jsn, return_id=(True and 'id' in jsn['user']))
+        # this is a better name but keeping both for backwards compatability
+        self.reply_to_user_id = self.reply_to
         self.reply_to_sn = get_reply_to(jsn, return_id=False)
+        # this is a better name but keeping both for backwards compatability
+        self.reply_to_user_screenname = self.reply_to_sn
+        if self.reply_to:
+            self.in_reply_to_status_id = jsn.get('in_reply_to_status_id',None)
         self.retweeted = get_retweeted_user(jsn, return_id=(True and 'id' in jsn['user']))
         self.retweeted_sn = get_retweeted_user(jsn, return_id=True)
 
