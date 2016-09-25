@@ -40,11 +40,13 @@ class Tweet:
         # Get tweet id
         self.id = get_id(jsn)
         # Basic replacement of html characters
-        self.text = HTMLParser.HTMLParser().unescape(jsn['text'])
+
+        tweet_text = get_text_from_tweet_json(jsn)
+        self.text = HTMLParser.HTMLParser().unescape(tweet_text)
 
         # TOKEN EXTRACTION
         if do_tokenize:
-            self.tokens = Tokenize.extract_tokens_twokenize_and_regex(jsn['text'],
+            self.tokens = Tokenize.extract_tokens_twokenize_and_regex(tweet_text,
                                                              noise_tokens,
                                                              **kwargs)
         else:
@@ -108,6 +110,9 @@ class Tweet:
         assert isinstance(tokens, list)
         self.tokens = tokens
 
+
+def get_text_from_tweet_json(jsn):
+    return jsn['text'] if 'text' in jsn else jsn['full_text']
 
 def us_geocode_tweet(tweet):
     import tweet_geocode
@@ -181,32 +186,35 @@ def get_tweets_from_gzip(fname, **args):
 
 
 def get_hashtags(tweet_json):
+    text = get_text_from_tweet_json(tweet_json)
     if 'entities' in tweet_json:
-        return [entity['text'].lower() for entity in tweet_json['entities']['hashtags']]
+        return [text.lower() for entity in tweet_json['entities']['hashtags']]
     else:
         # if its an old tweet, do it the hard way
         return [x for x in set(
-            [t for t in tokenize(tweet_json['text']) if t.startswith("#") and not t == "#"])]
+            [t for t in tokenize(text) if t.startswith("#") and not t == "#"])]
 
 
 def get_mentions(tweet_json, return_id=False):
+    text = get_text_from_tweet_json(tweet_json)
     to_return = 'id' if return_id else 'screen_name'
     if 'entities' in tweet_json:
         return [entity[to_return] for entity in tweet_json['entities']['user_mentions'] if to_return in entity]
     else:
         # if its an old tweet, do it the hard way
         return [x for x in set(
-            [t.replace("@", "") for t in tokenize(tweet_json['text']) if t.startswith("@") and not t == "@"])]
+            [t.replace("@", "") for t in tokenize(text) if t.startswith("@") and not t == "@"])]
 
 
 def get_retweeted_user(tweet_json, return_id=False):
     to_return = 'id' if return_id else 'screen_name'
+    text = get_text_from_tweet_json(tweet_json)
 
     if 'retweeted_status' in tweet_json and 'user' in tweet_json['retweeted_status']:
         return tweet_json['retweeted_status']['user'][to_return]
 
     # If there is one user mention, then return it, otherwise return noting
-    if 'RT' in tweet_json['text'] and 'entities' in tweet_json and len(tweet_json['entities']['user_mentions']) == 1:
+    if 'RT' in text and 'entities' in tweet_json and len(tweet_json['entities']['user_mentions']) == 1:
         return tweet_json['entities']['user_mentions'][0][to_return]
 
     return None

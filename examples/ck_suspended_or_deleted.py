@@ -5,6 +5,7 @@ __author__ = 'kjoseph'
 import sys, os, requests
 from time import sleep
 
+sys.argv = ['', '/Users/kennyjoseph/Downloads/missing_users_kenny_sample.tsv','will_of.csv']
 deleted_or_suspended = []
 with open(sys.argv[1]) as infil:
     for line in infil:
@@ -27,12 +28,22 @@ with open(sys.argv[2], "a") as out_fil:
         #if i % 100 == 0:
         print i
         try:
-            status = requests.get('http://twitter.com/intent/user?user_id=' + u).status_code
-            if status == 404:
+            status = requests.get('http://twitter.com/intent/user?user_id=' + u)
+            if status.status_code == 404:
                 out_fil.write(u + ",d\n")
-            elif status == 200:
-                out_fil.write(u +",s\n")
+            elif status.status_code == 200:
+                if 'protected' in status.text:
+                    out_fil.write(u +",p\n")
+                elif 'uspended' in status.text:
+                    out_fil.write(u +",s\n")
+                else:
+                    print u
+                    out_fil.write(u +",f\n")
+            else:
+                print u
+                out_fil.write(u +",f\n")
             i += 1
         except:
-            print 'FAILED: ', u
+            print u
+            out_fil.write(u +",f\n")
             sleep(600)

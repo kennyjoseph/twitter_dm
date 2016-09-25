@@ -58,6 +58,8 @@ class TwitterAPIHook:
             base_url='https://api.twitter.com/1.1/')
 
     def call_to_api(self, url, params, name=""):
+        if 'statuses' in url:
+            params['tweet_mode'] = 'extended'
         request_completed = False
         tried_request = 0
         while not request_completed:
