@@ -28,8 +28,10 @@ class UserDataWorker(multiprocessing.Process):
                  post_process_function=None,
                  save_user_tweets = True,
                  save_user_data=True,
+                 gets_max_tweet_id=False,
                  ):
         multiprocessing.Process.__init__(self)
+
         self.queue = queue
         self.api_hook = api_hook
         self.out_dir = out_dir
@@ -43,6 +45,8 @@ class UserDataWorker(multiprocessing.Process):
         self.post_process_function = post_process_function
         self.save_user_tweets= save_user_tweets
         self.save_user_data = save_user_data
+        self.gets_max_tweet_id = gets_max_tweet_id
+
         if ((step_count and not add_users_to_queue_function) or
             (not step_count and add_users_to_queue_function)):
             print 'WARNING: you supplied a step count but no function, or vice versa, ',
@@ -52,6 +56,7 @@ class UserDataWorker(multiprocessing.Process):
         print('Worker started')
         # do some initialization here
         snow_sample_number = None
+        max_tweet_id = None
         while True:
             data = self.queue.get(True)
 
@@ -60,8 +65,13 @@ class UserDataWorker(multiprocessing.Process):
                     print 'ALL FINISHED!!!!'
                     break
 
-                if len(data) == 2:
-                    user_identifier, snow_sample_number = data
+                if len(data) == 3:
+                    user_identifier, snow_sample_number, max_tweet_id = data
+                elif len(data) == 2:
+                    if self.step_count:
+                        user_identifier, snow_sample_number = data
+                    elif self.gets_max_tweet_id:
+                        user_identifier, max_tweet_id = data
                 else:
                     user_identifier = data
 
@@ -86,9 +96,9 @@ class UserDataWorker(multiprocessing.Process):
                     print 'populating tweets', user_identifier
                     if self.save_user_tweets:
                         print 'saving tweets to: ', json_filename
-                        user.populate_tweets_from_api(json_output_filename=json_filename)
+                        user.populate_tweets_from_api(json_output_filename=json_filename,max_id=max_tweet_id)
                     else:
-                        user.populate_tweets_from_api()
+                        user.populate_tweets_from_api(max_id=max_tweet_id)
 
                     if self.populate_lists:
                         print 'populating lists', user.screen_name
