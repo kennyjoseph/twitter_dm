@@ -28,14 +28,14 @@ print 'n authed connections to the Twitter API: ', len(handles)
 
 out_dir = sys.argv[2]
 
-user_id_and_max_id = []
+user_id_and_since_id = []
 for line in open(sys.argv[3]).readlines():
     line_spl = line.strip().split(",")
     if line_spl[1] == 'None':
         continue
-    user_id_and_max_id.append((line_spl[0],line_spl[1]))
+    user_id_and_since_id.append((line_spl[0],line_spl[1]))
 
-print 'num users: ', len(user_id_and_max_id)
+print 'num users: ', len(user_id_and_since_id)
 
 general_utils.mkdir_no_err(out_dir)
 general_utils.mkdir_no_err(os.path.join(out_dir,"obj"))
@@ -43,7 +43,7 @@ general_utils.mkdir_no_err(os.path.join(out_dir,"json"))
 multiprocess_setup.init_good_sync_manager()
 
 ##put data on the queue
-request_queue = multiprocess_setup.load_request_queue(user_id_and_max_id, len(handles))
+request_queue = multiprocess_setup.load_request_queue(user_id_and_since_id, len(handles))
 
 processes = []
 for i in range(len(handles)):
@@ -53,7 +53,7 @@ for i in range(len(handles)):
                         populate_lists=False,
                         populate_friends=True,
                         populate_followers=True,
-                        gets_max_tweet_id=True)
+                        gets_since_tweet_id=True)
     p.start()
     processes.append(p)
 

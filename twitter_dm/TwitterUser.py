@@ -222,7 +222,7 @@ class TwitterUser:
     def populate_tweets_from_api(self, json_output_directory=None,
                                  json_output_filename=None,
                                  sleep_var=True, is_gzip=True,
-                                 max_id=None):
+                                 since_id=None):
         """
         Gets the last ~3200 tweets for the user from the Twitter REST API
         """
@@ -231,8 +231,8 @@ class TwitterUser:
             'count': 200,  # 200 tweets
         }
 
-        if max_id:
-            params['max_id'] = max_id
+        if since_id:
+            params['since_id'] = since_id
 
         tweets_from_api = self.api_hook.get_with_max_id_for_user(
             'statuses/user_timeline.json',
