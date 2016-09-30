@@ -301,7 +301,7 @@ class TwitterUser:
                     out_fil.write(json.dumps(tweet).strip() + u"\n")
             out_fil.close()
 
-        print 'WROTE OUT ', len(all_tweets), ' FOR: ', self.screen_name
+        print len(all_tweets), ' total tweets for: ', self.screen_name, ' ', len(tweets_from_api), ' new tweets from API'
         return out_fil_name
 
 
