@@ -127,3 +127,27 @@ def get_alternate_wordforms(text,do_lemmatize=True,do_slow_singular=False,pos_ta
     if len(spl) > 1 and ' ' not in clean:
         to_ret |= set(spl)
     return [x for x in to_ret if len(x)]
+
+def search_text_for_topics(tweet_text,terms_to_topic_dictionary,max_n_gram_size=2):
+    """
+    :param tweet_text: Text of the tweet
+    :param terms_to_topic_dictionary: A map from a term/phrase to a topic name
+    :param max_n_gram_size: The size of the largest ngram you want to look at
+    :return: a set() of topics found in the tweet
+    """
+    tokens = tokenize(tweet_text)
+    tweet_topics = set()
+    for i in range(len(tokens)):
+        for j in range(0,min(max_ngram_size,len(tokens) - i)):
+            curr_tokens = tokens[i:(i+j+1)]
+
+            # get all alternate forms
+            alt_forms = [get_alternate_wordforms(wf) for wf in curr_tokens]
+            if any([not len(wf) for wf in alt_forms]):
+                continue
+            # Do dictionary lookups
+            for comb in itertools.product(*alt_forms):
+                ct =  " ".join(comb)
+                if ct in term_to_topic:
+                    tweet_topics.add(terms_to_topic_dictionary[ct])
+    return tweet_topics
