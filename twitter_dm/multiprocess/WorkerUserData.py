@@ -29,6 +29,7 @@ class UserDataWorker(multiprocessing.Process):
                  save_user_tweets = True,
                  save_user_data=True,
                  gets_since_tweet_id=False,
+                 add_to_file=False,
                  ):
         multiprocessing.Process.__init__(self)
 
@@ -46,6 +47,7 @@ class UserDataWorker(multiprocessing.Process):
         self.save_user_tweets= save_user_tweets
         self.save_user_data = save_user_data
         self.gets_since_tweet_id = gets_since_tweet_id
+        self.add_to_file = add_to_file
 
         if ((step_count and not add_users_to_queue_function) or
             (not step_count and add_users_to_queue_function)):
@@ -83,7 +85,7 @@ class UserDataWorker(multiprocessing.Process):
                 json_filename = os.path.join(self.out_dir,"json",user_identifier+".json.gz")
 
                 # Get the user's data
-                if os.path.exists(pickle_filename) and os.path.exists(json_filename):
+                if os.path.exists(pickle_filename) and os.path.exists(json_filename) and not self.add_to_file:
                     print '\tgot existing data for: ', data
                     user = pickle.load(open(pickle_filename,"rb"))
                     user.populate_tweets_from_file(json_filename)
