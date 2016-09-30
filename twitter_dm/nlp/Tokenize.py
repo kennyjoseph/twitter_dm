@@ -85,7 +85,7 @@ def extract_tokens(text,
 
     # remove commas or words containing commas, numbers
     words = [token for token in words if token not in noise_tokens and
-                                        len(token) > 1 and
+                                        len(token) >= 1 and
                                         token.find(',') < 0 and
                                         not token.translate(remove_punctuation_map).isdigit()]
 
@@ -129,5 +129,8 @@ def extract_tokens(text,
             if not drop_gram:
                 tokens.append(gram)
 
-    return [t for t in tokens if len(t) > 0 and t not in noise_tokens]
+    tokens = [t for t in tokens if len(t) > 0 and t not in noise_tokens]
+    if make_lowercase:
+        tokens = [t.lower() for t in tokens]
+    return tokens
 
