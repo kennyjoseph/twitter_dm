@@ -22,6 +22,7 @@ import random
 import StringIO
 import gzip
 import os
+import io
 from pkg_resources import resource_stream
 
 
@@ -219,6 +220,29 @@ class TwitterUser:
         }
 
 
+    def _get_file_name(self, json_output_directory, json_output_filename, is_gzip):
+        out_fil_name = None
+        if json_output_directory is not None or json_output_filename is not None:
+            # if a file name is provided
+            if json_output_filename is not None:
+                is_gzip = is_gzip or json_output_filename.endswith(".gz")
+                out_fil_name = json_output_filename
+
+                # add the correct file endings
+                if not (out_fil_name.endswith(".json") or out_fil_name.endswith(".gz")):
+                    out_fil_name += ".json"
+            else:
+                if json_output_directory != '':
+                    out_fil_name = os.path.join(json_output_directory,self.user_id+".json")
+                else:
+                    out_fil_name = self.user_id+".json"
+
+            if is_gzip:
+                if not out_fil_name.endswith(".gz"):
+                    out_fil_name += ".gz"
+        return out_fil_name
+
+
     def populate_tweets_from_api(self, json_output_directory=None,
                                  json_output_filename=None,
                                  sleep_var=True, is_gzip=True,
@@ -231,9 +255,26 @@ class TwitterUser:
             'count': 200,  # 200 tweets
         }
 
+        # get file to output to
+        out_fil_name = self._get_file_name(json_output_directory,json_output_filename,is_gzip)
+
+        # If the file provided exists, then we want to cat on top of it.
+        existing_tweets = []
+        if out_fil_name and os.path.exists(out_fil_name):
+            if out_fil_name.endswith(".gz"):
+                reader = [z.decode("utf8") for z in gzip.open(out_fil_name).read().splitlines()]
+            else:
+                reader = codecs.open(out_fil_name,"r","utf8")
+
+            existing_tweets = [json.loads(l) for l in reader]
+
+        # get since the last existing tweet if a since_id is given or we have existing tweets
         if since_id:
             params['since_id'] = since_id
+        elif len(existing_tweets):
+            params['since_id'] = existing_tweets[0]['id']
 
+        # get the tweets from the API
         tweets_from_api = self.api_hook.get_with_max_id_for_user(
             'statuses/user_timeline.json',
             params,
@@ -242,40 +283,27 @@ class TwitterUser:
             sleep_var=sleep_var
         )
 
-        self.populate_tweets(tweets_from_api)
-        if json_output_directory is not None or json_output_filename is not None:
+        # combine all tweets
+        all_tweets = tweets_from_api + existing_tweets
 
-            # if a file name is provided
-            if json_output_filename is not None:
-                is_gzip = is_gzip or json_output_filename.endswith(".gz")
-                out_fil_name = json_output_filename
-                #add the correct file endings
-                if not (out_fil_name.endswith(".json") or out_fil_name.endswith(".gz")):
-                    out_fil_name += ".json"
-            else:
-                if json_output_directory != '':
-                    out_fil_name = os.path.join(json_output_directory,self.user_id+".json")
-                else:
-                    out_fil_name = self.user_id+".json"
+        # populate the object
+        # TODO: insert option to not do this
+        self.populate_tweets(all_tweets)
 
-            if is_gzip:
-                if not out_fil_name.endswith(".gz"):
-                    out_fil_name += ".gz"
+        if out_fil_name:
+            if out_fil_name.endswith(".gz"):
                 out_fil = gzip.open(out_fil_name, "wb")
-
-                for tweet in tweets_from_api:
+                for tweet in all_tweets:
                     out_fil.write(json.dumps(tweet).strip().encode("utf8") + "\n")
             else:
-                out_fil = codecs.open(out_fil_name, "w","utf8")
-
-                for tweet in tweets_from_api:
-                    out_fil.write(json.dumps(tweet).strip() + "\n")
-
+                out_fil = io.open(out_fil_name, "w")
+                for tweet in all_tweets:
+                    out_fil.write(json.dumps(tweet).strip() + u"\n")
             out_fil.close()
 
-            print 'WROTE OUT ', len(tweets_from_api), ' FOR: ', self.screen_name
-            return out_fil_name
-        return None
+        print 'WROTE OUT ', len(all_tweets), ' FOR: ', self.screen_name
+        return out_fil_name
+
 
 
 
