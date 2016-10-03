@@ -260,6 +260,7 @@ class TwitterUser:
 
         # If the file provided exists, then we want to cat on top of it.
         existing_tweets = []
+        max_tw_id = None
         if out_fil_name and os.path.exists(out_fil_name):
             if out_fil_name.endswith(".gz"):
                 reader = [z.decode("utf8") for z in gzip.open(out_fil_name).read().splitlines()]
@@ -268,11 +269,21 @@ class TwitterUser:
 
             existing_tweets = [json.loads(l) for l in reader]
 
+            # find the most recent tweet
+            if len(existing_tweets):
+                max_tw_id = existing_tweets[0]['id']
+                max_date = parse_date(existing_tweets[0]['created_at'])
+                for t in existing_tweets[1:]:
+                    dt = parse_date(t['created_at'])
+                    if dt > max_date:
+                        max_date = dt
+                        max_tw_id = t['id']
+
         # get since the last existing tweet if a since_id is given or we have existing tweets
         if since_id:
             params['since_id'] = since_id
-        elif len(existing_tweets):
-            params['since_id'] = existing_tweets[0]['id']
+        elif max_tw_id:
+            params['since_id'] = max_tw_id
 
         # get the tweets from the API
         tweets_from_api = self.api_hook.get_with_max_id_for_user(
