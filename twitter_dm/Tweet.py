@@ -13,7 +13,6 @@ Note that a lot of the code is ugly because it deals with both the "new" and "ol
 tweet formats. It needs way more commenting, but that will come, I hope, soon.
 """
 
-
 from .utility.tweet_utils import parse_date, lookup
 import re
 from datetime import datetime
@@ -26,10 +25,27 @@ from nlp.twokenize import tokenize
 
 
 class Tweet:
-    def __init__(self, jsn, do_tokenize=True,
+    def __init__(self, jsn_or_string, do_tokenize=True,
+                 do_parse_created_at=True,
                  store_json=False,
                  noise_tokens=set(),
                  **kwargs):
+        """
+        :param jsn_or_string: A json representation of a tweet, i.e. the output of json.loads(line) for a line of a file with
+         tweets in it in json format, or a string that can be loaded with json.loads
+        :param do_tokenize: whether or not to perform tokenization (which is very slow), default True
+        :param do_parse_created_at: whether or not to parse the tweet date into a twitter datetime object
+            (which is kind of slow), default True
+        :param store_json: Whether or not to store the raw JSON for the tweet (weird but useful in some cases)
+        :param noise_tokens: A list of noise tokens to ignore during tokenization (if you're tokenizing), default none
+        :param kwargs: Any other keyword arguments to pass into the tokenization function
+        :return:
+        """
+
+        if type(jsn_or_string) is dict:
+            jsn = jsn_or_string
+        else:
+            jsn = json.loads(jsn_or_string)
 
         # store raw json (yuck, but useful in some random cases
         if store_json:
@@ -47,8 +63,8 @@ class Tweet:
         # TOKEN EXTRACTION
         if do_tokenize:
             self.tokens = Tokenize.extract_tokens_twokenize_and_regex(tweet_text,
-                                                             noise_tokens,
-                                                             **kwargs)
+                                                                      noise_tokens,
+                                                                      **kwargs)
         else:
             self.tokens = None
 
@@ -71,14 +87,19 @@ class Tweet:
         elif 'geo' in jsn and jsn['geo']:
             self.geo = jsn['geo']['coordinates']
 
-        self.place = lookup(jsn,'place')
+        self.place = lookup(jsn, 'place')
 
         self.geocode_info = get_geo_record_for_tweet(jsn)
 
-        self.created_at = get_created_at(jsn)
-        self.source=jsn['source']
-        # weird junk date
-        if self.created_at.year < 2000 or self.created_at.year > 2020:
+        self.source = jsn['source']
+
+        if do_parse_created_at:
+            self.created_at = get_created_at(jsn)
+
+            # weird junk date
+            if self.created_at.year < 2000 or self.created_at.year > 2020:
+                self.created_at = None
+        else:
             self.created_at = None
 
         self.user = dict(id=get_id(jsn['user']),
@@ -99,20 +120,44 @@ class Tweet:
         # this is a better name but keeping both for backwards compatability
         self.reply_to_user_screenname = self.reply_to_sn
         if self.reply_to:
-            self.in_reply_to_status_id = jsn.get('in_reply_to_status_id',None)
+            self.in_reply_to_status_id = jsn.get('in_reply_to_status_id', None)
         self.retweeted = get_retweeted_user(jsn, return_id=(True and 'id' in jsn['user']))
         self.retweeted_sn = get_retweeted_user(jsn, return_id=True)
 
         # See if this tweet was the user's own and it got retweeted
         self.retweeted_user_tweet_count = get_retweeted_count(jsn)
 
+        # Quoted tweet stuff
+        self.is_quote = jsn.get('is_quote_status', False)
+        if self.is_quote:
+
+            self.quoted_status_id = jsn.get('quoted_status_id',None)
+            if 'quoted_status' in jsn:
+                self.quoted_tweet = Tweet(jsn['quoted_status'],
+                                          do_tokenize=do_tokenize,
+                                          do_parse_created_at=do_parse_created_at,
+                                          store_json=store_json,
+                                          noise_tokens=noise_tokens,
+                                          kwargs=kwargs)
+            else:
+                self.quoted_tweet = None
+
     def setTokens(self, tokens):
         assert isinstance(tokens, list)
         self.tokens = tokens
 
+    def return_all_text(self):
+        return (self.text if not self.is_quote and self.quoted_tweet
+                else self.text + " \"" + self.quoted_tweet.text + "\"")
+
+    def return_all_tokens(self):
+        return (self.tokens if not self.is_quote and self.quoted_tweet
+                else self.tokens + self.quoted_tweet.tokens)
+
 
 def get_text_from_tweet_json(jsn):
     return jsn['text'] if 'text' in jsn else jsn['full_text']
+
 
 def us_geocode_tweet(tweet):
     import tweet_geocode
@@ -146,10 +191,10 @@ LatLong = re.compile(OneCoord + Separator + OneCoord, re.U)
 
 
 def get_geo_record_for_tweet(tweet):
-    geo = lookup(tweet,'coordinates')
+    geo = lookup(tweet, 'coordinates')
     if not geo:
         geo = lookup(tweet, 'geo')
-        
+
     if geo and geo['type'] == 'Point':
         lat, lon = geo['coordinates']
         loc_type = 'OFFICIAL'
