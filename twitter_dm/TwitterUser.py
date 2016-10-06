@@ -152,7 +152,7 @@ class TwitterUser:
             tweet = Tweet.Tweet(t, noise_tokens=self.stopwords, **kwargs)
             self.tweets.append(tweet)
 
-            if tweet.created_at:
+            if tweet.created_at and type(tweet.created_at) is not str and type(tweet.created_at) is not unicode:
                 if tweet.created_at < self.earliest_tweet_time:
                     self.earliest_tweet_time = tweet.created_at
                 if tweet.created_at > self.latest_tweet_time:

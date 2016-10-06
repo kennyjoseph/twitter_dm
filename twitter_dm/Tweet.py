@@ -102,7 +102,8 @@ class Tweet:
             # weird junk date
             if self.created_at.year < 2000 or self.created_at.year > 2020:
                 self.created_at = None
-        self.created_at = jsn.get('created_at',None)
+        else:
+            self.created_at = jsn.get('created_at',None)
 
         self.user = None
         if 'user' in jsn:
@@ -130,7 +131,7 @@ class Tweet:
                                          store_json=store_json,
                                          store_full_retweet_and_quote=store_full_retweet_and_quote,
                                          noise_tokens=noise_tokens,
-                                         kwargs=kwargs)
+                                         **kwargs)
 
         # See if this tweet was the user's own and it got retweeted
         self.retweeted_user_tweet_count = get_retweeted_count(jsn)
@@ -149,7 +150,7 @@ class Tweet:
                                           store_json=store_json,
                                           store_full_retweet_and_quote=store_full_retweet_and_quote,
                                           noise_tokens=noise_tokens,
-                                          kwargs=kwargs)
+                                          **kwargs)
             else:
                 self.quoted_tweet = None
 
