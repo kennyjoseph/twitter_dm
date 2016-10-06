@@ -13,7 +13,7 @@ and goes to the Twitter API to get this user's tweets
 __author__ = 'kjoseph'
 
 from .utility.tweet_utils import parse_date
-from Tweet import  Tweet
+import Tweet
 import codecs
 from collections import Counter
 import datetime
@@ -28,7 +28,7 @@ from pkg_resources import resource_stream
 
 class TwitterUser:
 
-    def __init__(self, api_hook=None, screen_name=None, user_id=None,
+    def __init__(self, api_hook=None, screen_name=None, user_id=None, user_data_object=None,
                  list_of_tweets=None, filename_for_tweets=None, stopwords=None, print_verbose=False):
         """
         Initialize the twitter user. Must supply either a screen name or an ID!
@@ -38,13 +38,18 @@ class TwitterUser:
                         in future calls you want to make to the Twitter API
         """
 
+        if user_data_object:
+            self.tweets = []
+            self.populate_user_data(user_data_object)
+            return
+
         if stopwords is None:
             stopwords_stream = resource_stream('twitter_dm', 'data/stopwords.txt')
             self.stopwords = set([word.strip() for word in stopwords_stream.readlines()])
         else:
             self.stopwords = set([s for s in stopwords])
 
-        self.tweets = []
+
 
         # All of these are populated when you get a user's tweets from the API
         ##############
@@ -108,6 +113,8 @@ class TwitterUser:
         elif filename_for_tweets is not None:
             # Or, give a file name (either .gz or a raw file w/ JSON) to load tweets from there
             self.populate_tweets_from_file(filename_for_tweets)
+        elif user_data_object is not None:
+            self.populate_user_data(user_data_object)
         else:
             #Otherwise, set up the user to be hydrated with future populate_* calls
             # SESSION INFO
@@ -139,7 +146,7 @@ class TwitterUser:
             self.latest_tweet_time = datetime.datetime.min
 
         for t in tweets:
-            tweet = Tweet(t, noise_tokens=self.stopwords, **kwargs)
+            tweet = Tweet.Tweet(t, noise_tokens=self.stopwords, **kwargs)
             self.tweets.append(tweet)
 
             if tweet.created_at:
@@ -178,15 +185,17 @@ class TwitterUser:
 
         # INFO ABOUT USER
         user_data = tweets[-1]['user']
+        self.populate_user_data(user_data,do_parse_date=True)
+
+    def populate_user_data(self,user_data,do_parse_date=False):
         self.user_id = get_user_id_str(user_data)
         self.screen_name = user_data.get('screen_name', None)
         self.name = user_data.get('name', None)
         self.description = user_data.get('description', None)
         self.n_total_tweets = user_data.get('statuses_count', None)
-        if 'created_at' in user_data:
+        if 'created_at' in user_data and do_parse_date:
             self.creation_date = parse_date(user_data['created_at'])
-        else:
-            self.creation_date = None
+        self.creation_date = user_data.get('created_at',None)
         self.location = user_data.get('location', None)
         self.homepage = None
         if 'entities' in user_data and 'url' in user_data['entities'] and 'urls' in user_data['entities']['url']:
@@ -218,7 +227,6 @@ class TwitterUser:
             "followers_count" : self.followers_count,
             "following_count" : self.following_count
         }
-
 
     def _get_file_name(self, json_output_directory, json_output_filename, is_gzip):
         out_fil_name = None

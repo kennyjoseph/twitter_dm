@@ -22,12 +22,13 @@ import gzip
 import codecs
 from nlp import Tokenize
 from nlp.twokenize import tokenize
-
+import TwitterUser
 
 class Tweet:
     def __init__(self, jsn_or_string, do_tokenize=True,
                  do_parse_created_at=True,
                  store_json=False,
+                 store_full_retweet_and_quote=True,
                  noise_tokens=set(),
                  **kwargs):
         """
@@ -37,6 +38,8 @@ class Tweet:
         :param do_parse_created_at: whether or not to parse the tweet date into a twitter datetime object
             (which is kind of slow), default True
         :param store_json: Whether or not to store the raw JSON for the tweet (weird but useful in some cases)
+        :param store_full_retweet_and_quote: If true will store a Tweet() representation of retweets and quoted tweets
+                if available in the tweet text. These tweets have the same arguments as those passed into the function
         :param noise_tokens: A list of noise tokens to ignore during tokenization (if you're tokenizing), default none
         :param kwargs: Any other keyword arguments to pass into the tokenization function
         :return:
@@ -99,15 +102,11 @@ class Tweet:
             # weird junk date
             if self.created_at.year < 2000 or self.created_at.year > 2020:
                 self.created_at = None
-        else:
-            self.created_at = None
+        self.created_at = jsn.get('created_at',None)
 
-        self.user = dict(id=get_id(jsn['user']),
-                         screen_name=lookup(jsn, 'user.screen_name'),
-                         followers=lookup(jsn, 'user.followers_count', None),
-                         friends=lookup(jsn, 'user.friends_count', None),
-                         verified=lookup(jsn, 'user.verified', None),
-                         utc_offset=lookup(jsn, 'user.utc_offset', None))
+        self.user = None
+        if 'user' in jsn:
+            self.user = TwitterUser.TwitterUser(user_data_object=jsn['user'])
 
         # Handle mentions, retweets, reply
         self.mentions = get_mentions(jsn, True)
@@ -122,21 +121,33 @@ class Tweet:
         if self.reply_to:
             self.in_reply_to_status_id = jsn.get('in_reply_to_status_id', None)
         self.retweeted = get_retweeted_user(jsn, return_id=(True and 'id' in jsn['user']))
-        self.retweeted_sn = get_retweeted_user(jsn, return_id=True)
+        self.retweeted_sn = get_retweeted_user(jsn, return_id=False)
+        self.retweeted_tweet = None
+        if 'retweeted_status' in jsn and store_full_retweet_and_quote:
+            self.retweeted_tweet = Tweet(jsn['retweeted_status'],
+                                         do_tokenize=do_tokenize,
+                                         do_parse_created_at=do_parse_created_at,
+                                         store_json=store_json,
+                                         store_full_retweet_and_quote=store_full_retweet_and_quote,
+                                         noise_tokens=noise_tokens,
+                                         kwargs=kwargs)
 
         # See if this tweet was the user's own and it got retweeted
         self.retweeted_user_tweet_count = get_retweeted_count(jsn)
 
         # Quoted tweet stuff
         self.is_quote = jsn.get('is_quote_status', False)
+        self.quoted_status_id = None
+        self.quoted_tweet = None
         if self.is_quote:
 
-            self.quoted_status_id = jsn.get('quoted_status_id',None)
-            if 'quoted_status' in jsn:
+            self.quoted_status_id = jsn.get('quoted_status_id', None)
+            if 'quoted_status' in jsn and store_full_retweet_and_quote:
                 self.quoted_tweet = Tweet(jsn['quoted_status'],
                                           do_tokenize=do_tokenize,
                                           do_parse_created_at=do_parse_created_at,
                                           store_json=store_json,
+                                          store_full_retweet_and_quote=store_full_retweet_and_quote,
                                           noise_tokens=noise_tokens,
                                           kwargs=kwargs)
             else:
@@ -147,7 +158,7 @@ class Tweet:
         self.tokens = tokens
 
     def return_all_text(self):
-        return (self.text if not self.is_quote and self.quoted_tweet
+        return (self.text if not self.is_quote or not self.quoted_tweet
                 else self.text + " \"" + self.quoted_tweet.text + "\"")
 
     def return_all_tokens(self):
