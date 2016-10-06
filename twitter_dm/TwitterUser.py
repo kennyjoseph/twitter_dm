@@ -38,8 +38,10 @@ class TwitterUser:
                         in future calls you want to make to the Twitter API
         """
 
+
+        self.tweets = []
+        
         if user_data_object:
-            self.tweets = []
             self.populate_user_data(user_data_object)
             return
 
@@ -136,6 +138,7 @@ class TwitterUser:
         :param kwargs: keywords to pass to Tweet constructor
         :return:
         """
+
         if len(tweets) == 0:
             return
 
