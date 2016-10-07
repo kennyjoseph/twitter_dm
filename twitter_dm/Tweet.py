@@ -245,7 +245,7 @@ def get_tweets_from_gzip(fname, **args):
 def get_hashtags(tweet_json):
     text = get_text_from_tweet_json(tweet_json)
     if 'entities' in tweet_json:
-        return [entity.lower() for entity in tweet_json['entities']['hashtags']]
+        return [entity['text'].lower() for entity in tweet_json['entities']['hashtags']]
     else:
         # if its an old tweet, do it the hard way
         return [x for x in set(
