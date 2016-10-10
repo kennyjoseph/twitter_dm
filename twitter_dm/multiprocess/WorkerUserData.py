@@ -30,6 +30,7 @@ class UserDataWorker(multiprocessing.Process):
                  save_user_data=True,
                  gets_since_tweet_id=False,
                  add_to_file=False,
+                 populate_tweets=True
                  ):
         multiprocessing.Process.__init__(self)
 
@@ -48,6 +49,7 @@ class UserDataWorker(multiprocessing.Process):
         self.save_user_data = save_user_data
         self.gets_since_tweet_id = gets_since_tweet_id
         self.add_to_file = add_to_file
+        self.populate_tweets = populate_tweets
 
         if ((step_count and not add_users_to_queue_function) or
             (not step_count and add_users_to_queue_function)):
@@ -96,12 +98,14 @@ class UserDataWorker(multiprocessing.Process):
                         user = TwitterUser(self.api_hook, screen_name=user_identifier)
 
                     print 'populating tweets', user_identifier
-                    if self.save_user_tweets:
-                        print 'saving tweets to: ', json_filename
-                        user.populate_tweets_from_api(json_output_filename=json_filename,
-                                                      since_id=since_tweet_id)
-                    else:
-                        user.populate_tweets_from_api(since_id=since_tweet_id)
+
+                    if self.populate_tweets:
+                        if self.save_user_tweets:
+                            print 'saving tweets to: ', json_filename
+                            user.populate_tweets_from_api(json_output_filename=json_filename,
+                                                          since_id=since_tweet_id)
+                        else:
+                            user.populate_tweets_from_api(since_id=since_tweet_id)
 
                     if self.populate_lists:
                         print 'populating lists', user.screen_name
