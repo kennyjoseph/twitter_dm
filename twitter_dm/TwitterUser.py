@@ -27,20 +27,27 @@ from pkg_resources import resource_stream
 
 
 class TwitterUser:
-
     def __init__(self, api_hook=None, screen_name=None, user_id=None, user_data_object=None,
                  list_of_tweets=None, filename_for_tweets=None, stopwords=None, print_verbose=False):
         """
-        Initialize the twitter user. Must supply either a screen name or an ID!
+        Initialize the twitter user. Must supply either screen_name, user_id, user_data_object,
+                            list_of_tweets or filename_for_tweets
         :param screen_name: a user's screen_name
         :param user_id: a user's id
         :param api_hook: an OAuth1Service session... if you have one, this code will use it
                         in future calls you want to make to the Twitter API
+        :param user_data_object: A user object that exists within a Tweet object; a rapid way to create
+                        a TwitterUser without instantiating all the class objects, which is expensive
+        :param list_of_tweets: A python list of tweets to use to instantiate the user
+        :param filename_for_tweets: A filename (.json or .gz) giving the user's tweets
+        :param stopwords: Any stopwords to be used to tokenize the user's tweets (defaults to twitter_dm standard stoplist)
+        :param print_verbose: Should twitter_dm present verbose output?
+        :return: twitter_dm.TwitterUser.TwitterUser
         """
 
-
+        # Needs to be instantiated before anything else
         self.tweets = []
-        
+
         if user_data_object:
             self.populate_user_data(user_data_object)
             return
@@ -50,8 +57,6 @@ class TwitterUser:
             self.stopwords = set([word.strip() for word in stopwords_stream.readlines()])
         else:
             self.stopwords = set([s for s in stopwords])
-
-
 
         # All of these are populated when you get a user's tweets from the API
         ##############
@@ -76,6 +81,9 @@ class TwitterUser:
         # Tokens Info
         self.tokens = Counter()
 
+        # Tweets that were retweets
+        self.retweeted_tweets = []
+
         ##############
         ##############
 
@@ -86,28 +94,28 @@ class TwitterUser:
         # Follower IDs, populated with populate_followers() method
         self.follower_ids = []
 
-        # MISC
-        ##############
-        self.retweeted_tweets = []
+        # Lists the user has, populated with populate_lists() method
         self.lists = []
-        self.times_listed = -1
 
-        self.earliest_tweet_time = None
-        self.latest_tweet_time = None
-
-        self.print_verbose = print_verbose
+        ##### User description features #####
         self.name = None
         self.description = None
         self.n_total_tweets = None
         self.creation_date = None
         self.location = None
         self.homepage = None
-        self.utc_offset =None
+        self.utc_offset = None
         self.followers_count = -1
         self.following_count = -1
         self.lang = None
+        self.times_listed = -1
+
+        self.earliest_tweet_time = None
+        self.latest_tweet_time = None
+
         ##############
 
+        self.print_verbose = print_verbose
 
         if list_of_tweets is not None:
             # If you've passed in a list of tweets, then "hydrate" this user
@@ -118,7 +126,7 @@ class TwitterUser:
         elif user_data_object is not None:
             self.populate_user_data(user_data_object)
         else:
-            #Otherwise, set up the user to be hydrated with future populate_* calls
+            # Otherwise, set up the user to be hydrated with future populate_* calls
             # SESSION INFO
             self.api_hook = api_hook
 
@@ -127,8 +135,6 @@ class TwitterUser:
 
             self.screen_name = screen_name
             self.user_id = user_id
-
-
 
     def populate_tweets(self, tweets, **kwargs):
         """
@@ -188,9 +194,9 @@ class TwitterUser:
 
         # INFO ABOUT USER
         user_data = tweets[-1]['user']
-        self.populate_user_data(user_data,do_parse_date=True)
+        self.populate_user_data(user_data, do_parse_date=True)
 
-    def populate_user_data(self,user_data,do_parse_date=False):
+    def populate_user_data(self, user_data, do_parse_date=False):
         self.user_id = get_user_id_str(user_data)
         self.screen_name = user_data.get('screen_name', None)
         self.name = user_data.get('name', None)
@@ -198,7 +204,7 @@ class TwitterUser:
         self.n_total_tweets = user_data.get('statuses_count', None)
         if 'created_at' in user_data and do_parse_date:
             self.creation_date = parse_date(user_data['created_at'])
-        self.creation_date = user_data.get('created_at',None)
+        self.creation_date = user_data.get('created_at', None)
         self.location = user_data.get('location', None)
         self.homepage = None
         if 'entities' in user_data and 'url' in user_data['entities'] and 'urls' in user_data['entities']['url']:
@@ -207,7 +213,7 @@ class TwitterUser:
         self.utc_offset = user_data.get('utc_offset', None)
         self.followers_count = user_data.get('followers_count', -1)
         self.following_count = user_data.get('friends_count', -1)
-        self.lang = user_data.get('lang','')
+        self.lang = user_data.get('lang', '')
 
     def gen_user_info_dict(self):
         if self.tweets:
@@ -216,19 +222,19 @@ class TwitterUser:
             n_captured_tweets = 0
 
         return {
-            "user_id" : self.user_id,
-            "screen_name" : self.screen_name,
-            "name" : self.name,
-            "description" : self.description,
-            "n_total_tweets" : self.n_total_tweets,
+            "user_id": self.user_id,
+            "screen_name": self.screen_name,
+            "name": self.name,
+            "description": self.description,
+            "n_total_tweets": self.n_total_tweets,
             "n_captured_tweets": n_captured_tweets,
-            "creation_date" : self.creation_date,
-            "location" : self.location,
-            "homepage" : self.homepage,
-            "times_listed" : self.times_listed,
-            "utc_offset" : self.utc_offset,
-            "followers_count" : self.followers_count,
-            "following_count" : self.following_count
+            "creation_date": self.creation_date,
+            "location": self.location,
+            "homepage": self.homepage,
+            "times_listed": self.times_listed,
+            "utc_offset": self.utc_offset,
+            "followers_count": self.followers_count,
+            "following_count": self.following_count
         }
 
     def _get_file_name(self, json_output_directory, json_output_filename, is_gzip):
@@ -244,15 +250,14 @@ class TwitterUser:
                     out_fil_name += ".json"
             else:
                 if json_output_directory != '':
-                    out_fil_name = os.path.join(json_output_directory,self.user_id+".json")
+                    out_fil_name = os.path.join(json_output_directory, self.user_id + ".json")
                 else:
-                    out_fil_name = self.user_id+".json"
+                    out_fil_name = self.user_id + ".json"
 
             if is_gzip:
                 if not out_fil_name.endswith(".gz"):
                     out_fil_name += ".gz"
         return out_fil_name
-
 
     def populate_tweets_from_api(self, json_output_directory=None,
                                  json_output_filename=None,
@@ -260,6 +265,10 @@ class TwitterUser:
                                  since_id=None):
         """
         Gets the last ~3200 tweets for the user from the Twitter REST API
+        :param since_id:
+        :param is_gzip:
+        :param sleep_var:
+        :param json_output_filename:
         """
         params = {
             'include_rts': 1,  # Include retweets
@@ -267,7 +276,10 @@ class TwitterUser:
         }
 
         # get file to output to
-        out_fil_name = self._get_file_name(json_output_directory,json_output_filename,is_gzip)
+        if os.path.exists(os.path.join(json_output_directory,json_output_filename)):
+            out_fil_name = os.path.exists(os.path.join(json_output_directory,json_output_filename))
+        else:
+            out_fil_name = self._get_file_name(json_output_directory, json_output_filename, is_gzip)
 
         # If the file provided exists, then we want to cat on top of it.
         existing_tweets = []
@@ -276,7 +288,7 @@ class TwitterUser:
             if out_fil_name.endswith(".gz"):
                 reader = [z.decode("utf8") for z in gzip.open(out_fil_name).read().splitlines()]
             else:
-                reader = codecs.open(out_fil_name,"r","utf8")
+                reader = codecs.open(out_fil_name, "r", "utf8")
 
             existing_tweets = [json.loads(l) for l in reader]
 
@@ -323,11 +335,9 @@ class TwitterUser:
                     out_fil.write(json.dumps(tweet).strip() + u"\n")
             out_fil.close()
 
-        print len(all_tweets), ' total tweets for: ', self.screen_name, ' ', len(tweets_from_api), ' new tweets from API'
+        print len(all_tweets), ' total tweets for: ', self.screen_name, ' ', len(
+            tweets_from_api), ' new tweets from API'
         return out_fil_name
-
-
-
 
     def populate_tweets_from_file(self, filename, **kwargs):
         """
@@ -338,11 +348,10 @@ class TwitterUser:
         if filename.endswith(".gz"):
             reader = [z.decode("utf8") for z in gzip.open(filename).read().splitlines()]
         else:
-            reader = codecs.open(filename,"r","utf8")
+            reader = codecs.open(filename, "r", "utf8")
 
         tweets = [json.loads(l) for l in reader]
         self.populate_tweets(tweets, **kwargs)
-
 
     def populate_lists(self, session=None, print_output=False):
         if self.times_listed > 0:
@@ -400,7 +409,7 @@ class TwitterUser:
         return network
 
     def get_ego_network_actors(self):
-        all_net = self.retweeted+self.mentioned+self.replied_to
+        all_net = self.retweeted + self.mentioned + self.replied_to
         return [k for k in all_net.keys() if k != self.user_id]
 
     def write_counter(self, output, string_to_write, n_top, counter_data):
@@ -423,7 +432,8 @@ class TwitterUser:
         output.write('\n\tTWEET COUNT: {0} (total {1})'.format(len(self.tweets), self.n_total_tweets))
         output.write('\n\tEARLIEST TWEET SEEN: {0}'.format(self.earliest_tweet_time))
         output.write('\n\tLATEST TWEET SEEN: {0}'.format(self.latest_tweet_time))
-        output.write('\n\tTOTAL OBSERVED DAYS ACTIVE: {0} days'.format((self.latest_tweet_time-self.earliest_tweet_time).days))
+        output.write(
+            '\n\tTOTAL OBSERVED DAYS ACTIVE: {0} days'.format((self.latest_tweet_time - self.earliest_tweet_time).days))
 
         if self.print_verbose:
             n_top = 15
@@ -455,7 +465,7 @@ def get_user_id_str(user_data):
     return None
 
 
-def get_user_ids_and_sn_data_from_list(data, handles, is_sns,out_fil=None):
+def get_user_ids_and_sn_data_from_list(data, handles, is_sns, out_fil=None):
     print len(data)
     if len(data) < 100:
         user_data_chunked = [data]
@@ -463,10 +473,10 @@ def get_user_ids_and_sn_data_from_list(data, handles, is_sns,out_fil=None):
         i = 0
         user_data_chunked = []
         while i < len(data):
-            user_data_chunked.append(data[i:(i+100)])
+            user_data_chunked.append(data[i:(i + 100)])
             i += 100
 
-        user_data_chunked.append(data[i-100:len(data)])
+        user_data_chunked.append(data[i - 100:len(data)])
 
     if is_sns:
         str_to_get = "screen_name"
@@ -479,16 +489,16 @@ def get_user_ids_and_sn_data_from_list(data, handles, is_sns,out_fil=None):
         print i
         i += 1
 
-        api_hook = handles[random.randint(0, len(handles)-1)]
+        api_hook = handles[random.randint(0, len(handles) - 1)]
         user_data = api_hook.get_from_url("users/lookup.json", {str_to_get: ",".join(x), "include_entities": "false"})
         for u in user_data:
-            data = [u['screen_name'],u['id_str'],
-                     str(u['statuses_count']),
-                     str(u['followers_count']),
-                     str(u['friends_count']),
-                     str(u['listed_count'])]
+            data = [u['screen_name'], u['id_str'],
+                    str(u['statuses_count']),
+                    str(u['followers_count']),
+                    str(u['friends_count']),
+                    str(u['listed_count'])]
             user_screenname_id_pairs.append(data)
             if out_fil is not None:
-                out_fil.write(",".join(data)+"\n")
+                out_fil.write(",".join(data) + "\n")
 
     return user_screenname_id_pairs
