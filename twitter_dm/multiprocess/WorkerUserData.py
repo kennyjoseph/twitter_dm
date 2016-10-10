@@ -98,7 +98,8 @@ class UserDataWorker(multiprocessing.Process):
                     print 'populating tweets', user_identifier
                     if self.save_user_tweets:
                         print 'saving tweets to: ', json_filename
-                        user.populate_tweets_from_api(json_output_filename=json_filename,since_id=since_tweet_id)
+                        user.populate_tweets_from_api(json_output_filename=json_filename,
+                                                      since_id=since_tweet_id)
                     else:
                         user.populate_tweets_from_api(since_id=since_tweet_id)
 

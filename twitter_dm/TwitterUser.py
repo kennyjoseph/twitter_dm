@@ -276,8 +276,8 @@ class TwitterUser:
         }
 
         # get file to output to
-        if os.path.exists(os.path.join(json_output_directory,json_output_filename)):
-            out_fil_name = os.path.exists(os.path.join(json_output_directory,json_output_filename))
+        if json_output_filename and os.path.exists(json_output_filename):
+            out_fil_name = json_output_filename
         else:
             out_fil_name = self._get_file_name(json_output_directory, json_output_filename, is_gzip)
 
