@@ -69,15 +69,15 @@ class UserDataWorker(multiprocessing.Process):
                     print 'ALL FINISHED!!!!'
                     break
 
-                if len(data) == 3:
+                if len(data) == 1 or type(data) is str or type(data) is unicode or type(data) is int:
+                    user_identifier = data
+                elif len(data) == 3:
                     user_identifier, snow_sample_number, since_tweet_id = data
                 elif len(data) == 2:
                     if self.step_count:
                         user_identifier, snow_sample_number = data
                     elif self.gets_since_tweet_id:
                         user_identifier, since_tweet_id = data
-                else:
-                    user_identifier = data
 
                 user_identifier = str(user_identifier)
 

@@ -24,6 +24,7 @@ from nlp import Tokenize
 from nlp.twokenize import tokenize
 import TwitterUser
 
+
 class Tweet:
     def __init__(self, jsn_or_string, do_tokenize=True,
                  do_parse_created_at=True,
@@ -103,7 +104,7 @@ class Tweet:
             if self.created_at.year < 2000 or self.created_at.year > 2020:
                 self.created_at = None
         else:
-            self.created_at = jsn.get('created_at',None)
+            self.created_at = jsn.get('created_at', None)
 
         self.user = None
         if 'user' in jsn:
@@ -135,6 +136,9 @@ class Tweet:
 
         # See if this tweet was the user's own and it got retweeted
         self.retweeted_user_tweet_count = get_retweeted_count(jsn)
+
+        # See if this tweet was the user's own and it got favorited
+        self.favorited_user_tweet_count = get_favorited_count(jsn)
 
         # Quoted tweet stuff
         self.is_quote = jsn.get('is_quote_status', False)
@@ -303,10 +307,18 @@ def get_id(jsn):
 
 
 def get_retweeted_count(jsn):
-    if 'retweeted_status' not in jsn and \
-                    'retweet_count' in jsn and \
-                    jsn['retweet_count'] is not None and jsn['retweet_count'] > 0:
+    if ('retweeted_status' not in jsn and 'quoted_status' not in jsn and
+                'retweet_count' in jsn and
+                jsn['retweet_count'] is not None and jsn['retweet_count'] > 0):
         return jsn['retweet_count']
+    return 0
+
+
+def get_favorited_count(jsn):
+    if ('retweeted_status' not in jsn and 'quoted_status' not in jsn and
+                'favorite_count' in jsn and
+                jsn['favorite_count'] is not None and jsn['favorite_count'] > 0):
+        return jsn['favorite_count']
     return 0
 
 

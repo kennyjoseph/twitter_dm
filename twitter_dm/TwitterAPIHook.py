@@ -147,7 +147,8 @@ class TwitterAPIHook:
                     break
                 
                 if 'id' in r.json()[-1]:
-                    params['max_id'] = r.json()[-1]['id']-1
+                    min_id = min([x['id'] for x in r.json()])
+                    params['max_id'] = min_id-1
                 else:
                     print('no max id!!!')
                 data += r.json()
