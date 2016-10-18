@@ -93,7 +93,7 @@ def get_singular_slow(text):
     if not i_eng:
          i_eng = inflect.engine()
     try:
-        s_val = eng.singular_noun(text)
+        s_val = i_eng.singular_noun(text)
         if not s_val:
             return text
         return s_val

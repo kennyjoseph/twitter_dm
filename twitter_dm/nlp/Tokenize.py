@@ -91,8 +91,8 @@ def extract_tokens(text,
 
     # remove initial, terminal, or paired quotation marks from word boundaries
     quotes = u'\'"`‘“’”'
-    words = [token[1:] if token[0] in quotes and token[1] in string.letters else token for token in words]
-    words = [token[:-1] if token[-1] in quotes and token[0] in string.letters else token for token in words]
+    words = [token[1:] if token[0] in quotes and (len(token) == 1 or token[1] in string.letters) else token for token in words]
+    words = [token[:-1] if len(token) > 0 and token[-1] in quotes and token[0] in string.letters else token for token in words]
 
     if remove_possessive:
         ##remove simple english possessive
@@ -112,6 +112,8 @@ def extract_tokens(text,
             for i in range(len(tokens)):
                 if len(arabic_regex.findall(tokens[i])) > 0:
                     tokens[i] = arabic_stemmer.stem(tokens[i])
+
+    tokens = [t for t in tokens if len(t) > 0]
 
     for gramSize in gram_list:
         new_grams = getNGrams(tempTokens, gramSize)
