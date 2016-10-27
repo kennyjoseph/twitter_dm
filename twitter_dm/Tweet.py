@@ -86,10 +86,19 @@ class Tweet:
             self.lang = 'none'
 
         self.geo = None
+        self.coordinates = None
+        self.latitude = None
+        self.longitude = None
         if 'coordinates' in jsn and jsn['coordinates']:
-            self.geo = jsn['coordinates']
+            self.coordinates = jsn['coordinates']
+            if self.coordinates['type'] == 'Point':
+                self.longitude = self.coordinates['coordinates'][0]
+                self.latitude = self.coordinates['coordinates'][1]
         elif 'geo' in jsn and jsn['geo']:
-            self.geo = jsn['geo']['coordinates']
+            self.geo = jsn['geo']
+            if 'coordinates' in self.geo:
+                self.longitude = self.coordinates['coordinates'][1]
+                self.latitude = self.coordinates['coordinates'][0]
 
         self.place = lookup(jsn, 'place')
 
@@ -145,7 +154,6 @@ class Tweet:
         self.quoted_status_id = None
         self.quoted_tweet = None
         if self.is_quote:
-
             self.quoted_status_id = jsn.get('quoted_status_id', None)
             if 'quoted_status' in jsn and store_full_retweet_and_quote:
                 self.quoted_tweet = Tweet(jsn['quoted_status'],
@@ -207,12 +215,17 @@ LatLong = re.compile(OneCoord + Separator + OneCoord, re.U)
 
 
 def get_geo_record_for_tweet(tweet):
+    is_coordinates = True
     geo = lookup(tweet, 'coordinates')
     if not geo:
+        is_coordinates = False
         geo = lookup(tweet, 'geo')
 
-    if geo and geo['type'] == 'Point':
-        lat, lon = geo['coordinates']
+    if 'coordinates' in tweet or 'geo' and geo['type'] == 'Point':
+        if is_coordinates:
+            lon, lat = geo['coordinates']
+        else:
+            lat, lon = geo['coordinates']
         loc_type = 'OFFICIAL'
     else:
         loc = lookup(tweet, 'user.location').strip()
