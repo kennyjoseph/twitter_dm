@@ -221,7 +221,7 @@ def get_geo_record_for_tweet(tweet):
         is_coordinates = False
         geo = lookup(tweet, 'geo')
 
-    if 'coordinates' in tweet or 'geo' and geo['type'] == 'Point':
+    if geo and geo['type'] == 'Point':
         if is_coordinates:
             lon, lat = geo['coordinates']
         else:
