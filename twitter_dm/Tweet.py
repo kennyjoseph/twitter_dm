@@ -225,7 +225,7 @@ def get_geo_record_for_tweet(tweet):
         if is_coordinates:
             lon, lat = geo['coordinates']
         else:
-            lat, lon = geo['coordinates']
+            lat, lon = geo['geo']
         loc_type = 'OFFICIAL'
     else:
         loc = lookup(tweet, 'user.location').strip()
