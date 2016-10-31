@@ -26,6 +26,16 @@ def tab_stringify_newline(data,newline=True):
     return to_return
 
 
+def chunk_data(data,chunk_size=100):
+    i = 0
+    chunked = []
+    while i < len(data):
+        chunked.append(data[i:(i+chunk_size)])
+        i += chunk_size
+    chunked.append(data[i-chunk_size:len(data)])
+    return chunked
+
+
 def get_handles(file_list,silent=False):
     handles = []
     for fil in file_list:
