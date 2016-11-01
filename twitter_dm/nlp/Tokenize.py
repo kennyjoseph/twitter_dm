@@ -14,17 +14,21 @@ There's probably a bunch of ways to make this better/faster.
 import HTMLParser
 import string
 import regex
-from nltk.stem.isri import ISRIStemmer
 from nlp_helpers import lemmatize
 import twokenize
 
-## globals
-arabic_stemmer = ISRIStemmer()
+_arabic_stemmer = None
 arabic_regex = regex.compile('[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]+',regex.U)
 POSSESSIVE_REGEX = regex.compile(u"['’′][^\s\.,?\"]*",regex.U)
 remove_punctuation_map = dict((ord(char), None) for char in string.punctuation)
 
 
+def arabic_stemmer():
+    from nltk.stem.isri import ISRIStemmer
+    global _arabic_stemmer
+    if not _arabic_stemmer:
+        _arabic_stemmer = ISRIStemmer()
+    return _arabic_stemmer
 
 def getNGrams(temp_tokens, size=2):
     #if len(temp_tokens) == 0:
@@ -111,7 +115,7 @@ def extract_tokens(text,
         if do_arabic_stemming:
             for i in range(len(tokens)):
                 if len(arabic_regex.findall(tokens[i])) > 0:
-                    tokens[i] = arabic_stemmer.stem(tokens[i])
+                    tokens[i] = arabic_stemmer().stem(tokens[i])
 
     tokens = [t for t in tokens if len(t) > 0]
 
