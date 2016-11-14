@@ -43,10 +43,10 @@ class TwitterApplicationHandler:
             self.configFileName = pathToConfigFile
         else:
             self.configFileName = str(consumer_key) + ".txt"
-            if not os.path.exists(self.configFileName):
-                outfile = codecs.open(self.configFileName, 'w', 'utf8')
-                outfile.write(','.join([self.consumer_key,self.consumer_secret])+'\n')
-                outfile.close()
+        if not os.path.exists(self.configFileName):
+            outfile = codecs.open(self.configFileName, 'w', 'utf8')
+            outfile.write(','.join([self.consumer_key,self.consumer_secret])+'\n')
+            outfile.close()
 
         self.load_known_users(silent)
 
@@ -66,7 +66,7 @@ class TwitterApplicationHandler:
     def new_session(self, username):
         request_token, request_token_secret = self.twitter.get_request_token()
         authorize_url = self.twitter.get_authorize_url(request_token)
-        print('Visit this URL in your browser: {url}'.format(url=authorize_url))
+        print('{un} : Visit this URL in your browser: {url}'.format(un=username,url=authorize_url))
 
         try:
             pin = raw_input('Enter PIN from browser: ')

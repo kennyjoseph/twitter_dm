@@ -353,7 +353,7 @@ class TwitterUser:
         tweets = [json.loads(l) for l in reader]
         self.populate_tweets(tweets, **kwargs)
 
-    def populate_lists(self, session=None, print_output=False):
+    def populate_lists(self, print_output=False):
         if self.times_listed > 0:
             lists = self.api_hook.get_with_cursor_for_user(
                 "lists/memberships.json",

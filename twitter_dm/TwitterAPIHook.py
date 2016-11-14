@@ -78,17 +78,18 @@ class TwitterAPIHook:
                 except:
                     print('FAILED RECONNECT AGAIN!!')
                 print(' reconnected: ', name)
-            except json.decoder.JSONDecodeError:
-                print(' JSON ERROR! ', name)
-                if tried_request > 2:
-                    print(' could not recover from JSON error, continuing ', name)
-                    return None
+            # except json.decoder.JSONDecodeError:
+            #     print(' JSON ERROR! ', name)
+            #     if tried_request > 2:
+            #         print(' could not recover from JSON error, continuing ', name)
+            #         return None
 
         if 'errors' in r.json():
                 print(' errors: ', r.json()['errors'][0]['message'], ' URL: ', url,  ' params: ', params)
                 if r.json()['errors'][0]['code'] != 34:
                     print('SLEEPING')
-                    sleep(5*60)
+                    sleep(2*60)
+                    return None
                 else:
                     return None
         elif 'error' in r.json():
