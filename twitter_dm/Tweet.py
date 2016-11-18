@@ -180,7 +180,15 @@ class Tweet:
 
 
 def get_text_from_tweet_json(jsn):
-    return jsn['text'] if 'text' in jsn else jsn['full_text']
+    txt = jsn['text'] if 'text' in jsn else jsn['full_text']
+    ## hm ... bug in full_text field for RTs? Or they just explain it terribly
+    ## either way, this is a "fix"
+    if txt.endswith(u"…") and 'retweeted_status' in jsn:
+        if 'full_text' in jsn['retweeted_status']:
+            txt = jsn['retweeted_status']['full_text']
+        elif 'text' in jsn['retweeted_status']:
+            txt = jsn['retweeted_status']['text']
+    return txt
 
 
 def us_geocode_tweet(tweet):
