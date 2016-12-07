@@ -109,7 +109,7 @@ class UserDataWorker(multiprocessing.Process):
 
                     if self.populate_lists:
                         print 'populating lists', user.screen_name
-                        user.populate_lists()
+                        user.populate_lists_member_of()
 
                     if self.populate_friends:
                         print 'populating friends, ', user.screen_name

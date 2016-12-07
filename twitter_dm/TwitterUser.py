@@ -94,8 +94,11 @@ class TwitterUser:
         # Follower IDs, populated with populate_followers() method
         self.follower_ids = []
 
-        # Lists the user has, populated with populate_lists() method
-        self.lists = []
+        # Lists the user is a member of, populated with populate_lists_member_of() method
+        self.lists_member_of = []
+
+        # Lists the user owns, populated with populate_lists_owned() method
+        self.lists_owned = []
 
         ##### User description features #####
         self.name = None
@@ -339,6 +342,14 @@ class TwitterUser:
             tweets_from_api), ' new tweets from API'
         return out_fil_name
 
+    def populate_basic_info(self):
+        params = {"include_entities": "false"}
+        self.api_hook.get_user_params(params,self.screen_name,self.user_id)
+
+        user_data = self.api_hook.get_from_url("users/lookup.json",params)
+        self.populate_user_data(user_data[0])
+
+
     def populate_tweets_from_file(self, filename, **kwargs):
         """
         :param filename: Name of file that has the tweets
@@ -353,7 +364,7 @@ class TwitterUser:
         tweets = [json.loads(l) for l in reader]
         self.populate_tweets(tweets, **kwargs)
 
-    def populate_lists(self, print_output=False):
+    def populate_lists_member_of(self, print_output=False):
         if self.times_listed > 0:
             lists = self.api_hook.get_with_cursor_for_user(
                 "lists/memberships.json",
@@ -362,19 +373,28 @@ class TwitterUser:
                 self.user_id)
 
             for l in lists:
-                self.lists.append({'creating_user_name': l['user']['screen_name'],
-                                   'creating_user_id': l['user']['id_str'],
-                                   'created_at': parse_date(l['created_at']),
-                                   'n_subscribers': l['subscriber_count'],
-                                   'n_members': l['member_count'],
-                                   'name': l['name'],
-                                   'description': l['description'],
-                                   'id': l['id_str'],
-                                   'twitter_full_name': l['full_name']})
+                self.lists_member_of.append({'creating_user_name': l['user']['screen_name'],
+                                             'creating_user_id': l['user']['id_str'],
+                                             'created_at': parse_date(l['created_at']),
+                                             'n_subscribers': l['subscriber_count'],
+                                             'n_members': l['member_count'],
+                                             'name': l['name'],
+                                             'description': l['description'],
+                                             'id': l['id_str'],
+                                             'twitter_full_name': l['full_name']})
         if print_output:
             print('LISTS: ')
-            for l in self.lists:
+            for l in self.lists_member_of:
                 print(l)
+
+    def populate_lists_owned(self, sleep_var=True, print_output=False):
+        self.lists_owned = self.api_hook.get_with_cursor_for_user(
+            "lists/ownerships.json",
+            "lists",
+            self.screen_name,
+            self.user_id,
+            sleep_var=sleep_var,
+            params={"count": 1000})
 
     def populate_friends(self, print_output=False, sleep_var=True):
         self.friend_ids = self.api_hook.get_with_cursor_for_user(
@@ -382,6 +402,7 @@ class TwitterUser:
             "ids",
             self.screen_name,
             self.user_id,
+            params={"count":5000},
             sleep_var=sleep_var)
         if print_output:
             print('NUM FRIENDS: ', len(self.friend_ids))
@@ -392,6 +413,7 @@ class TwitterUser:
             "ids",
             self.screen_name,
             self.user_id,
+            params={"count":5000},
             sleep_var=sleep_var)
         if print_output:
             print('NUM FOLLOWERS: ', len(self.follower_ids))
@@ -448,8 +470,8 @@ class TwitterUser:
             # self.write_counter(output, '\n\tTerms in own tweets that were RTd', n_top, self.user_was_retweeted_tokens)
 
             output.write('\nList info:')
-            output.write('\n\t On {0} lists'.format((len(self.lists))))
-            for l in self.lists:
+            output.write('\n\t On {0} lists'.format((len(self.lists_member_of))))
+            for l in self.lists_member_of:
                 output.write(u'\n\t\t Name: {0} Member count: {1} Subscriber count: {2}'.
                              format(l['name'], l['n_members'], l['n_subscribers']))
 

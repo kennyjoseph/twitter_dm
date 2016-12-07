@@ -79,7 +79,7 @@ class TwitterEgoNetworkWorker(multiprocessing.Process):
                     print('\t num tweets received for: ', user_id, ' (',  screen_name, '): ', len(user.tweets))
                     if len(user.tweets) > 0:
                         print('\tgetting lists, friends, followers for: ', user_id)
-                        user.populate_lists()
+                        user.populate_lists_member_of()
                         #user.populate_followers()
                         #user.populate_friends()
 

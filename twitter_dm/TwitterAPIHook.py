@@ -112,10 +112,9 @@ class TwitterAPIHook:
             return
         raise Exception('No user info provided', 'Please provide user info')
 
-    def get_with_cursor_for_user(self, url, json_payload_name, screen_name=None, user_id=None, params=None,sleep_var=True):
+    def get_with_cursor(self, url, json_payload_name, params=None,sleep_var=True):
         if params is None:
             params = {}
-        self.get_user_params(params, screen_name, user_id)
         params['cursor'] = -1
 
         data = []
@@ -132,6 +131,12 @@ class TwitterAPIHook:
             params['cursor'] = json_data['next_cursor']
 
         return data
+
+    def get_with_cursor_for_user(self, url, json_payload_name, screen_name=None, user_id=None, params=None,sleep_var=True):
+        if params is None:
+            params = {}
+        self.get_user_params(params, screen_name, user_id)
+        return self.get_with_cursor(url,json_payload_name,params,sleep_var)
 
     def get_with_max_id_for_user(self, url, params, screen_name, user_id, name="",sleep_var=True):
         self.get_user_params(params, screen_name, user_id)

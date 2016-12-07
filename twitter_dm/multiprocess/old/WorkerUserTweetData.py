@@ -56,7 +56,7 @@ class UserDataWorker(multiprocessing.Process):
                         pickle.dump(user, open(os.path.join(self.out_dir,"obj",data), "wb"))
                     continue
                 if self.populate_lists:
-                    user.populate_lists()
+                    user.populate_lists_member_of()
 
                 if self.populate_friends:
                     print 'populating friends, ', user.screen_name

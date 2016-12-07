@@ -55,17 +55,17 @@ class SimpleUserLookupWorker(multiprocessing.Process):
 
                 for user in user_data:
                     output_data = [user["id"],
-                                   user["name"] if user['name'] else '',
+                                   user.get('name'),
                                    user["screen_name"],
-                                   user['url'] if user['url'] else '',
+                                   user.get('url',''),
                                    user['protected'],
-                                   user["location"] if user['location'] else '',
-                                   user["description"] if user['description'] else '',
+                                   user.get('location',''),
+                                   user.get('description', ''),
                                    user["followers_count"],
                                    user["friends_count"],
                                    user["created_at"],
-                                   user["utc_offset"] if user['utc_offset'] else '',
-                                   user["time_zone"]  if user['time_zone'] else '',
+                                   user.get("utc_offset",''),
+                                   user.get('time_zone',''),
                                    user["statuses_count"],
                                    user["lang"]]
                     if 'status' in user:
@@ -74,16 +74,29 @@ class SimpleUserLookupWorker(multiprocessing.Process):
                                         user["status"]["lang"]]
                     else:
                         output_data += ['','','']
-                    self.user_info_out_file.write(tab_stringify_newline(output_data).replace("\n","  ")+"\n")
 
-                sleep(20)
+                    output_data += [user.get("profile_image_url_https",""),user.get("verified","")]
+
+                    output_data = [(x.replace("\r\n","  ")
+                                    .replace("\n","  ")
+                                    .replace("\r","  ")
+                                    .replace("\t","  ")) if type(x) is str else x for x in output_data ]
+                    output_data = [(x.replace(u"\r\n",u"  ")
+                                    .replace(u"\n",u"  ")
+                                    .replace(u"\r","  ")
+                                    .replace(u"\t",u"  ")) if type(x) is unicode else x for x in output_data ]
+                    to_write = tab_stringify_newline(output_data)
+
+                    self.user_info_out_file.write(to_write)
+
+                sleep(15)
 
 
             except Exception:
                 print('FAILED:: ', data)
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 print("*** print_tb:")
-                traceback.print_tb(exc_traceback, limit=30, file=sys.stdout)
+                traceback.print_tb(exc_traceback, limit=50, file=sys.stdout)
                 print("*** print_exception:")
 
             print('finished collecting data for: ', data)
