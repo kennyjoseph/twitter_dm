@@ -21,6 +21,9 @@ import sys
 # data = r2.json()['resources']['statuses']['/statuses/user_timeline']
 # print user, ' ', data['remaining'],' ', strftime('%Y-%m-%d %H:%M:%S',localtime(data['reset']))
 
+
+RERUN_ERROR_REASONS = {130,131,88}
+
 class TwitterAPIHook:
 
     def __init__(self, CONSUMER_KEY, CONSUMER_SECRET,
@@ -57,18 +60,29 @@ class TwitterAPIHook:
             authorize_url='https://api.twitter.com/oauth/authorize',
             base_url='https://api.twitter.com/1.1/')
 
-    def call_to_api(self, url, params, name=""):
+    def _call_to_api(self, url, params, name=""):
         if 'statuses' in url:
             params['tweet_mode'] = 'extended'
         request_completed = False
         tried_request = 0
-        while not request_completed:
+        while not request_completed and tried_request < 3:
             try:
                 tried_request += 1
                 r = self.session.get(url, params=params,verify=True)
                 r.json()
+                error = None
+                if 'errors' in r.json():
+                    error = r.json()['errors'][0]['message']
+                    if r.json()['errors'][0]['code'] in RERUN_ERROR_REASONS:
+                        print('ERROR: {reason}, rerunnable so sleeping for 2 mins'.format(reason=error))
+                        sleep(2*60)
+                        continue
+                elif 'error' in r.json():
+                    # error handling
+                    error = r.json()['error']
                 request_completed=True
-            except requests.exceptions.ConnectionError:
+
+            except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:
                 print('connection error! Sleeping for 60 then reconnecting ', name, ' request tries: ', tried_request)
                 print(self.session.access_token, self.session.access_token_secret)
                 sleep(60)
@@ -78,30 +92,18 @@ class TwitterAPIHook:
                 except:
                     print('FAILED RECONNECT AGAIN!!')
                 print(' reconnected: ', name)
-            # except json.decoder.JSONDecodeError:
-            #     print(' JSON ERROR! ', name)
-            #     if tried_request > 2:
-            #         print(' could not recover from JSON error, continuing ', name)
-            #         return None
 
-        if 'errors' in r.json():
-                print(' errors: ', r.json()['errors'][0]['message'], ' URL: ', url,  ' params: ', params)
-                if r.json()['errors'][0]['code'] != 34:
-                    print('SLEEPING')
-                    sleep(2*60)
-                    return None
-                else:
-                    return None
-        elif 'error' in r.json():
-                # error handling
-                reason = r.json()['error']
-                print('\tGot an error, reason: {0} URL: {1} params: {2}'.format(reason, url, params))
-                return None
+        if error:
+            print('\tGot an error, reason: {0} URL: {1} params: {2}'.format(error, url, params))
+            return None
 
         return r
 
     def get_from_url(self, url, params):
-        return self.call_to_api(url, params, "no_name").json()
+        api_data = self._call_to_api(url, params, "no_name")
+        if api_data:
+            return api_data.json()
+        return None
 
     def get_user_params(self, params, screen_name, user_id):
         if screen_name is not None:
@@ -121,7 +123,7 @@ class TwitterAPIHook:
         while True:
             if sleep_var:
                 sleep(70)
-            r = self.call_to_api(url, params)
+            r = self._call_to_api(url, params)
             if r is None:
                 break
             json_data = r.json()
@@ -144,7 +146,7 @@ class TwitterAPIHook:
         while True:
             if sleep_var:
                 sleep(6)
-            r = self.call_to_api(url, params, name)
+            r = self._call_to_api(url, params, name)
             if r is None:
                 break
             try:

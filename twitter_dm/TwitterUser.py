@@ -13,6 +13,7 @@ and goes to the Twitter API to get this user's tweets
 __author__ = 'kjoseph'
 
 from .utility.tweet_utils import parse_date
+from .utility.general_utils import tab_stringify_newline as tsn
 import Tweet
 import codecs
 from collections import Counter
@@ -137,7 +138,9 @@ class TwitterUser:
                 raise Exception('error', 'supply either screen name or user id')
 
             self.screen_name = screen_name
+            # for backwards compatability, but move towards just "id" to mirror api
             self.user_id = user_id
+            self.id = self.user_id
 
     def populate_tweets(self, tweets, **kwargs):
         """
@@ -201,6 +204,7 @@ class TwitterUser:
 
     def populate_user_data(self, user_data, do_parse_date=False):
         self.user_id = get_user_id_str(user_data)
+        self.id = self.user_id
         self.screen_name = user_data.get('screen_name', None)
         self.name = user_data.get('name', None)
         self.description = user_data.get('description', None)
@@ -521,6 +525,6 @@ def get_user_ids_and_sn_data_from_list(data, handles, is_sns, out_fil=None):
                     str(u['listed_count'])]
             user_screenname_id_pairs.append(data)
             if out_fil is not None:
-                out_fil.write(",".join(data) + "\n")
+                out_fil.write(tsn(data))
 
     return user_screenname_id_pairs
