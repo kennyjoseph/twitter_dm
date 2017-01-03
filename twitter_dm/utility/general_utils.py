@@ -17,10 +17,10 @@ def mkdir_no_err(dir_name):
         pass
 
 def stringify(data):
-    return [unicode(x).replace("\r\n","   ")
-                      .replace("\r","   ")
-                      .replace("\n","   ")
-                      .replace("\t", "   ") for x in data]
+    return [unicode(x).replace(u"\r\n",u"   ")
+                      .replace(u"\r",u"   ")
+                      .replace(u"\n",u"   ")
+                      .replace(u"\t", u"   ") for x in data]
 
 def tab_stringify_newline(data,newline=True):
     to_return = "\t".join(stringify(data))
