@@ -51,6 +51,11 @@ class Tweet:
         else:
             jsn = json.loads(jsn_or_string)
 
+        if 'delete' in jsn:
+            # not actually a tweet
+            self.id = None
+            return
+
         # store raw json (yuck, but useful in some random cases
         if store_json:
             self.raw_json = jsn
@@ -189,7 +194,7 @@ def get_text_from_tweet_json(jsn):
                                                 if 'full_text' in jsn['retweeted_status']
                                                 else  jsn['retweeted_status']['text'])
         # remove the link to the tweet from
-        txt = txt[:txt.rfind("https")-1]
+        #txt = txt[:txt.rfind("https")-1]
     return txt
 
 
