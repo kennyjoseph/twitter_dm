@@ -203,8 +203,8 @@ def us_geocode_tweet(tweet):
 
     if tweet.geocode_info is not None:
         geo_info = tweet_geocode.geocode_us_county(tweet.geocode_info)
-        return {"lon": geo_info['lonlat'][1],
-                "lat": geo_info['lonlat'][0],
+        return {"lon": geo_info['lonlat'][0],
+                "lat": geo_info['lonlat'][1],
                 "county": lookup(geo_info, 'us_county.namelsad'),
                 "state": lookup(geo_info, 'us_state.abbrev'),
                 "loctype": geo_info['loc_type']
@@ -217,8 +217,8 @@ def world_geocode_tweet(tweet):
 
     if tweet.geocode_info is not None:
         geo_info = tweet_geocode.geocode_world_country(tweet.geocode_info)
-        return {"lon": geo_info['lonlat'][1],
-                "lat": geo_info['lonlat'][0],
+        return {"lon": geo_info['lonlat'][0],
+                "lat": geo_info['lonlat'][1],
                 "country": lookup(geo_info, 'country'),
                 }
     return None
