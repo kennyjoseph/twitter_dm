@@ -22,8 +22,9 @@ Ported to Python by Myle Ott <myleott@gmail.com>.
 
 from __future__ import print_function
 
-import regex
 import HTMLParser
+
+import regex
 
 
 def regex_or(*items):

@@ -4,7 +4,11 @@ create a mention network between them and a network of the hashtags they used
 
 __author__ = 'kjoseph'
 
-import os, sys, glob, codecs
+import codecs
+import glob
+import os
+import sys
+
 from twitter_dm import TwitterUser
 from twitter_dm.utility.general_utils import get_handles
 

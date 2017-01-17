@@ -10,12 +10,13 @@ This class has some arabic stuff specific to particular projects I'm working on.
 There's probably a bunch of ways to make this better/faster.
 """
 
-
 import HTMLParser
 import string
+
 import regex
-from nlp_helpers import lemmatize
+
 import twokenize
+from nlp_helpers import lemmatize
 
 _arabic_stemmer = None
 arabic_regex = regex.compile('[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]+',regex.U)

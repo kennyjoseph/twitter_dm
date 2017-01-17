@@ -34,7 +34,7 @@ class TweetDataWorker(multiprocessing.Process):
             data = self.queue.get(True)
             sleep(10)
             #try:
-            if data == None:
+            if data is None:
                 print 'ALL FINISHED!!!!', self.conn_number
                 self.tweet_id_output_file.close()
                 self.tweet_output_file.close()

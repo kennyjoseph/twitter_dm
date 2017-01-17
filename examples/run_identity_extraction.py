@@ -10,23 +10,18 @@ the script in the install directory called install_dependencies_identity_extract
 hopefully install everything you need.
 """
 
-import os
-from twitter_dm.nlp.nlp_helpers import *
-from twitter_dm.TwitterUser import TwitterUser
-from twitter_dm.Tweet import Tweet
-from twitter_dm.nlp.tweeboparser import *
-from twitter_dm.identity_extraction.run_helpers import gen_conll_data_for_prediction
+import argparse
+import subprocess
+import sys
 import ujson as json
 from copy import copy
-from twitter_dm.TwitterUser import TwitterUser
-from twitter_dm import dependency_parse_tweets
-import subprocess
-from glob import glob
-from twitter_dm.identity_extraction.run_helpers import *
-import argparse
-import sys
-from twitter_dm import TwitterApplicationHandler
 
+from twitter_dm.identity_extraction.run_helpers import *
+from twitter_dm.nlp.tweeboparser import *
+
+from twitter_dm import dependency_parse_tweets
+from twitter_dm.Tweet import Tweet
+from twitter_dm.TwitterUser import TwitterUser
 
 ### Parse command line arguments
 parser = argparse.ArgumentParser(description='Extract identities from Twitter data')

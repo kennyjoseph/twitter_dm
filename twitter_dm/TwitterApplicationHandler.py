@@ -12,11 +12,12 @@ THIRD_USER_AUTHED_TO_THIS_APP_SCREENNAME,THIRD_USER_AUTHED_TO_THIS_APP__KEY,THIR
 
 __author__ = 'pmlandwehr|kjoseph'
 
-from TwitterAPIHook import TwitterAPIHook
-
 import codecs
 import os
+
 from rauth import OAuth1Service
+
+from TwitterAPIHook import TwitterAPIHook
 
 
 class TwitterApplicationHandler:

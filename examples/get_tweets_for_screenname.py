@@ -2,9 +2,11 @@
 A simple example of how to use a single api hook to get tweets for a particular user
 """
 
-import sys,codecs
-from twitter_dm import TwitterUser
+import codecs
+import sys
+
 from twitter_dm import TwitterApplicationHandler
+from twitter_dm import TwitterUser
 
 if len(sys.argv) != 4:
     print 'usage:  [login_credentials_file] [user_screen_name] [output_file]'

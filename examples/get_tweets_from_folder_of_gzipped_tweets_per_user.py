@@ -1,13 +1,15 @@
 __author__ = 'kjoseph'
-import sys
-from twitter_dm.TwitterUser import TwitterUser
-import os
-import glob
-from datetime import datetime
-import random
-from vaderSentiment.vaderSentiment import sentiment
-from langid import langid
 import cPickle as pickle
+import glob
+import os
+import random
+import sys
+from datetime import datetime
+
+from langid import langid
+from vaderSentiment.vaderSentiment import sentiment
+
+from twitter_dm.TwitterUser import TwitterUser
 
 sys.argv = ['','/Users/kjoseph/Desktop/desktop/tmp_ferg/json',
                 '1-2013',

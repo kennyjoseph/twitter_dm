@@ -3,10 +3,10 @@ This file shows an example of how to use twitter_dm to  "hydrate" tweet IDs very
 """
 __author__ = 'kjoseph'
 
-from twitter_dm.utility import general_utils
-import os, sys, glob, codecs
-from twitter_dm.TwitterAPIHook import TwitterAPIHook
 import gzip
+import os
+
+from twitter_dm.TwitterAPIHook import TwitterAPIHook
 # replace ujson with some other json tool if you dont have/like ujson
 import ujson as json
 import io
