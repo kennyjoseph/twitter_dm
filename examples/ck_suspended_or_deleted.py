@@ -2,7 +2,9 @@
 A script to determine whether or not a particular user has been deleted or suspended
 """
 __author__ = 'kjoseph'
-import sys, os, requests
+import os
+import requests
+import sys
 from time import sleep
 
 sys.argv = ['', '/Users/kennyjoseph/Downloads/missing_users_kenny_sample.tsv','will_of.csv']

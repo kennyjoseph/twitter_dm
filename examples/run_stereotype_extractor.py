@@ -1,21 +1,15 @@
-import numpy as np
-import sys
-import codecs
-from collections import defaultdict
-from user import User
-import cPickle as pickle
-import os
-from twitter_dm.utility.general_utils import read_grouped_by_newline_file
-from collections import defaultdict
-from textunit import TextUnit
-import io
-import re
-from constraints import get_id_and_value_map
-from constraints import IDENTITY_PREFIX, SENTWORD_PREFIX
-import logging
-from pyspark import SparkContext, SparkConf
 import glob
+import io
+import logging
+import os
+import re
+
 import msgpack
+from constraints import IDENTITY_PREFIX, SENTWORD_PREFIX
+from pyspark import SparkContext, SparkConf
+from textunit import TextUnit
+
+from twitter_dm.utility.general_utils import read_grouped_by_newline_file
 
 
 def get_textunits(filename):

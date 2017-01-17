@@ -13,12 +13,11 @@ __author__ = 'kjoseph'
 import glob
 import os
 import sys
-
-from twitter_dm.multiprocess.WorkerUserData import UserDataWorker
+from multiprocessing import freeze_support
 
 from twitter_dm.multiprocess import multiprocess_setup
+from twitter_dm.multiprocess.WorkerUserData import UserDataWorker
 from twitter_dm.utility import general_utils
-from multiprocessing import freeze_support
 
 if __name__ == "__main__":
     freeze_support()

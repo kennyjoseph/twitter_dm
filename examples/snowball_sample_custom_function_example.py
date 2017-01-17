@@ -5,11 +5,10 @@ import glob
 import os
 import sys
 
-from twitter_dm.multiprocess.WorkerUserData import UserDataWorker
-from twitter_dm.multiprocess import multiprocess_setup
-from twitter_dm.utility import general_utils
 from twitter_dm.TwitterUser import get_user_ids_and_sn_data_from_list
-
+from twitter_dm.multiprocess import multiprocess_setup
+from twitter_dm.multiprocess.WorkerUserData import UserDataWorker
+from twitter_dm.utility import general_utils
 
 #sys.argv = ['', '/Users/kennyjoseph/git/thesis/thesis_python/twitter_login_creds',
 #            'out_here', '1']

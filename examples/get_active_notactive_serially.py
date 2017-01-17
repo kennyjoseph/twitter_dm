@@ -2,9 +2,12 @@ __author__ = 'kennyjoseph'
 
 __author__ = 'kjoseph'
 
-import sys, glob, random, codecs, os, requests
-from twitter_dm import TwitterApplicationHandler
+import codecs
+import glob
+import random
+import sys
 
+from twitter_dm import TwitterApplicationHandler
 
 #sys.argv = ['',
 #            '/Users/kennyjoseph/git/thesis/thesis_python/twitter_login_creds/',
@@ -49,14 +52,14 @@ while i < len(user_sns):
     api_hook = handles[random.randint(0,len(handles)-1)]
 
     curr_ids = set(user_ids[i:(i+100)])
-    user_data = api_hook.get_from_url("users/lookup.json",{"screen_name":",".join(curr_ids),"include_entities":"false"})
+    user_data = api_hook.get_from_url("users/lookup.json",{"user_id":",".join(curr_ids),"include_entities":"false"})
 
     for u in user_data:
-        out_fil.write(",".join([u['screen_name'],'1'])+"\n")
-        curr_ids.remove(str(u['screen_name']).lower())
+        out_fil.write(",".join([str(u['id']),'1'])+"\n")
+        curr_ids.remove(str(u['id']).lower())
     print 'Num deleted: ', len(curr_ids)
     for c in curr_ids:
-        out_fil.write(",".join([c,'0'])+"\n")
+        out_fil.write(",".join([str(c),'0'])+"\n")
 
     i += 100
 

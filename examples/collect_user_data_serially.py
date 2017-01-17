@@ -1,9 +1,12 @@
 __author__ = 'kjoseph'
 
-import os, sys, glob, codecs
+import codecs
+import glob
+import os
+import sys
+
 from twitter_dm.TwitterUser import TwitterUser
 from twitter_dm.utility.general_utils import tab_stringify_newline, get_handles
-
 
 if len(sys.argv) != 4:
     print 'usage:  [known_user_dir - a directory of config files- see readme for format] ',

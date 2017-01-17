@@ -8,8 +8,8 @@ import os
 import codecs
 import gzip
 from itertools import groupby
-
 from twitter_dm.TwitterApplicationHandler import TwitterApplicationHandler
+
 def mkdir_no_err(dir_name):
     try:
         os.mkdir(dir_name)

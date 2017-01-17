@@ -7,13 +7,13 @@ we can learn from that information
 """
 __author__ = 'kjoseph'
 
-
-import sys
 import glob
+import sys
+
 from twitter_dm import TwitterApplicationHandler
-from twitter_dm.utility import general_utils
-from twitter_dm.multiprocess.WorkerSimpleUserLookup import SimpleUserLookupWorker
 from twitter_dm.multiprocess import multiprocess_setup
+from twitter_dm.multiprocess.WorkerSimpleUserLookup import SimpleUserLookupWorker
+from twitter_dm.utility import general_utils
 
 if len(sys.argv) != 4:
     print 'usage:  [known_user_dir] [screen_name_file] [out_dir]'

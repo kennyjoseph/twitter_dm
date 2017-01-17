@@ -1,21 +1,15 @@
 __author__ = 'mbenigni'
 
 import cPickle as pickle
+import codecs
+import itertools
 import sys
 import time
-from os import listdir, mkdir
-from os.path import isfile, join
-from twitter_dm.utility.general_utils import tab_stringify_newline
-import itertools
-import codecs
-import langid
-from twitter_dm.utility.tweet_utils import classify_language
-from twitter_dm.Tweet import Tweet
-from twitter_dm.TwitterUser import TwitterUser
 from collections import Counter
-from multiprocessing import Pool
 from multiprocessing import freeze_support
+from os import listdir, mkdir
 
+from twitter_dm.utility.general_utils import tab_stringify_newline
 
 if len(sys.argv) != 2:
     print 'usage:  [edgelist output dir]'

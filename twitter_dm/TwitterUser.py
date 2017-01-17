@@ -12,19 +12,21 @@ and goes to the Twitter API to get this user's tweets
 """
 __author__ = 'kjoseph'
 
-from .utility.tweet_utils import parse_date
-from .utility.general_utils import tab_stringify_newline as tsn
-import Tweet
-import codecs
-from collections import Counter
-import datetime
-import ujson as json
-import random
 import StringIO
+import codecs
+import datetime
 import gzip
-import os
 import io
+import os
+import random
+import ujson as json
+from collections import Counter
+
 from pkg_resources import resource_stream
+
+import Tweet
+from .utility.general_utils import tab_stringify_newline as tsn
+from .utility.tweet_utils import parse_date
 
 
 class TwitterUser:

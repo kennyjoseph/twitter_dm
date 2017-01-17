@@ -11,7 +11,6 @@ from twitter_dm import Tweet, TwitterUser
 from twitter_dm.nlp import Tokenize
 from collections import defaultdict, Counter
 import ujson as json
-import numpy as np
 import codecs, langid
 import gzip
 
@@ -123,12 +122,12 @@ def return_users_from_json_file(file_name,
 
         print '\tN users post min selection:\t', len(twitter_users)
         n_tweets_per_user = [len(u) for u in users.itervalues()]
-        print 'Tweet stats...min: %d max: %d median: %d mean: %d sd: %d' % \
-        (np.min(n_tweets_per_user),
-         np.max(n_tweets_per_user),
-         np.median(n_tweets_per_user),
-         np.mean(n_tweets_per_user),
-         np.std(n_tweets_per_user))
+        #print 'Tweet stats...min: %d max: %d median: %d mean: %d sd: %d' % \
+        #(np.min(n_tweets_per_user),
+        # np.max(n_tweets_per_user),
+        # np.median(n_tweets_per_user),
+        # np.mean(n_tweets_per_user),
+        # np.std(n_tweets_per_user))
 
 
     if not return_tweet_json:

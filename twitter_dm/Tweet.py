@@ -13,16 +13,17 @@ Note that a lot of the code is ugly because it deals with both the "new" and "ol
 tweet formats. It needs way more commenting, but that will come, I hope, soon.
 """
 
-from .utility.tweet_utils import parse_date, lookup
-import re
-from datetime import datetime
 import HTMLParser
-import ujson as json
-import gzip
 import codecs
+import gzip
+import re
+import ujson as json
+from datetime import datetime
+
+import TwitterUser
 from nlp import Tokenize
 from nlp.twokenize import tokenize
-import TwitterUser
+from .utility.tweet_utils import parse_date, lookup
 
 
 class Tweet:
@@ -311,7 +312,7 @@ def get_retweeted_user(tweet_json, return_id=False):
 
 def get_reply_to(line, return_id=False):
     if 'in_reply_to_status_id' not in line or \
-                            'in_reply_to_status_id' in line and line['in_reply_to_status_id'] == None:
+                            'in_reply_to_status_id' in line and line['in_reply_to_status_id'] is None:
         return None
 
     if not return_id:

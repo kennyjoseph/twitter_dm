@@ -14,9 +14,8 @@ import glob
 import os
 import sys
 
-from twitter_dm.multiprocess.WorkerUserData import UserDataWorker
-
 from twitter_dm.multiprocess import multiprocess_setup
+from twitter_dm.multiprocess.WorkerUserData import UserDataWorker
 from twitter_dm.utility import general_utils
 
 if len(sys.argv) != 4:

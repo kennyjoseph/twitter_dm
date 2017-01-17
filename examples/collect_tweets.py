@@ -6,12 +6,14 @@ a whole bunch of tweet IDs very quickly.
 """
 __author__ = 'kjoseph'
 
-import os, sys
+import glob
+import os
+import sys
 from multiprocessing import Queue
+
+from twitter_dm.multiprocess import multiprocess_setup
 from twitter_dm.multiprocess.WorkerTweetData import TweetDataWorker
 from twitter_dm.utility import general_utils
-from twitter_dm.multiprocess import multiprocess_setup
-import glob
 
 # read in system arguments
 if len(sys.argv) != 4:
@@ -19,7 +21,7 @@ if len(sys.argv) != 4:
     sys.exit(-1)
 
 # get handles to the twitter api
-handles =  general_utils.get_handles(glob.glob(os.path.join(sys.argv[1],"*.txt")))
+handles = general_utils.get_handles(glob.glob(sys.argv[1]+"*.txt"))
 print 'n authed users: ', len(handles)
 
 
@@ -27,8 +29,9 @@ print 'n authed users: ', len(handles)
 f = open(sys.argv[3])
 tweet_ids = []
 for line in f:
-    line_spl = line.strip().split("|")
-    tweet_ids += line_spl
+    line_spl = line.strip().split("\t")
+    tweet_ids.append(line_spl[1])
+    print line_spl[1]
 tweet_ids = [t for t in set(tweet_ids)]
 f.close()
 print 'num tweets: ', len(tweet_ids)
@@ -40,8 +43,6 @@ try:
 except:
     pass
 
-print 'num tweets: ', len(tweet_ids)
-
 # chunk tweets into 100s (the API takes them by 100)
 i = 0
 tweets_chunked = []
@@ -50,7 +51,6 @@ while i < len(tweet_ids):
     i += 100
 
 tweets_chunked.append(tweet_ids[i-100:len(tweet_ids)])
-
 # init a sync manager
 multiprocess_setup.init_good_sync_manager()
 
@@ -62,7 +62,7 @@ for tweet_chunk in tweets_chunked:
 
 # Sentinel objects to allow clean shutdown: 1 per worker.
 for i in range(len(handles)):
-    request_queue.put( None )
+    request_queue.put(None)
 
 # run!
 processes = []

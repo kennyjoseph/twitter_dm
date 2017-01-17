@@ -10,11 +10,11 @@
 
     Again, really needs documentation. It'll come...
 """
-import ujson as json
-from rauth import OAuth1Service
-import requests
-from time import sleep
 import sys
+from time import sleep
+
+import requests
+from rauth import OAuth1Service
 
 # @TODO: Eventually we should handle limits like this
 #  r2 = this_session.get('application/rate_limit_status.json',params=params,verify=True)

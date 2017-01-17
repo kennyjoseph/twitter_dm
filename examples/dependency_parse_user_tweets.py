@@ -9,12 +9,13 @@ ark.cs.cmu.edu/TweetNLP
 Just make sure TWEEBOPARSER_LOC points to that directory and you should be good to go!
 """
 
-from twitter_dm import dependency_parse_tweets
-from twitter_dm import TwitterUser
-from twitter_dm.utility.general_utils import mkdir_no_err
+import os
 from glob import glob
 from multiprocessing import Pool
-import os
+
+from twitter_dm import TwitterUser
+from twitter_dm import dependency_parse_tweets
+from twitter_dm.utility.general_utils import mkdir_no_err
 
 CPU_COUNT = 2
 TWEEBOPARSER_LOC= 'PATH_TO_TWEEBO_PARSER'
