@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
 import string
-from nltk.stem.wordnet import WordNetLemmatizer
 
 try:
     # UCS-4
@@ -65,6 +64,7 @@ def get_cleaned_text(text):
 _wnl = None
 
 def lemmatize(text,pos=None):
+    from nltk.stem.wordnet import WordNetLemmatizer
     global _wnl
     if not _wnl:
         _wnl = WordNetLemmatizer()
