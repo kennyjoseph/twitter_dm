@@ -20,8 +20,8 @@ class SimpleUserLookupWorker(multiprocessing.Process):
         multiprocessing.Process.__init__(self)
         self.queue = queue
         self.api_hook = api_hook
-        self.out_file = io.open(os.path.join(out_dir,str(conn_number)+"_nonactive_users.txt"),"w")
-        self.user_info_out_file = io.open(os.path.join(out_dir,str(conn_number)+"_user_info.txt"),"w")
+        self.out_file = io.open(os.path.join(out_dir,str(conn_number)+"_nonactive_users.txt"),"w+")
+        self.user_info_out_file = io.open(os.path.join(out_dir,str(conn_number)+"_user_info.txt"),"w+")
         #self.user_info_out_file.write(tab_stringify_newline(["id","name","screen_name","url",
         #                                                     "protected","location","description","followers_count",
         #                                                     "friends_count","created_at","utc_offset","time_zone",

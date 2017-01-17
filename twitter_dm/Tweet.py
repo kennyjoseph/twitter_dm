@@ -51,7 +51,7 @@ class Tweet:
         else:
             jsn = json.loads(jsn_or_string)
 
-        if 'delete' in jsn:
+        if 'delete' in jsn or ('text' not in jsn and 'full_text' not in jsn):
             # not actually a tweet
             self.id = None
             return

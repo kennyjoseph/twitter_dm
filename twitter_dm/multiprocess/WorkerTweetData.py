@@ -45,13 +45,20 @@ class TweetDataWorker(multiprocessing.Process):
             data = set([int(d) for d in data])
             good = 0
             for tw in tweet_data:
-                good += 1
-                self.tweet_output_file.write(json.dumps(tw)+"\n")
-                self.tweet_id_output_file.write(str(tw['id']) + "\tg\n")
-                data.remove(tw['id'])
-
+                try:
+                    good += 1
+                    self.tweet_output_file.write(json.dumps(tw)+"\n")
+                    self.tweet_id_output_file.write(str(tw['id']) + "\tg\n")
+                    data.remove(tw['id'])
+                except:
+                    print 'writing tweet failed'
+                    pass
+                
             for failed_tweet in data:
-                self.tweet_id_output_file.write(str(failed_tweet) + "\tf\n")
-
+                try:
+                    self.tweet_id_output_file.write(str(failed_tweet) + "\tf\n")
+                except:
+                    print 'writing tweet_id failed'
+                    
             print('N GOOD: ', good)
 
