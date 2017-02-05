@@ -17,6 +17,7 @@ import HTMLParser
 import codecs
 import gzip
 import re
+import arrow
 import ujson as json
 from datetime import datetime
 
@@ -112,18 +113,23 @@ class Tweet:
 
         self.source = jsn['source']
 
-        if do_parse_created_at:
-            self.created_at = get_created_at(jsn)
-
-            # weird junk date
-            if self.created_at.year < 2000 or self.created_at.year > 2020:
-                self.created_at = None
-        else:
-            self.created_at = jsn.get('created_at', None)
-
         self.user = None
         if 'user' in jsn:
             self.user = TwitterUser.TwitterUser(user_data_object=jsn['user'])
+
+
+        if do_parse_created_at:
+            self.created_at = get_created_at(jsn)
+            # weird junk date
+            if self.created_at.year < 2000 or self.created_at.year > 2020:
+                self.created_at = None
+
+            if 'user' in jsn and 'utc_offset' in jsn['user'] and jsn['user']['utc_offset']:
+                self.local_time = arrow.get(arrow.get(self.created_at).timestamp + jsn['user']['utc_offset'])
+            else:
+                self.local_time = None
+        else:
+            self.created_at = jsn.get('created_at', None)
 
         # Handle mentions, retweets, reply
         self.mentions = get_mentions(jsn, True)
@@ -171,6 +177,7 @@ class Tweet:
                                           **kwargs)
             else:
                 self.quoted_tweet = None
+
 
     def setTokens(self, tokens):
         assert isinstance(tokens, list)
