@@ -115,6 +115,9 @@ class TwitterUser:
         self.following_count = -1
         self.lang = None
         self.times_listed = -1
+        self.time_zone = None
+        self.utc_offset = -1
+        self.profile_img = None
 
         self.earliest_tweet_time = None
         self.latest_tweet_time = None
@@ -223,6 +226,9 @@ class TwitterUser:
         self.followers_count = user_data.get('followers_count', -1)
         self.following_count = user_data.get('friends_count', -1)
         self.lang = user_data.get('lang', '')
+        self.time_zone = user_data.get("time_zone",'')
+        self.utc_offset = user_data.get("utc_offset",-1)
+        self.profile_img = user_data.get("profile_image_url_https",'')
 
     def gen_user_info_dict(self):
         if self.tweets:
@@ -370,13 +376,14 @@ class TwitterUser:
         tweets = [json.loads(l) for l in reader]
         self.populate_tweets(tweets, **kwargs)
 
-    def populate_lists_member_of(self, print_output=False):
+    def populate_lists_member_of(self, sleep_var=False, print_output=False):
         if self.times_listed > 0:
             lists = self.api_hook.get_with_cursor_for_user(
                 "lists/memberships.json",
                 "lists",
                 self.screen_name,
-                self.user_id)
+                self.user_id,
+                sleep_var=sleep_var)
 
             for l in lists:
                 self.lists_member_of.append({'creating_user_name': l['user']['screen_name'],
@@ -401,8 +408,12 @@ class TwitterUser:
             self.user_id,
             sleep_var=sleep_var,
             params={"count": 1000})
+        if print_output:
+            print('LISTS: ')
+            for l in self.lists_owned:
+                print(l)
 
-    def populate_friends(self, print_output=False, sleep_var=True):
+    def populate_friends(self, sleep_var=True,print_output=False):
         self.friend_ids = self.api_hook.get_with_cursor_for_user(
             "friends/ids.json",
             "ids",
@@ -413,7 +424,7 @@ class TwitterUser:
         if print_output:
             print('NUM FRIENDS: ', len(self.friend_ids))
 
-    def populate_followers(self, print_output=False, sleep_var=True):
+    def populate_followers(self, sleep_var=True,print_output=False):
         self.follower_ids = self.api_hook.get_with_cursor_for_user(
             "followers/ids.json",
             "ids",

@@ -47,8 +47,12 @@ class TwitterAPIHook:
                                     authorize_url='https://api.twitter.com/oauth/authorize',
                                     base_url='https://api.twitter.com/1.1/')
                                 .get_session((access_token, access_token_secret)))
+                self.access_token = access_token
+                self.access_token_secret = access_token_secret
         else:
             self.session = session
+            self.access_token = session.access_token
+            self.access_token_secret = session.access_token_secret
 
         # FOR RECONNECTIONS
         self.twitter = OAuth1Service(
