@@ -66,6 +66,7 @@ out_fil.write(tab_stringify_newline([
 "lang",
 "status_created_at",
 "status_coordinates",
+"status_lang",
 "profile_image_url_https",
 "verified"]))
 
@@ -79,19 +80,19 @@ while i < len(user_sns):
 
     for user in user_data:
         output_data = [user["id"],
-                                   user.get('name'),
-                                   user["screen_name"],
-                                   user.get('url',''),
-                                   user['protected'],
-                                   user.get('location',''),
-                                   user.get('description', ''),
-                                   user["followers_count"],
-                                   user["friends_count"],
-                                   user["created_at"],
-                                   user.get("utc_offset",''),
-                                   user.get('time_zone',''),
-                                   user["statuses_count"],
-                                   user["lang"]]
+                       user.get('name'),
+                       user["screen_name"],
+                       user.get('url',''),
+                       user['protected'],
+                       user.get('location',''),
+                       user.get('description', ''),
+                       user["followers_count"],
+                       user["friends_count"],
+                       user["created_at"],
+                       user.get("utc_offset",''),
+                       user.get('time_zone',''),
+                       user["statuses_count"],
+                       user["lang"]]
         if 'status' in user:
             output_data += [user["status"]["created_at"],
                             user["status"]["coordinates"] if user['status']['coordinates'] else '',
