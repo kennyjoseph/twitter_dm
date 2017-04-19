@@ -18,6 +18,7 @@ import codecs
 import gzip
 import re
 import arrow
+from bs4 import BeautifulSoup
 import ujson as json
 from datetime import datetime
 
@@ -57,7 +58,6 @@ class Tweet:
             # not actually a tweet
             self.id = None
             return
-
         # store raw json (yuck, but useful in some random cases
         if store_json:
             self.raw_json = jsn
@@ -66,8 +66,12 @@ class Tweet:
 
         # Get tweet id
         self.id = get_id(jsn)
-        # Basic replacement of html characters
 
+        # so I don't have to try to remember each time whether its an int or string
+        self.id_int = int(self.id)
+        self.id_str = str(self.id)
+
+        # Basic replacement of html characters
         tweet_text = get_text_from_tweet_json(jsn)
         self.text = HTMLParser.HTMLParser().unescape(tweet_text)
 
@@ -112,6 +116,13 @@ class Tweet:
         self.geocode_info = get_geo_record_for_tweet(jsn)
 
         self.source = jsn['source']
+        source_info = BeautifulSoup(self.source, 'html.parser').a
+        try:
+            self.source_link = source_info.get("href")
+            self.source_name = source_info.text
+        except:
+            self.source_link = None
+            self.source_name = None
 
         self.user = None
         if 'user' in jsn:
@@ -158,8 +169,16 @@ class Tweet:
         # See if this tweet was the user's own and it got retweeted
         self.retweeted_user_tweet_count = get_retweeted_count(jsn)
 
+        # get overall retweet count (i.e. ignore whether this is an original tweet)
+        self.overall_retweet_count = jsn.get('retweet_count',0)
+
         # See if this tweet was the user's own and it got favorited
         self.favorited_user_tweet_count = get_favorited_count(jsn)
+
+        # get overall favorited count (i.e. ignore whether this is an original tweet)
+        self.overall_favorited_count = jsn.get('favorite_count',0)
+        if self.retweeted_tweet:
+            self.overall_favorited_count = self.retweeted_tweet.overall_favorited_count
 
         # Quoted tweet stuff
         self.is_quote = jsn.get('is_quote_status', False)
