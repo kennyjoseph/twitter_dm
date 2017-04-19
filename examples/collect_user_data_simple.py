@@ -16,7 +16,7 @@ from twitter_dm.multiprocess.WorkerSimpleUserLookup import SimpleUserLookupWorke
 from twitter_dm.utility import general_utils
 
 if len(sys.argv) != 4:
-    print 'usage:  [known_user_dir] [screen_name_file] [out_dir]'
+    print 'usage:  [known_user_dir] [user_ids] [out_dir]'
     sys.exit(-1)
 
 handles =[]

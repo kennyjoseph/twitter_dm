@@ -146,8 +146,11 @@ class TwitterUser:
             # for backwards compatability, but move towards just "id" to mirror api
             self.user_id = user_id
             self.id = self.user_id
+            # so I don't have to try to remember each time whether its an int or string
+            self.id_int = int(self.id) if self.id else None
+            self.id_str = str(self.id) if self.id else None
 
-    def populate_tweets(self, tweets, **kwargs):
+    def populate_tweets(self, tweets, convert_to_tweet=True, **kwargs):
         """
         Populates tweets from a list of python dictionary objects.
         Use populate_tweets_from_api to get if from the API
@@ -166,7 +169,10 @@ class TwitterUser:
             self.latest_tweet_time = datetime.datetime.min
 
         for t in tweets:
-            tweet = Tweet.Tweet(t, noise_tokens=self.stopwords, **kwargs)
+            if convert_to_tweet:
+                tweet = Tweet.Tweet(t, noise_tokens=self.stopwords, **kwargs)
+            else:
+                tweet = t
             self.tweets.append(tweet)
 
             if tweet.created_at and type(tweet.created_at) is not str and type(tweet.created_at) is not unicode:
@@ -204,8 +210,32 @@ class TwitterUser:
             i += 1
 
         # INFO ABOUT USER
-        user_data = tweets[-1]['user']
-        self.populate_user_data(user_data, do_parse_date=True)
+        if convert_to_tweet:
+            user_data = tweets[-1]['user']
+            self.populate_user_data(user_data, do_parse_date=True)
+        else:
+            self.copy_user_data(tweets[-1].user)
+        
+
+
+    def copy_user_data(self, user_data):
+        self.user_id = user_data.user_id
+        self.id = self.user_id
+        self.screen_name = user_data.screen_name
+        self.name = user_data.name
+        self.description = user_data.description
+        self.n_total_tweets = user_data.n_total_tweets
+        self.creation_date = user_data.creation_date
+        self.location = user_data.location
+        self.homepage = user_data.homepage
+        self.times_listed = user_data.times_listed
+        self.utc_offset = user_data.utc_offset
+        self.followers_count = user_data.followers_count
+        self.following_count = user_data.following_count
+        self.lang = user_data.lang
+        self.time_zone = user_data.time_zone
+        self.utc_offset = user_data.utc_offset
+        self.profile_img = user_data.profile_img
 
     def populate_user_data(self, user_data, do_parse_date=False):
         self.user_id = get_user_id_str(user_data)
