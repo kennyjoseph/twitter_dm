@@ -7,8 +7,41 @@ __author__ = 'kjoseph'
 import os
 import codecs
 import gzip
+import sys
+import glob
 from itertools import groupby
 from twitter_dm.TwitterApplicationHandler import TwitterApplicationHandler
+
+def collect_system_arguments(system_args, additional_args = list()):
+    if len(system_args) != (4+len(additional_args)):
+        print 'usage:  [partial_path_to_twitter_credentials]  ',
+        print '[file with users (ids or sns) or tweet ids to collect]',
+        print '[output_filename or directory]',
+        for addtl_arg in additional_args:
+            print '[' + addtl_arg + ']',
+        print
+        sys.exit(-1)
+
+    creds_path, in_file, output_location = system_args[1:4]
+
+    handles = get_handles(glob.glob(os.path.join(creds_path, "*.txt")))
+    print 'N Auth Tokens: ', len(handles)
+
+    input_data = set([f.strip() for f in open(sys.argv[2]).readlines()])
+    input_data = [x for x in input_data]
+    print 'N Input Tokens ', len(input_data)
+
+    is_given_ids = False
+    try:
+        m = [int(x) for x in input_data]
+        is_given_ids = True
+    except:
+        pass
+
+    retv = [handles, output_location, input_data, is_given_ids]
+    if len(additional_args):
+        retv += system_args[4:]
+    return retv
 
 def mkdir_no_err(dir_name):
     try:
@@ -68,3 +101,4 @@ def read_grouped_by_newline_file(filename):
     lines = (line.strip() for line in contents)
     data = (grp for nonempty, grp in groupby(lines, bool) if nonempty)
     return [list(g) for g in data]
+

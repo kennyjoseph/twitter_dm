@@ -149,7 +149,7 @@ class TwitterAPIHook:
         data = []
         while True:
             if sleep_var:
-                sleep(6)
+                sleep(2)
             r = self._call_to_api(url, params, name)
             if r is None:
                 break

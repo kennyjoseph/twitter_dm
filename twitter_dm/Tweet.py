@@ -29,11 +29,13 @@ from .utility.tweet_utils import parse_date, lookup
 
 
 class Tweet:
-    def __init__(self, jsn_or_string, do_tokenize=True,
+    def __init__(self, jsn_or_string, 
+                 do_tokenize=True,
                  do_parse_created_at=True,
                  store_json=False,
                  store_full_retweet_and_quote=True,
                  noise_tokens=set(),
+                 do_parse_source=False,
                  **kwargs):
         """
         :param jsn_or_string: A json representation of a tweet, i.e. the output of json.loads(line) for a line of a file with
@@ -115,14 +117,16 @@ class Tweet:
 
         self.geocode_info = get_geo_record_for_tweet(jsn)
 
+
         self.source = jsn['source']
-        source_info = BeautifulSoup(self.source, 'html.parser').a
-        try:
-            self.source_link = source_info.get("href")
-            self.source_name = source_info.text
-        except:
-            self.source_link = None
-            self.source_name = None
+        if do_parse_source:
+            source_info = BeautifulSoup(self.source, 'html.parser').a
+            try:
+                self.source_link = source_info.get("href")
+                self.source_name = source_info.text
+            except:
+                self.source_link = None
+                self.source_name = None
 
         self.user = None
         if 'user' in jsn:

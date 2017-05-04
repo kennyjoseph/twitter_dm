@@ -7,13 +7,11 @@ import pandas as pd
 
 from twitter_dm.utility.general_utils import mkdir_no_err,get_handles
 
-# get handles to the twitter api
-handles = get_handles(glob.glob("/Users/kennyjoseph/git/lazerlab/twitter_login_creds/*.txt"))
-print 'n authed users: ', len(handles)
+accounts = ['potus','potus44','flotus','flotus44']
 
-d = pd.read_csv("all_users_of_interest_data.tsv",
-                header=None,sep="\t")
-d.columns = ['sn','id_str','statuses','followers','following','listed']
+# get handles to the twitter api
+handles = get_handles(glob.glob(sys.argv[1]+"*"))
+print 'n authed users: ', len(handles)
 
 output_dir = sys.argv[2]
 mkdir_no_err(output_dir)
@@ -21,27 +19,22 @@ mkdir_no_err(output_dir)
 
 handle_iter = 0
 
-for i, irow in enumerate(d.iterrows()):
-    u_count, user_row = irow
-    user_id = user_row['id_str']
-    n_followers = float(user_row['followers'])
+for i, handle in enumerate(accounts):
+    print 'user: ', i,  handle
 
-    print 'user: ', i,  user_id, user_row['sn']
-    print '\tn_followers: ', n_followers
-
-    if os.path.exists(os.path.join(output_dir,user_id)):
+    if os.path.exists(os.path.join(output_dir,handle)):
         continue
 
-    of = open(os.path.join(output_dir,user_id),"w")
+    of = open(os.path.join(output_dir,handle),"w")
 
-    params = {'user_id': user_id,
+    params = {'screen_name': handle,
               'cursor' : -1,
               'count' : 5000}
 
     n_collected = 0
 
     while True:
-        print "\t\t", n_collected, n_collected/n_followers, handle_iter
+        print "\t\t", n_collected, n_collected, handle_iter
 
         handle = handles[handle_iter]
         api_data = handle.get_from_url("followers/ids.json",params)

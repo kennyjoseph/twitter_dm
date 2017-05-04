@@ -59,23 +59,19 @@ If you use the POS tagger, please cite:
 }
 ```
 
-If you use the dependency parser, please cite:
+
+# Simple Examples
+
+To read in a .json file, one tweet per line, for a given user:
 ```
-@inproceedings{kong_dependency_2014,
-	title = {A dependency parser for tweets},
-	urldate = {2015-01-05},
-	booktitle = {Proceedings of the {Conference} on {Empirical} {Methods} in {Natural} {Language} {Processing}, {Doha}, {Qatar}, to appear},
-	author = {Kong, Lingpeng and Schneider, Nathan and Swayamdipta, Swabha and Bhatia, Archna and Dyer, Chris and Smith, Noah A.},
-	year = {2014}
-}
+from twitter_dm.TwitterUser import TwitterUser
+
+u = TwitterUser()
+u.populate_tweets_from_file("_kenny_joseph.json")
+
+for t in u.tweets:
+    print t.tokens
 ```
-
-
-
-# Notes
-- Importantly, the multiprocess stuff won't work on a OSX because of some crazy bug in urllib2.  Give it a try, feel free to 
-submit a fix/tell me what I'm doing wrong, but I have traced it all the way into urllib2 and where it interacts with
- the OS as a heads up. *Update:* This seems to have been fixed?
 
 # Todo:
 

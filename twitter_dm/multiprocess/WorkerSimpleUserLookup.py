@@ -43,8 +43,12 @@ class SimpleUserLookupWorker(multiprocessing.Process):
                     self.user_info_out_file.close()
                     break
                 print 'collecting data'
-                user_data = self.api_hook.get_from_url("users/lookup.json",
+                if self.gets_user_id:
+                    user_data = self.api_hook.get_from_url("users/lookup.json",
                                                        {"user_id": ",".join(data), "include_entities": "false"})
+                else:
+                    user_data = self.api_hook.get_from_url("users/lookup.json",
+                                                       {"screen_name": ",".join(data), "include_entities": "false"})
                 user_ret_ids = [str(u['id']) for u in user_data]
                 print len(data),len(user_ret_ids)
                 not_there = set.difference(set(data),set(user_ret_ids))

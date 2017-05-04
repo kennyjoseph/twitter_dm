@@ -10,51 +10,22 @@ __author__ = 'kjoseph'
 import glob
 import sys
 
-from twitter_dm import TwitterApplicationHandler
+from twitter_dm.utility.general_utils import collect_system_arguments, chunk_data
 from twitter_dm.multiprocess import multiprocess_setup
 from twitter_dm.multiprocess.WorkerSimpleUserLookup import SimpleUserLookupWorker
 from twitter_dm.utility import general_utils
 
-if len(sys.argv) != 4:
-    print 'usage:  [known_user_dir] [user_ids] [out_dir]'
-    sys.exit(-1)
+handles, out_dir, data_to_collect, is_ids = collect_system_arguments(sys.argv)
 
-handles =[]
-for fil in glob.glob(sys.argv[1]+"/*.txt"):
-    print 'FIL: ' , fil
-    app_handler = TwitterApplicationHandler(pathToConfigFile=fil)
-    handles += app_handler.api_hooks
-
-print 'n authed users: ', len(handles)
-
-user_ids = set([line.strip().lower() for line in open(sys.argv[2]).readlines()])
-is_ids = False
-try:
-    m = [int(x) for x in user_ids]
-    is_ids = True
-except:
-    pass
-
-out_dir = sys.argv[3]
 general_utils.mkdir_no_err(out_dir)
 
-print "N TO FIND: ", len(user_ids)
-
-user_ids = [u for u in user_ids]
-
-user_data_chunked = []
-i=0
-while i < len(user_ids):
-    user_data_chunked.append(user_ids[i:(i+100)])
-    i += 100
-
-user_data_chunked.append(user_ids[i-100:len(user_ids)])
-
+user_data_chunked = chunk_data(data_to_collect)
 print 'len chunked: ', len(user_data_chunked)
 
+# initialize a better sync manager
 multiprocess_setup.init_good_sync_manager()
 
-##put data on the queue
+# put data on the queue
 request_queue = multiprocess_setup.load_request_queue([x for x in user_data_chunked], len(handles), add_nones=True)
 
 processes = []

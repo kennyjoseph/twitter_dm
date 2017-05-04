@@ -8,13 +8,12 @@ a replication of tweepy with less documentation :)
 from twitter_dm.TwitterAPIHook import TwitterAPIHook
 from twitter_dm.TwitterUser import TwitterUser
 
-username_to_collect_data_for = '_kenny_joseph'
+username_to_collect_data_for = 'Jackie_Pooo'
 
-consumer_key = "J0uCBvMrekOKSMTsWaAyrw"
-consumer_secret = "9P5KeC48JbwbLJnbY1RzeZy1C3926it5IOR4sVer4"
-access_token = "227062815-17u7hUNZMymzqOkc4Es4VILbLnXdkeT23e4VIcQQ"
-access_token_secret = "rE6P5QTPtGELewempBaaGhox4selpyBKHIrqUEff5DV6h"
-
+consumer_key = "YOUR_CONSUMER_KEY_HERE"
+consumer_secret = "YOUR_CONSUMER_SECRET_HERE"
+access_token = "YOUR_ACCESS_TOKEN_HERE"
+access_token_secret = "YOUR_ACCESS_TOKEN_SECRET_HERE"
 
 ## get a "hook", or connection, to the API using your consumer key/secret and access token/secret
 api_hook = TwitterAPIHook(consumer_key,consumer_secret,

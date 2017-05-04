@@ -18,22 +18,18 @@ from twitter_dm.multiprocess import multiprocess_setup
 from twitter_dm.multiprocess.WorkerUserData import UserDataWorker
 from twitter_dm.utility import general_utils
 
-if len(sys.argv) != 4:
-    print 'usage:  [twitter_login_credentials_dir] [output_dir] [tweet_id_file]'
-    sys.exit(-1)
 
-handles = general_utils.get_handles(glob.glob(os.path.join(sys.argv[1],"*.txt")))
-print 'n authed connections to the Twitter API: ', len(handles)
+from twitter_dm.utility.general_utils import mkdir_no_err,collect_system_arguments
 
-out_dir = sys.argv[2]
-
-user_ids = [line.strip().split(",")[0] for line in open(sys.argv[3]).readlines()]
+handles, out_dir, user_ids, is_ids, friends_or_followers = collect_system_arguments(sys.argv,
+                                                                                           ['friends or followers'])
 
 print 'num users: ', len(user_ids)
 
-general_utils.mkdir_no_err(out_dir)
-general_utils.mkdir_no_err(os.path.join(out_dir,"obj"))
-general_utils.mkdir_no_err(os.path.join(out_dir,"json"))
+mkdir_no_err(out_dir)
+mkdir_no_err(os.path.join(out_dir,"obj"))
+mkdir_no_err(os.path.join(out_dir,"json"))
+
 multiprocess_setup.init_good_sync_manager()
 
 ##put data on the queue
