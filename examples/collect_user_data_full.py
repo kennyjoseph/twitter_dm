@@ -21,8 +21,7 @@ from twitter_dm.utility import general_utils
 
 from twitter_dm.utility.general_utils import mkdir_no_err,collect_system_arguments
 
-handles, out_dir, user_ids, is_ids, friends_or_followers = collect_system_arguments(sys.argv,
-                                                                                           ['friends or followers'])
+handles, out_dir, user_ids, is_ids = collect_system_arguments(sys.argv)
 
 print 'num users: ', len(user_ids)
 
