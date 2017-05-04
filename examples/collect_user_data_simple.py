@@ -28,6 +28,13 @@ for fil in glob.glob(sys.argv[1]+"/*.txt"):
 print 'n authed users: ', len(handles)
 
 user_ids = set([line.strip().lower() for line in open(sys.argv[2]).readlines()])
+is_ids = False
+try:
+    m = [int(x) for x in user_ids]
+    is_ids = True
+except:
+    pass
+
 out_dir = sys.argv[3]
 general_utils.mkdir_no_err(out_dir)
 
@@ -52,7 +59,7 @@ request_queue = multiprocess_setup.load_request_queue([x for x in user_data_chun
 
 processes = []
 for i in range(len(handles)):
-    p = SimpleUserLookupWorker(request_queue,handles[i],i, out_dir)
+    p = SimpleUserLookupWorker(request_queue,handles[i],i, out_dir,gets_user_id=is_ids)
     p.start()
     processes.append(p)
 
