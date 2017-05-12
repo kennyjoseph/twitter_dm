@@ -21,7 +21,7 @@ from twitter_dm.utility import general_utils
 
 from twitter_dm.utility.general_utils import mkdir_no_err,collect_system_arguments
 
-handles, out_dir, user_ids, is_ids = collect_system_arguments(sys.argv)
+handles, out_dir, user_ids, is_ids, collect_friends, collect_followers = collect_system_arguments(sys.argv, ['collect_friends (y/n)', 'collect_followers (y/n)'])
 
 print 'num users: ', len(user_ids)
 
@@ -37,9 +37,9 @@ request_queue = multiprocess_setup.load_request_queue(user_ids, len(handles))
 processes = []
 for i in range(len(handles)):
     p = UserDataWorker(request_queue,handles[i],out_dir,
-                        always_pickle=True,gets_user_id=False,
-                        populate_lists=False,populate_friends=True,
-                        populate_followers=True)
+                        always_pickle=True,gets_user_id=is_ids,
+                       populate_lists=False,populate_friends=collect_friends=='y',
+                        populate_followers=collect_followers=='y')
     p.start()
     processes.append(p)
 
