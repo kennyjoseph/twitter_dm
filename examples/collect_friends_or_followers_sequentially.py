@@ -37,12 +37,15 @@ for i, handle in enumerate(accounts):
             print ' sleeping now'
             sleep(60)
             handle_iter = 0
-            
+
+
         handle = handles[handle_iter]
+        print handle.CONSUMER_KEY, handle.access_token
         json_data = handle.get_from_url(friends_or_followers + "/ids.json",params)
         handle_iter += 1
 
         if json_data is None or not len(json_data):
+            print json_data is None
             break
 
         n_collected += len(json_data.get("ids",[]))

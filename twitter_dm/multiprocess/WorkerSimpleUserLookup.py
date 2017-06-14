@@ -14,6 +14,30 @@ import traceback
 from time import sleep
 from twitter_dm.utility.general_utils import tab_stringify_newline
 
+
+def read_simple_user_info(filename):
+    import pandas as pd
+    df = pd.read_csv(filename,sep="\t",quoting=3,names=["uid",
+                                'name',
+                                "screen_name",
+                                'url',
+                                'protected',
+                                'location',
+                                'description',
+                                "followers_count",
+                                "friends_count",
+                                "created_at",
+                                "utc_offset",
+                                'time_zone',
+                                "statuses_count",
+                                "lang",
+                                "status_created_at",
+                                'status_coordinates',
+                                "status_lang",
+                                "profile_image_url_https","verified"], dtype={"uid":"str"})
+    return df.drop_duplicates("uid")
+
+
 class SimpleUserLookupWorker(multiprocessing.Process):
     def __init__(self, queue, api_hook, conn_number, out_dir,
                  gets_user_id=True):

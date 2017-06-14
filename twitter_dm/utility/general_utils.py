@@ -24,10 +24,21 @@ def collect_system_arguments(system_args, additional_args = list()):
 
     creds_path, in_file, output_location = system_args[1:4]
 
-    handles = get_handles(glob.glob(os.path.join(creds_path, "*.txt")))
+    if os.path.isdir(creds_path):
+        creds_path = os.path.join(creds_path, "*.txt")
+    elif not creds_path.endswith(".txt"):
+        creds_path += "*.txt"
+
+    print( " ".join(['Getting creds from: ',creds_path ]))
+
+    print("Input File: ", in_file)
+
+    print("Output Location: ", output_location)
+
+    handles = get_handles(glob.glob(creds_path))
     print 'N Auth Tokens: ', len(handles)
 
-    input_data = set([f.strip() for f in open(sys.argv[2]).readlines()])
+    input_data = set([f.strip() for f in open(in_file).readlines()])
     input_data = [x for x in input_data]
     print 'N Input Tokens ', len(input_data)
 

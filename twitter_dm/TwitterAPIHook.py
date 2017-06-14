@@ -64,7 +64,7 @@ class TwitterAPIHook:
             authorize_url='https://api.twitter.com/oauth/authorize',
             base_url='https://api.twitter.com/1.1/')
 
-    def _call_to_api(self, url, params, name=""):
+    def _call_to_api(self, url, params, name="", rerun_on_error=True):
         if 'statuses' in url:
             params['tweet_mode'] = 'extended'
         request_completed = False
@@ -77,7 +77,7 @@ class TwitterAPIHook:
                 error = None
                 if 'errors' in r.json():
                     error = r.json()['errors'][0]['message']
-                    if r.json()['errors'][0]['code'] in RERUN_ERROR_REASONS:
+                    if r.json()['errors'][0]['code'] in RERUN_ERROR_REASONS and rerun_on_error:
                         print('ERROR: {reason}, rerunnable so sleeping for 2 mins'.format(reason=error))
                         sleep(2*60)
                         continue
