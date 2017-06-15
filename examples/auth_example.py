@@ -22,7 +22,7 @@ users = [
 
 app_info = [ ['rrJL7zuoaekldDElRnE059nc5','N7uZYZj98J1LIlEEACp8k5f6ZaUVtsv05qaoB8KnJixYjqH40h']]
 
-for app in app_info:
-    handler = TwitterApplicationHandler(consumer_key=app[0],consumer_secret=app[1],pathToConfigFile=app[0]+".txt")
-    for user in users:
+for user in users:
+    for app in app_info:
+        handler = TwitterApplicationHandler(consumer_key=app[0],consumer_secret=app[1],pathToConfigFile=app[0]+".txt")
         handler.init_session(user)
