@@ -38,7 +38,7 @@ processes = []
 for i in range(len(handles)):
     p = UserDataWorker(request_queue,handles[i],out_dir,
                         always_pickle=True,gets_user_id=is_ids,
-                       populate_lists=False,populate_friends=collect_friends=='y',
+                        populate_lists=False,populate_friends=collect_friends=='y',
                         populate_followers=collect_followers=='y')
     p.start()
     processes.append(p)

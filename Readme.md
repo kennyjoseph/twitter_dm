@@ -19,7 +19,9 @@ The documentation and examples here are woefully incomplete, and testing is non-
 
 Once you've cloned the repo, install the package and its dependencies
 
-```$ python setup.py install```
+```$ python setup.py install
+   $ python -m nltk.downloader all
+```
 
 Then, open up the examples and check out how they work.  I recommend starting with ```simple_pull_down_user_data_print.py```, which shows how to use the tool with a single API "hook", a la ```tweepy```. From there, it makes sense to move on to ```collect_user_data_serially.py``` for single-process collection of tweets, ```snowball_sample_custom_function_example.py``` for multithreaded collection.
 

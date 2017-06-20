@@ -48,7 +48,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['requests', 'ujson', 'rauth', 'langid', 'nltk', 'openpyxl', 'regex', 'inflect'],
+    install_requires=['requests', 'ujson', 'rauth', 'langid', 'nltk', 'openpyxl', 'regex', 'inflect', 'arrow'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
@@ -73,7 +73,7 @@ setup(
     # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
     #data_files=[('my_data', ['data/data_file'])],
 
-    scripts=["examples/collect_tweets.py","examples/get_user_info_in_chunks.py"]
+    #scripts=["examples/collect_tweets.py","examples/get_user_info_in_chunks.py"]
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
     # pip to create the appropriate form of executable for the target platform.
