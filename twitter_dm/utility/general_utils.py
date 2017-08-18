@@ -5,12 +5,27 @@ __author__ = 'kjoseph'
 
 
 import os
+import io
 import codecs
 import gzip
 import sys
 import glob
 from itertools import groupby
 from twitter_dm.TwitterApplicationHandler import TwitterApplicationHandler
+
+
+class Unbuffered(object):
+    def __init__(self, stream):
+        self.stream = stream
+    def write(self, data):
+        self.stream.write(data)
+        self.stream.flush()
+    def __getattr__(self, attr):
+        return getattr(self.stream, attr)
+
+
+def get_unbuffered_output(filename, open_fun=io.open):
+    return Unbuffered(open_fun(filename))
 
 def collect_system_arguments(system_args, additional_args = list()):
     if len(system_args) != (4+len(additional_args)):
@@ -24,19 +39,11 @@ def collect_system_arguments(system_args, additional_args = list()):
 
     creds_path, in_file, output_location = system_args[1:4]
 
-    if os.path.isdir(creds_path):
-        creds_path = os.path.join(creds_path, "*.txt")
-    elif not creds_path.endswith(".txt"):
-        creds_path += "*.txt"
-
-    print( " ".join(['Getting creds from: ',creds_path ]))
-
     print("Input File: ", in_file)
 
-    print("Output Location: ", output_location)
+    handles = get_handles_from_filepath(creds_path)
 
-    handles = get_handles(glob.glob(creds_path))
-    print 'N Auth Tokens: ', len(handles)
+    print("Output Location: ", output_location)
 
     input_data = set([f.strip() for f in open(in_file).readlines()])
     input_data = [x for x in input_data]
@@ -53,6 +60,17 @@ def collect_system_arguments(system_args, additional_args = list()):
     if len(additional_args):
         retv += system_args[4:]
     return retv
+
+def get_handles_from_filepath(creds_path):
+    if os.path.isdir(creds_path):
+            creds_path = os.path.join(creds_path, "*.txt")
+    elif not creds_path.endswith(".txt"):
+        creds_path += "*.txt"
+
+    print( " ".join(['Getting creds from: ',creds_path ]))
+    handles = get_handles(glob.glob(creds_path))
+    print 'N Auth Tokens: ', len(handles)
+    return handles
 
 def mkdir_no_err(dir_name):
     try:

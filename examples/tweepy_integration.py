@@ -6,45 +6,22 @@ from twitter_dm import Tweet
 import requests
 import sys
 import gzip
+from twitter_dm.utility.general_utils import Unbuffered, get_handles_from_filepath
+import json
 
-consumer_key = "ax8ZTDCTf1nllVyFs384lYHqE"
-consumer_secret = "GA9NXowSo6hMQHdP0Un0aZK1qgck6BS6qDcDD5QfET08XMCM6j"
-access_token = "2798401248-uTPiFgXDktgoXw40a85bzmpe106AX5kCc8zCFxd"
-access_token_secret = "Yg4w06KeqQK02ucgaVX5iqX2ld5BEAE5QeEUgWbsvByua"
-
-user_set = set()
-SAMPLE_SIZE = 5000000
-nt = 0
-of = gzip.open(sys.argv[1],"wb")
 class BaseTweepyListener(StreamListener):
-    def __init__(self):
+    def __init__(self, output_file):
         super(StreamListener, self).__init__()
         self.nt = 0
+        self.output_file = output_file
         
     def on_data(self, data):
         if self.nt % 1000 == 0:
             print(self.nt)
         self.nt +=1 
-        #try:
-        #    t = Tweet(data, do_tokenize=False)
-
-        #    if t.lang != 'en':
-        #        return
-        #    user_set.add(t.user.id)
-        #except:
-        #    return True
-
-        #if len(user_set) % 1000 == 0:
-        #    print(len(user_set))
-        #if len(user_set) == SAMPLE_SIZE:
-        #    of = open("sampled_user_ids.txt","w")
-        #    for u in user_set:
-        #        of.write(str(u)+"\n")
-        #    of.close()
-        #    sys.exit(-1)
         if data:
             try:
-                of.write((data.strip()+u"\n").encode("utf8"))
+                self.output_file.write((data.strip()+u"\n").encode("utf8"))
             except:
                 pass
         return True
@@ -53,16 +30,30 @@ class BaseTweepyListener(StreamListener):
         print(status)
 
 
-if __name__ == '__main__':
-    l = BaseTweepyListener()
-    auth = OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-    
-    while True:
-        try:
-            stream = Stream(auth, l)
-            stream.filter(track=['statue','unitetheright','march on google'])
-        except requests.packages.urllib3.exceptions.ProtocolError:
-            pass
-        except requests.packages.urllib3.exceptions.ReadTimeoutError:
-            pass
+
+if len(sys.argv) != 4:
+    print 'Usage: python tweepy_integration.py [path_to_cred_file] [output_filename] [keywords, separated by commas]'
+    sys.exit(-1)
+
+handles = get_handles_from_filepath(sys.argv[1])
+output_file = Unbuffered(gzip.open(sys.argv[2],"wb"))
+keywords = sys.argv[3].split(",")
+
+print '\n\n\nbegin tracking: ', keywords
+
+print " output to: ",  sys.argv[2]
+
+handle = handles[0]
+
+while True:
+
+    auth = OAuthHandler(handle.consumer_key, handle.consumer_secret)
+    auth.set_access_token(handle.access_token, handle.access_token_secret)
+
+    try:
+        stream = Stream(auth, BaseTweepyListener(output_file))
+        stream.filter(track=['statue','unitetheright','march on google'])
+    except requests.packages.urllib3.exceptions.ProtocolError:
+        pass
+    except requests.packages.urllib3.exceptions.ReadTimeoutError:
+        pass

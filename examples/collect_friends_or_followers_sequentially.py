@@ -41,7 +41,13 @@ for i, handle in enumerate(accounts):
 
         handle = handles[handle_iter]
         print handle.CONSUMER_KEY, handle.access_token
-        json_data = handle.get_from_url(friends_or_followers + "/ids.json",params)
+        try:
+            json_data = handle.get_from_url(friends_or_followers + "/ids.json",params)
+        except ValueError as e:
+            print e
+            handle_iter += 1
+            continue
+
         handle_iter += 1
 
         if json_data is None or not len(json_data):

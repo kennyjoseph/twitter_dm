@@ -32,6 +32,8 @@ class TwitterAPIHook:
 
         self.CONSUMER_KEY = CONSUMER_KEY
         self.CONSUMER_SECRET = CONSUMER_SECRET
+        self.consumer_key = CONSUMER_KEY
+        self.consumer_secret = CONSUMER_SECRET
 
         if not session:
             if not access_token or not access_token_secret:

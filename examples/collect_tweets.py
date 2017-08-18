@@ -17,8 +17,7 @@ from twitter_dm.utility import general_utils
 
 from twitter_dm.utility.general_utils import mkdir_no_err,collect_system_arguments, chunk_data
 
-handles, output_dir, tweet_ids, is_ids, friends_or_followers = collect_system_arguments(sys.argv,
-                                                                                           ['friends or followers'])
+handles, output_dir, tweet_ids, is_ids = collect_system_arguments(sys.argv)
 
 
 # Create the output directory
