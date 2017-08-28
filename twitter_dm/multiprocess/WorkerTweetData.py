@@ -50,6 +50,9 @@ class TweetDataWorker(multiprocessing.Process):
                     self.tweet_output_file.write(json.dumps(tw)+"\n")
                     self.tweet_id_output_file.write(str(tw['id']) + "\tg\n")
                     data.remove(tw['id'])
+                except KeyboardInterrupt as e:
+                    print e
+                    break
                 except:
                     print 'writing tweet failed'
                     pass
@@ -57,6 +60,9 @@ class TweetDataWorker(multiprocessing.Process):
             for failed_tweet in data:
                 try:
                     self.tweet_id_output_file.write(str(failed_tweet) + "\tf\n")
+                except KeyboardInterrupt as e:
+                    print e
+                    break
                 except:
                     print 'writing tweet_id failed'
                     

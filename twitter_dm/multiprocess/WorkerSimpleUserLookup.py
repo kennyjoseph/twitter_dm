@@ -119,7 +119,9 @@ class SimpleUserLookupWorker(multiprocessing.Process):
 
                 sleep(15)
 
-
+            except KeyboardInterrupt as e:
+                print e
+                break
             except Exception:
                 print('FAILED:: ', data)
                 exc_type, exc_value, exc_traceback = sys.exc_info()
