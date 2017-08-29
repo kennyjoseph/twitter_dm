@@ -37,7 +37,7 @@ if len(sys.argv) != 4:
 
 handles = get_handles_from_filepath(sys.argv[1])
 output_file = Unbuffered(gzip.open(sys.argv[2],"wb"))
-keywords = sys.argv[3].split(",")
+keywords = [x.strip() for x in sys.argv[3].split(",")]
 
 print '\n\n\nbegin tracking: ', keywords
 
@@ -56,4 +56,7 @@ while True:
     except requests.packages.urllib3.exceptions.ProtocolError:
         pass
     except requests.packages.urllib3.exceptions.ReadTimeoutError:
+        pass
+    except AttributeError:
+        print 'strip error'
         pass
