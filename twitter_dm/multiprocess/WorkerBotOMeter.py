@@ -14,6 +14,7 @@ import ujson as json
 import traceback
 import botometer
 from tweepy import TweepError
+from time import sleep
 
 class BotOMeterWorker(multiprocessing.Process):
     def __init__(self, queue, api_hook, conn_number, out_dir, mashape_key):
@@ -50,7 +51,7 @@ class BotOMeterWorker(multiprocessing.Process):
                 print 'checking: ', data
                 result = self.bom._get_twitter_data(data)
                 json.dump(result, gzip.open(os.path.join(self.out_dir,str(data)+".gz"),"wb"))
-
+                sleep(7)
             except botometer.NoTimelineError:
                 print 'no timeline for: ', data, ' continuing'
             except TweepError as e:
