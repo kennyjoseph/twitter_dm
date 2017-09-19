@@ -19,6 +19,7 @@ import gzip
 import io
 import os
 import random
+import subprocess
 import ujson as json
 from collections import Counter
 
@@ -307,6 +308,7 @@ class TwitterUser:
     def populate_tweets_from_api(self, json_output_directory=None,
                                  json_output_filename=None,
                                  sleep_var=True, is_gzip=True,
+                                 populate_object_with_tweets=True,
                                  since_id=None):
         """
         Gets the last ~3200 tweets for the user from the Twitter REST API
@@ -326,26 +328,17 @@ class TwitterUser:
         else:
             out_fil_name = self._get_file_name(json_output_directory, json_output_filename, is_gzip)
 
-        # If the file provided exists, then we want to cat on top of it.
-        existing_tweets = []
         max_tw_id = None
+        t_count = 0
+
+        # If the file provided exists, then we need to find the last ID
         if out_fil_name and os.path.exists(out_fil_name):
-            if out_fil_name.endswith(".gz"):
-                reader = [z.decode("utf8") for z in gzip.open(out_fil_name).read().splitlines()]
-            else:
-                reader = codecs.open(out_fil_name, "r", "utf8")
-
-            existing_tweets = [json.loads(l) for l in reader]
-
-            # find the most recent tweet
-            if len(existing_tweets):
-                max_tw_id = existing_tweets[0]['id']
-                max_date = parse_date(existing_tweets[0]['created_at'])
-                for t in existing_tweets[1:]:
-                    dt = parse_date(t['created_at'])
-                    if dt > max_date:
-                        max_date = dt
-                        max_tw_id = t['id']
+            fil = gzip.open(out_fil_name) if out_fil_name.endswith(".gz") else io.open(out_fil_name)
+            line = None
+            for line in fil:
+                t_count += 1
+            if line:
+                max_tw_id = json.loads(line)['id']
 
         # get since the last existing tweet if a since_id is given or we have existing tweets
         if since_id:
@@ -362,25 +355,23 @@ class TwitterUser:
             sleep_var=sleep_var
         )
 
-        # combine all tweets
-        all_tweets = tweets_from_api + existing_tweets
-
-        # populate the object
-        # TODO: insert option to not do this
-        self.populate_tweets(all_tweets)
-
         if out_fil_name:
+            tweets_from_api.sort(key = lambda x: parse_date(x['created_at']))
             if out_fil_name.endswith(".gz"):
-                out_fil = gzip.open(out_fil_name, "wb")
-                for tweet in all_tweets:
+                out_fil = gzip.open(out_fil_name, "ab")
+                for tweet in tweets_from_api:
                     out_fil.write(json.dumps(tweet).strip().encode("utf8") + "\n")
             else:
-                out_fil = io.open(out_fil_name, "w")
-                for tweet in all_tweets:
+                out_fil = io.open(out_fil_name, "a")
+                for tweet in tweets_from_api:
                     out_fil.write(json.dumps(tweet).strip() + u"\n")
             out_fil.close()
 
-        print len(all_tweets), ' total tweets for: ', self.screen_name, ' ', len(
+        # populate the objects
+        if populate_object_with_tweets:
+            self.populate_tweets_from_file(out_fil_name)
+
+        print t_count, ' total tweets for: ', self.screen_name, ' ', len(
             tweets_from_api), ' new tweets from API'
         return out_fil_name
 
