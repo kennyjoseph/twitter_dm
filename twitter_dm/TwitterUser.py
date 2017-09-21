@@ -373,7 +373,7 @@ class TwitterUser:
 
         print t_count, ' total tweets for: ', self.screen_name, ' ', len(
             tweets_from_api), ' new tweets from API'
-        return out_fil_name
+        return out_fil_name, len(tweets_from_api)
 
     def populate_basic_info(self):
         params = {"include_entities": "false"}

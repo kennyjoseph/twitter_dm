@@ -14,7 +14,7 @@ import cPickle as pickle
 import sys, os
 import traceback
 import glob
-
+from twitter_dm.utility.general_utils import Unbuffered
 
 class UserDataWorker(multiprocessing.Process):
     def __init__(self, queue, api_hook, out_dir,
@@ -30,7 +30,8 @@ class UserDataWorker(multiprocessing.Process):
                  save_user_data=True,
                  gets_since_tweet_id=False,
                  add_to_file=False,
-                 populate_tweets=True
+                 populate_tweets=True,
+                 tweet_count_file_dir=None
                  ):
         multiprocessing.Process.__init__(self)
 
@@ -50,6 +51,12 @@ class UserDataWorker(multiprocessing.Process):
         self.gets_since_tweet_id = gets_since_tweet_id
         self.add_to_file = add_to_file
         self.populate_tweets = populate_tweets
+        self.tweet_count_file = None
+        if tweet_count_file_dir:
+            self.tweet_count_file = Unbuffered(
+                open(
+                    os.path.join(self.out_dir, tweet_count_file_dir,
+                                 self.api_hook.consumer_key+"_"+self.api_hook.access_token+".txt"),"w"))
 
         if ((step_count and not add_users_to_queue_function) or
             (not step_count and add_users_to_queue_function)):
@@ -102,12 +109,16 @@ class UserDataWorker(multiprocessing.Process):
                     if self.populate_tweets:
                         if self.save_user_tweets:
                             print 'saving tweets to: ', json_filename
-                            user.populate_tweets_from_api(json_output_filename=json_filename,
-                                                          since_id=since_tweet_id,
-                                                          populate_object_with_tweets=False)
+                            of_name, tweet_count = user.populate_tweets_from_api(
+                                                            json_output_filename=json_filename,
+                                                            since_id=since_tweet_id,
+                                                            populate_object_with_tweets=False)
                         else:
-                            user.populate_tweets_from_api(since_id=since_tweet_id,
-                                                          populate_object_with_tweets=False)
+                            of_name, tweet_count = user.populate_tweets_from_api(since_id=since_tweet_id,
+                                                                                 populate_object_with_tweets=False)
+
+                        if self.tweet_count_file:
+                            self.tweet_count_file.write(str(user_identifier)+"\t"+str(tweet_count)+"\n")
 
                     if self.populate_lists:
                         print 'populating lists', user.screen_name
@@ -125,7 +136,7 @@ class UserDataWorker(multiprocessing.Process):
                         (self.always_pickle or self.populate_lists
                          or self.populate_friends or self.populate_followers):
                         # Pickle and dump user
-                        print 'pickling and dumping (no tweets): ', user.screen_name
+                        #print 'pickling and dumping (no tweets): ', user.screen_name
                         user.tweets = []
                         pickle.dump(user, open(pickle_filename, "wb"))
 
@@ -147,4 +158,4 @@ class UserDataWorker(multiprocessing.Process):
                 traceback.print_tb(exc_traceback, limit=30, file=sys.stdout)
                 print("*** print_exception:")
 
-            print('finished collecting data for: ', data)
+            #print('finished collecting data for: ', data)
