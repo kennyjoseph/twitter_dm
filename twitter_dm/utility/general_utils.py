@@ -94,10 +94,10 @@ def tab_stringify_newline(data,newline=True):
 def chunk_data(data,chunk_size=100):
     i = 0
     chunked = []
-    while i < len(data):
+    while i+chunk_size < (len(data)):
         chunked.append(data[i:(i+chunk_size)])
         i += chunk_size
-    chunked.append(data[i-chunk_size:len(data)])
+    chunked.append(data[i:len(data)])
     return chunked
 
 
