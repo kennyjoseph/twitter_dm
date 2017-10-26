@@ -66,7 +66,7 @@ class TwitterAPIHook:
             authorize_url='https://api.twitter.com/oauth/authorize',
             base_url='https://api.twitter.com/1.1/')
 
-    def _call_to_api(self, url, params, name="", rerun_on_error=True):
+    def _call_to_api(self, url, params, name="", rerun_on_error=True,do_post=False):
         if 'statuses' in url:
             params['tweet_mode'] = 'extended'
         request_completed = False
@@ -74,7 +74,10 @@ class TwitterAPIHook:
         while not request_completed and tried_request < 3:
             try:
                 tried_request += 1
-                r = self.session.get(url, params=params,verify=True)
+                if do_post:
+                    r= self.session.post(url, params=params,data={})
+                else:
+                    r = self.session.get(url, params=params,verify=True)
                 r.json()
                 error = None
                 if 'errors' in r.json():
@@ -105,8 +108,8 @@ class TwitterAPIHook:
 
         return r
 
-    def get_from_url(self, url, params):
-        api_data = self._call_to_api(url, params, "no_name")
+    def get_from_url(self, url, params, do_post=False):
+        api_data = self._call_to_api(url, params, "no_name",do_post=do_post)
         if api_data:
             return api_data.json()
         return None
