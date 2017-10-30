@@ -237,6 +237,8 @@ class TwitterUser:
         self.time_zone = user_data.time_zone
         self.utc_offset = user_data.utc_offset
         self.profile_img = user_data.profile_img
+        self.verified = user_data.verified
+        self.protected = user_data.protected
 
     def populate_user_data(self, user_data, do_parse_date=False):
         self.user_id = get_user_id_str(user_data)
@@ -260,6 +262,8 @@ class TwitterUser:
         self.time_zone = user_data.get("time_zone",'')
         self.utc_offset = user_data.get("utc_offset",-1)
         self.profile_img = user_data.get("profile_image_url_https",'')
+        self.verified = user_data.get("verified",False)
+        self.protecdted = user_data.get("protected",False)
 
     def gen_user_info_dict(self):
         if self.tweets:
@@ -280,7 +284,9 @@ class TwitterUser:
             "times_listed": self.times_listed,
             "utc_offset": self.utc_offset,
             "followers_count": self.followers_count,
-            "following_count": self.following_count
+            "following_count": self.following_count,
+            "verified" : self.verified
+            "protected" : self.protected
         }
 
     def _get_file_name(self, json_output_directory, json_output_filename, is_gzip):
