@@ -90,7 +90,7 @@ class Tweet:
         self.entities = get_ext_status_ents(jsn)
         self.urls = [entity['expanded_url'] for entity in self.entities]
 
-        self.media = lookup(jsn, 'extended_entities.media', [])
+        self.media = lookup(jsn, 'extended_entities.media', []) + lookup(jsn,'entities.media',[])
 
         # get new lang field in tweet
         self.lang = lookup(jsn, 'lang')
@@ -174,6 +174,11 @@ class Tweet:
 
         # See if this tweet was the user's own and it got favorited
         self.favorited_user_tweet_count = get_favorited_count(jsn)
+
+
+        self.quote_count = lookup("quote_count",0)
+
+        self.reply_count = lookup("reply_count",0)
 
         # get overall favorited count (i.e. ignore whether this is an original tweet)
         self.overall_favorited_count = jsn.get('favorite_count', 0)
