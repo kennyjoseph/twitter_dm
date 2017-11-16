@@ -285,7 +285,7 @@ class TwitterUser:
             "utc_offset": self.utc_offset,
             "followers_count": self.followers_count,
             "following_count": self.following_count,
-            "verified" : self.verified
+            "verified" : self.verified,
             "protected" : self.protected
         }
 

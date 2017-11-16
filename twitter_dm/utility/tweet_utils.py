@@ -11,6 +11,43 @@ import re
 from pkg_resources import resource_stream
 
 
+def get_ext_status_ents(status):
+    if status is None:
+        return {}
+    if 'extended_tweet' in status:
+        return lookup(status, 'extended_tweet.entities', list())
+    elif 'entities' in status:
+        return status['entities']
+    return []
+
+def get_all_associated_users_for_tweet(t):
+    all_users = []
+
+    # get all mentions in quoted tweet
+    quote_users = []
+    if t.is_quote and t.quoted_tweet:
+        quote_users = get_all_associated_users_for_tweet(t.quoted_tweet)
+
+    # get all mentions in retweeted tweet
+    rt_users = []
+    if t.retweeted_tweet:
+        rt_users = get_all_associated_users_for_tweet(t.retweeted_tweet)
+
+    # any "mentions" in the media content
+    media_srcs = {str(m['source_user_id']) for m in t.media if 'source_user_id' in m}
+    all_users += list(media_srcs)
+
+    # get anyone being replied to
+    if t.reply_to_user_id:
+        all_users.append(str(t.reply_to_user_id))
+
+    # add sender of tweet
+    all_users.append(str(t.user.id))
+
+    all_users += [str(x) for x in t.mentions]
+
+    return all_users + quote_users + rt_users
+
 def get_stopwords():
     stopwords_stream = resource_stream('twitter_dm', 'data/stopwords.txt')
     return set([word.strip() for word in stopwords_stream.readlines()])

@@ -25,11 +25,11 @@ from datetime import datetime
 import TwitterUser
 from nlp import Tokenize
 from nlp.twokenize import tokenize
-from .utility.tweet_utils import parse_date, lookup
+from .utility.tweet_utils import parse_date, lookup, get_ext_status_ents, get_all_associated_users_for_tweet
 
 
 class Tweet:
-    def __init__(self, jsn_or_string, 
+    def __init__(self, jsn_or_string,
                  do_tokenize=True,
                  do_parse_created_at=True,
                  store_json=False,
@@ -87,16 +87,13 @@ class Tweet:
 
         self.hashtags = get_hashtags(jsn)
 
-        if 'entities' in jsn:
-            self.urls = [entity['expanded_url'] for entity in jsn['entities']['urls']]
-        else:
-            self.urls = []
+        self.entities = get_ext_status_ents(jsn)
+        self.urls = [entity['expanded_url'] for entity in self.entities]
+
+        self.media = lookup(jsn, 'extended_entities.media', [])
 
         # get new lang field in tweet
-        if 'lang' in jsn:
-            self.lang = jsn['lang']
-        else:
-            self.lang = 'none'
+        self.lang = lookup(jsn, 'lang')
 
         self.geo = None
         self.coordinates = None
@@ -117,7 +114,6 @@ class Tweet:
 
         self.geocode_info = get_geo_record_for_tweet(jsn)
 
-
         self.source = jsn['source']
         if do_parse_source:
             source_info = BeautifulSoup(self.source, 'html.parser').a
@@ -132,17 +128,17 @@ class Tweet:
         if 'user' in jsn:
             self.user = TwitterUser.TwitterUser(user_data_object=jsn['user'])
 
-
         if do_parse_created_at:
             self.created_at = get_created_at(jsn)
             # weird junk date
             if self.created_at.year < 2000 or self.created_at.year > 2020:
                 self.created_at = None
 
-            if 'user' in jsn and 'utc_offset' in jsn['user'] and jsn['user']['utc_offset']:
+            if lookup(jsn, 'user.utc_offset', None):
                 self.local_time = arrow.get(arrow.get(self.created_at).timestamp + jsn['user']['utc_offset'])
             else:
                 self.local_time = None
+
         else:
             self.created_at = jsn.get('created_at', None)
 
@@ -174,21 +170,28 @@ class Tweet:
         self.retweeted_user_tweet_count = get_retweeted_count(jsn)
 
         # get overall retweet count (i.e. ignore whether this is an original tweet)
-        self.overall_retweet_count = jsn.get('retweet_count',0)
+        self.overall_retweet_count = jsn.get('retweet_count', 0)
 
         # See if this tweet was the user's own and it got favorited
         self.favorited_user_tweet_count = get_favorited_count(jsn)
 
         # get overall favorited count (i.e. ignore whether this is an original tweet)
-        self.overall_favorited_count = jsn.get('favorite_count',0)
-        if self.retweeted_tweet:
-            self.overall_favorited_count = self.retweeted_tweet.overall_favorited_count
+        self.overall_favorited_count = jsn.get('favorite_count', 0)
+        if 'retweeted_status' in jsn:
+            self.overall_favorited_count = self.overall_retweet_count + lookup(jsn, 'retweeted_status.retweet_count', 0)
+            self.overall_favorited_count = self.overall_favorited_count + lookup(jsn,
+                                                                                 'retweeted_status.favorited_count', 0)
 
-        # Quoted tweet stuff
+        # Quoted tweet stuff - we will only get a quote of a RT if we're storing the RT!
         self.is_quote = jsn.get('is_quote_status', False)
+        self.is_retweet_of_quote = (jsn.get('is_quote_status', False) and
+                                    'quoted_status' not in jsn and
+                                    'retweeted_status' in jsn)
         self.quoted_status_id = None
         self.quoted_tweet = None
-        if self.is_quote:
+
+        # There are some inexplicable conditions in which it is a quote tweet but we don't get sent the quoted tweet info
+        if self.is_quote and 'quoted_status' in jsn:
             self.quoted_status_id = jsn.get('quoted_status_id', None)
             if 'quoted_status' in jsn and store_full_retweet_and_quote:
                 self.quoted_tweet = Tweet(jsn['quoted_status'],
@@ -201,6 +204,7 @@ class Tweet:
             else:
                 self.quoted_tweet = None
 
+        self.all_connected_users = get_all_associated_users_for_tweet(self)
 
     def setTokens(self, tokens):
         assert isinstance(tokens, list)
@@ -215,17 +219,29 @@ class Tweet:
                 else self.tokens + self.quoted_tweet.tokens)
 
 
+
+bad_chars = re.compile('[\r\n\t]+')
+def get_text_field(json):
+    txt = ''
+    if 'full_text' in json:
+        txt = json['full_text']
+    elif 'extended_tweet' in json and 'full_text' in json['extended_tweet']:
+        txt = json['extended_tweet']['full_text']
+    else:
+        txt = json.get('text', '')
+    return bad_chars.sub(' ', txt)
+
 def get_text_from_tweet_json(jsn):
-    txt = jsn['text'] if 'text' in jsn else jsn['full_text']
+    txt = get_text_field(jsn)
     ## hm ... bug in full_text field for RTs? Or they just explain it terribly
     ## either way, this is a "fix"
     if txt.endswith(u"…") and 'retweeted_status' in jsn:
         txt = u"RT @{un}: {text}".format(un=jsn['retweeted_status']['user']['screen_name'],
-                                         text=jsn['retweeted_status']['full_text'] 
-                                                if 'full_text' in jsn['retweeted_status']
-                                                else  jsn['retweeted_status']['text'])
+                                         text=jsn['retweeted_status']['full_text']
+                                         if 'full_text' in jsn['retweeted_status']
+                                         else  jsn['retweeted_status']['text'])
         # remove the link to the tweet from
-        #txt = txt[:txt.rfind("https")-1]
+        # txt = txt[:txt.rfind("https")-1]
     return txt
 
 
