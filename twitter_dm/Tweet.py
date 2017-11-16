@@ -88,7 +88,7 @@ class Tweet:
         self.hashtags = get_hashtags(jsn)
 
         self.entities = get_ext_status_ents(jsn)
-        self.urls = [entity['expanded_url'] for entity in self.entities]
+        self.urls = [x['expanded_url'] for x in self.entities.get("urls")]
 
         self.media = lookup(jsn, 'extended_entities.media', []) + lookup(jsn,'entities.media',[])
 
@@ -176,9 +176,9 @@ class Tweet:
         self.favorited_user_tweet_count = get_favorited_count(jsn)
 
 
-        self.quote_count = lookup("quote_count",0)
+        self.quote_count = lookup(jsn,"quote_count",0)
 
-        self.reply_count = lookup("reply_count",0)
+        self.reply_count = lookup(jsn,"reply_count",0)
 
         # get overall favorited count (i.e. ignore whether this is an original tweet)
         self.overall_favorited_count = jsn.get('favorite_count', 0)
