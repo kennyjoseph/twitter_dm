@@ -11,14 +11,7 @@ import re
 from pkg_resources import resource_stream
 
 
-def get_ext_status_ents(status):
-    if status is None:
-        return {}
-    if 'extended_tweet' in status:
-        return lookup(status, 'extended_tweet.entities', list())
-    elif 'entities' in status:
-        return status['entities']
-    return []
+
 
 def get_all_associated_users_for_tweet(t):
     all_users = []

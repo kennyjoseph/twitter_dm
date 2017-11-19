@@ -209,7 +209,7 @@ class Tweet:
             else:
                 self.quoted_tweet = None
 
-        self.all_connected_users = get_all_associated_users_for_tweet(self)
+        self.all_connected_users = set([x for x in get_all_associated_users_for_tweet(self) if x != self.id])
 
     def setTokens(self, tokens):
         assert isinstance(tokens, list)
@@ -362,9 +362,9 @@ def get_retweeted_user(tweet_json, return_id=False):
 
 
 def get_reply_to(line, return_id=False):
-    if 'in_reply_to_status_id' not in line or \
-                            'in_reply_to_status_id' in line and line['in_reply_to_status_id'] is None:
-        return None
+    #if 'in_reply_to_status_id' not in line or \
+    #                        'in_reply_to_status_id' in line and line['in_reply_to_status_id'] is None:
+    #    return None
 
     if not return_id:
         if 'in_reply_to_screen_name' in line:
@@ -376,7 +376,7 @@ def get_reply_to(line, return_id=False):
 
     if 'in_reply_to_user_id' in line and line['in_reply_to_user_id'] is not None:
         return line['in_reply_to_user_id']
-
+    return None
 
 def get_id(jsn):
     if 'id_str' in jsn:
@@ -408,3 +408,12 @@ def get_created_at(jsn):
     elif 'timestamp' in jsn:
         return datetime.utcfromtimestamp(jsn['timestamp'] / 1000)
     return None
+
+def get_ext_status_ents(status):
+    if status is None:
+        return {}
+    if 'extended_tweet' in status:
+        return lookup(status, 'extended_tweet.entities', list())
+    elif 'entities' in status:
+        return status['entities']
+    return []
