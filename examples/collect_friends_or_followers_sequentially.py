@@ -35,7 +35,7 @@ for i, handle in enumerate(accounts):
 
         if handle_iter == len(handles):
             print ' sleeping now'
-            sleep(60)
+            sleep(180)
             handle_iter = 0
 
 

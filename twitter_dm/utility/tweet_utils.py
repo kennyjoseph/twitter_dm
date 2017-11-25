@@ -34,7 +34,7 @@ def get_all_associated_users_for_tweet(t):
 
     # add sender of tweet
     all_users.append(str(t.user.id))
-
+    all_users.append(str(t.retweeted))
     all_users += [str(x) for x in t.mentions]
 
     return all_users + quote_users + rt_users

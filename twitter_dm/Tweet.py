@@ -22,6 +22,7 @@ import codecs
 import TwitterUser
 from nlp import Tokenize
 from .utility.tweet_utils import *
+from nlp.twokenize import tokenize
 
 
 class Tweet:
@@ -211,6 +212,7 @@ class Tweet:
                 self.quoted_tweet = None
         ####################################################################
 
+<<<<<<< Updated upstream
         ################### All connected users stuff ###################################
         self.all_connected_users = set([x for x in get_all_associated_users_for_tweet(self) if x != self.id])
         self.all_connected_users.remove(self.id)
@@ -218,6 +220,9 @@ class Tweet:
 
 
 
+=======
+        self.all_connected_users = set([x for x in get_all_associated_users_for_tweet(self)])
+>>>>>>> Stashed changes
 
     def setTokens(self, tokens):
         assert isinstance(tokens, list)
