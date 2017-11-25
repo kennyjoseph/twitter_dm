@@ -14,18 +14,14 @@ tweet formats. It needs way more commenting, but that will come, I hope, soon.
 """
 
 import HTMLParser
-import codecs
-import gzip
-import re
 import arrow
 from bs4 import BeautifulSoup
 import ujson as json
-from datetime import datetime
-
+import gzip
+import codecs
 import TwitterUser
 from nlp import Tokenize
-from nlp.twokenize import tokenize
-from .utility.tweet_utils import parse_date, lookup, get_ext_status_ents, get_all_associated_users_for_tweet
+from .utility.tweet_utils import *
 
 
 class Tweet:
@@ -60,7 +56,9 @@ class Tweet:
             # not actually a tweet
             self.id = None
             return
-        # store raw json (yuck, but useful in some random cases
+
+        ################ Basic Stuff #######################################
+        # store raw json (yuck, but useful in some random cases)
         if store_json:
             self.raw_json = jsn
         else:
@@ -69,10 +67,27 @@ class Tweet:
         # Get tweet id
         self.id = get_id(jsn)
 
+        # Get User info
+        self.user = None
+        if 'user' in jsn:
+            self.user = TwitterUser.TwitterUser(user_data_object=jsn['user'])
+
         # so I don't have to try to remember each time whether its an int or string
         self.id_int = int(self.id)
         self.id_str = str(self.id)
 
+        # get new lang field in tweet
+        self.lang = lookup(jsn, 'lang')
+
+        # get overall retweet count (i.e. ignore whether this is an original tweet)
+        self.retweet_count = jsn.get('retweet_count', 0)
+        self.quote_count = lookup(jsn,"quote_count",0)
+        self.reply_count = lookup(jsn,"reply_count",0)
+        self.favorited_count = jsn.get('favorite_count', 0)
+
+        #######################################################
+
+        ################ Text Stuff #######################################
         # Basic replacement of html characters
         tweet_text = get_text_from_tweet_json(jsn)
         self.text = HTMLParser.HTMLParser().unescape(tweet_text)
@@ -84,17 +99,19 @@ class Tweet:
                                                                       **kwargs)
         else:
             self.tokens = None
+        #######################################################
 
-        self.hashtags = get_hashtags(jsn)
 
+        ################ (Extended) Entities #######################################
         self.entities = get_ext_status_ents(jsn)
+        self.hashtags = get_hashtags(jsn)
+        self.mentions = get_mentions(jsn, True)
+        self.mentions_sns = get_mentions(jsn, False)
         self.urls = [x['expanded_url'] for x in self.entities.get("urls")]
-
         self.media = lookup(jsn, 'extended_entities.media', []) + lookup(jsn,'entities.media',[])
+        #######################################################
 
-        # get new lang field in tweet
-        self.lang = lookup(jsn, 'lang')
-
+        ################ GEO #######################################
         self.geo = None
         self.coordinates = None
         self.latitude = None
@@ -113,7 +130,9 @@ class Tweet:
         self.place = lookup(jsn, 'place')
 
         self.geocode_info = get_geo_record_for_tweet(jsn)
+        #######################################
 
+        ################ Source Field #######################################
         self.source = jsn['source']
         if do_parse_source:
             source_info = BeautifulSoup(self.source, 'html.parser').a
@@ -123,11 +142,9 @@ class Tweet:
             except:
                 self.source_link = None
                 self.source_name = None
+        #######################################################
 
-        self.user = None
-        if 'user' in jsn:
-            self.user = TwitterUser.TwitterUser(user_data_object=jsn['user'])
-
+        ################ Datetime stuff #######################################
         if do_parse_created_at:
             self.created_at = get_created_at(jsn)
             # weird junk date
@@ -141,21 +158,9 @@ class Tweet:
 
         else:
             self.created_at = jsn.get('created_at', None)
+        ####################################################################
 
-        # Handle mentions, retweets, reply
-        self.mentions = get_mentions(jsn, True)
-        self.mentions_sns = get_mentions(jsn, False)
-
-        self.reply_to = get_reply_to(jsn, return_id=(True and 'id' in jsn['user']))
-        # this is a better name but keeping both for backwards compatability
-        self.reply_to_user_id = self.reply_to
-        self.reply_to_sn = get_reply_to(jsn, return_id=False)
-        # this is a better name but keeping both for backwards compatability
-        self.reply_to_user_screenname = self.reply_to_sn
-        if self.reply_to:
-            self.in_reply_to_status_id = jsn.get('in_reply_to_status_id', None)
-        self.retweeted = get_retweeted_user(jsn, return_id=(True and 'id' in jsn['user']))
-        self.retweeted_sn = get_retweeted_user(jsn, return_id=False)
+        ################### Retweet Stuff###################################
         self.retweeted_tweet = None
         if 'retweeted_status' in jsn and store_full_retweet_and_quote:
             self.retweeted_tweet = Tweet(jsn['retweeted_status'],
@@ -166,37 +171,33 @@ class Tweet:
                                          noise_tokens=noise_tokens,
                                          **kwargs)
 
+        # TRY NOT TO USE THIS STUFF ANYMORE, DO EVERYTHING THROUGH THE RT OBJECT
         # See if this tweet was the user's own and it got retweeted
         self.retweeted_user_tweet_count = get_retweeted_count(jsn)
+        self.retweeted = get_retweeted_user(jsn, return_id=(True and 'id' in jsn['user']))
+        self.retweeted_sn = get_retweeted_user(jsn, return_id=False)
+        ####################################################################
 
-        # get overall retweet count (i.e. ignore whether this is an original tweet)
-        self.overall_retweet_count = jsn.get('retweet_count', 0)
+        ################### Reply Stuff###################################
+        self.reply_to = get_reply_to(jsn, return_id=(True and 'id' in jsn['user']))
+        # this is a better name but keeping both for backwards compatability
+        self.reply_to_user_id = self.reply_to
+        self.reply_to_sn = get_reply_to(jsn, return_id=False)
+        # this is a better name but keeping both for backwards compatability
+        self.reply_to_user_screenname = self.reply_to_sn
+        if self.reply_to:
+            self.in_reply_to_status_id = jsn.get('in_reply_to_status_id', None)
+        ####################################################################
 
-        # See if this tweet was the user's own and it got favorited
-        self.favorited_user_tweet_count = get_favorited_count(jsn)
-
-
-        self.quote_count = lookup(jsn,"quote_count",0)
-
-        self.reply_count = lookup(jsn,"reply_count",0)
-
-        # get overall favorited count (i.e. ignore whether this is an original tweet)
-        self.overall_favorited_count = jsn.get('favorite_count', 0)
-        if 'retweeted_status' in jsn:
-            self.overall_favorited_count = self.overall_retweet_count + lookup(jsn, 'retweeted_status.retweet_count', 0)
-            self.overall_favorited_count = self.overall_favorited_count + lookup(jsn,
-                                                                                 'retweeted_status.favorited_count', 0)
-
+        ################### Quote Stuff ###################################
         # Quoted tweet stuff - we will only get a quote of a RT if we're storing the RT!
-        self.is_quote = jsn.get('is_quote_status', False)
         self.is_retweet_of_quote = (jsn.get('is_quote_status', False) and
                                     'quoted_status' not in jsn and
                                     'retweeted_status' in jsn)
-        self.quoted_status_id = None
         self.quoted_tweet = None
-
+        self.quoted_status_id = None
         # There are some inexplicable conditions in which it is a quote tweet but we don't get sent the quoted tweet info
-        if self.is_quote and 'quoted_status' in jsn:
+        if 'quoted_status' in jsn:
             self.quoted_status_id = jsn.get('quoted_status_id', None)
             if 'quoted_status' in jsn and store_full_retweet_and_quote:
                 self.quoted_tweet = Tweet(jsn['quoted_status'],
@@ -208,8 +209,15 @@ class Tweet:
                                           **kwargs)
             else:
                 self.quoted_tweet = None
+        ####################################################################
 
+        ################### All connected users stuff ###################################
         self.all_connected_users = set([x for x in get_all_associated_users_for_tweet(self) if x != self.id])
+        self.all_connected_users.remove(self.id)
+        ####################################################################
+
+
+
 
     def setTokens(self, tokens):
         assert isinstance(tokens, list)
@@ -225,100 +233,6 @@ class Tweet:
 
 
 
-bad_chars = re.compile('[\r\n\t]+')
-def get_text_field(json):
-    txt = ''
-    if 'full_text' in json:
-        txt = json['full_text']
-    elif 'extended_tweet' in json and 'full_text' in json['extended_tweet']:
-        txt = json['extended_tweet']['full_text']
-    else:
-        txt = json.get('text', '')
-    return bad_chars.sub(' ', txt)
-
-def get_text_from_tweet_json(jsn):
-    txt = get_text_field(jsn)
-    ## hm ... bug in full_text field for RTs? Or they just explain it terribly
-    ## either way, this is a "fix"
-    if txt.endswith(u"…") and 'retweeted_status' in jsn:
-        txt = u"RT @{un}: {text}".format(un=jsn['retweeted_status']['user']['screen_name'],
-                                         text=jsn['retweeted_status']['full_text']
-                                         if 'full_text' in jsn['retweeted_status']
-                                         else  jsn['retweeted_status']['text'])
-        # remove the link to the tweet from
-        # txt = txt[:txt.rfind("https")-1]
-    return txt
-
-
-def us_geocode_tweet(tweet):
-    import tweet_geocode
-
-    if tweet.geocode_info is not None:
-        geo_info = tweet_geocode.geocode_us_county(tweet.geocode_info)
-        return {"lon": geo_info['lonlat'][0],
-                "lat": geo_info['lonlat'][1],
-                "county": lookup(geo_info, 'us_county.namelsad'),
-                "state": lookup(geo_info, 'us_state.abbrev'),
-                "loctype": geo_info['loc_type']
-                }
-    return None
-
-
-def world_geocode_tweet(tweet):
-    import tweet_geocode
-
-    if tweet.geocode_info is not None:
-        geo_info = tweet_geocode.geocode_world_country(tweet.geocode_info)
-        return {"lon": geo_info['lonlat'][0],
-                "lat": geo_info['lonlat'][1],
-                "country": lookup(geo_info, 'country'),
-                }
-    return None
-
-
-OneCoord = r'([-+]?\d{1,3}\.\d{3,})'
-Separator = r', ?'
-LatLong = re.compile(OneCoord + Separator + OneCoord, re.U)
-
-
-def get_geo_record_for_tweet(tweet):
-    is_coordinates = True
-    geo = lookup(tweet, 'coordinates')
-    if not geo:
-        is_coordinates = False
-        geo = lookup(tweet, 'geo')
-
-    if geo and geo['type'] == 'Point':
-        if is_coordinates:
-            lon, lat = geo['coordinates']
-        else:
-            lat, lon = geo['geo']
-        loc_type = 'OFFICIAL'
-    else:
-        loc = lookup(tweet, 'user.location').strip()
-        if not loc:
-            return None
-        m = LatLong.search(loc.encode('utf8'))
-        if not m:
-            return None
-        lat, lon = m.groups()
-        loc_type = 'REGEX'
-    try:
-        lat = float(lat)
-        lon = float(lon)
-    except ValueError:
-        return None
-
-    if (lat, lon) == (0, 0) or lat < -90 or lat > 90 or lon < -180 or lon > 180:
-        return None
-
-    record = {}
-    record['lonlat'] = [lon, lat]
-    record['loc_type'] = loc_type
-    record['user_location'] = lookup(tweet, 'user.location')
-    return record
-
-
 def get_tweets_from_gzip(fname, **args):
     zf = gzip.open(fname, 'rb')
     reader = codecs.getreader("utf-8")
@@ -326,94 +240,3 @@ def get_tweets_from_gzip(fname, **args):
     return [Tweet(json.loads(l), **args) for l in contents]
 
 
-def get_hashtags(tweet_json):
-    text = get_text_from_tweet_json(tweet_json)
-    if 'entities' in tweet_json:
-        return [entity['text'].lower() for entity in tweet_json['entities']['hashtags']]
-    else:
-        # if its an old tweet, do it the hard way
-        return [x for x in set(
-            [t for t in tokenize(text) if t.startswith("#") and not t == "#"])]
-
-
-def get_mentions(tweet_json, return_id=False):
-    text = get_text_from_tweet_json(tweet_json)
-    to_return = 'id' if return_id else 'screen_name'
-    if 'entities' in tweet_json:
-        return [entity[to_return] for entity in tweet_json['entities']['user_mentions'] if to_return in entity]
-    else:
-        # if its an old tweet, do it the hard way
-        return [x for x in set(
-            [t.replace("@", "") for t in tokenize(text) if t.startswith("@") and not t == "@"])]
-
-
-def get_retweeted_user(tweet_json, return_id=False):
-    to_return = 'id' if return_id else 'screen_name'
-    text = get_text_from_tweet_json(tweet_json)
-
-    if 'retweeted_status' in tweet_json and 'user' in tweet_json['retweeted_status']:
-        return tweet_json['retweeted_status']['user'][to_return]
-
-    # If there is one user mention, then return it, otherwise return noting
-    if 'RT' in text and 'entities' in tweet_json and len(tweet_json['entities']['user_mentions']) == 1:
-        return tweet_json['entities']['user_mentions'][0][to_return]
-
-    return None
-
-
-def get_reply_to(line, return_id=False):
-    #if 'in_reply_to_status_id' not in line or \
-    #                        'in_reply_to_status_id' in line and line['in_reply_to_status_id'] is None:
-    #    return None
-
-    if not return_id:
-        if 'in_reply_to_screen_name' in line:
-            return line['in_reply_to_screen_name']
-        return None
-
-    if 'in_reply_to_user_id_str' in line and line['in_reply_to_user_id_str'] is not None:
-        return line['in_reply_to_user_id_str']
-
-    if 'in_reply_to_user_id' in line and line['in_reply_to_user_id'] is not None:
-        return line['in_reply_to_user_id']
-    return None
-
-def get_id(jsn):
-    if 'id_str' in jsn:
-        return int(jsn['id_str'])
-    if 'id' in jsn:
-        return jsn['id']
-    return None
-
-
-def get_retweeted_count(jsn):
-    if ('retweeted_status' not in jsn and 'quoted_status' not in jsn and
-                'retweet_count' in jsn and
-                jsn['retweet_count'] is not None and jsn['retweet_count'] > 0):
-        return jsn['retweet_count']
-    return 0
-
-
-def get_favorited_count(jsn):
-    if ('retweeted_status' not in jsn and 'quoted_status' not in jsn and
-                'favorite_count' in jsn and
-                jsn['favorite_count'] is not None and jsn['favorite_count'] > 0):
-        return jsn['favorite_count']
-    return 0
-
-
-def get_created_at(jsn):
-    if 'created_at' in jsn:
-        return parse_date(jsn['created_at'])
-    elif 'timestamp' in jsn:
-        return datetime.utcfromtimestamp(jsn['timestamp'] / 1000)
-    return None
-
-def get_ext_status_ents(status):
-    if status is None:
-        return {}
-    if 'extended_tweet' in status:
-        return lookup(status, 'extended_tweet.entities', list())
-    elif 'entities' in status:
-        return status['entities']
-    return []

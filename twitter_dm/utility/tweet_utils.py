@@ -5,12 +5,10 @@
 Utilities that are frequently used in the context of a particular tweet or a set of Tweets
 """
 
-from datetime import datetime
 import os
+from datetime import datetime
 import re
 from pkg_resources import resource_stream
-
-
 
 
 def get_all_associated_users_for_tweet(t):
@@ -50,6 +48,8 @@ def working_path(*args):
     return os.path.normpath(os.path.join(*args))
 
 
+
+
 def parse_date(twitter_lame_datetime_string):
     """Twitter date string ('created_at' field) -> time object"""
     from datetime import datetime
@@ -65,6 +65,9 @@ def get_date(myjson_object):
     if 'timestamp' in myjson_object:
         return datetime.utcfromtimestamp(myjson_object['timestamp']/1000).strftime("%Y-%m-%d")
     return None
+
+
+
 
 
 #######STOLEN FROM BRENDAN############
@@ -87,70 +90,191 @@ def get_time(myjson_object):
     return None
 
 
-# TODO: remove
-############FOR MINERVA, REMOVE AT SOME POINT
 
 
-def regex_or(*items):
-    return '(?:' + '|'.join(items) + ')'
-
-punctChars = r"['\"“”‘’.?!…,:;]"
-entity     = r"&(?:amp|lt|gt|quot);"
-urlStart1  = r"(?:https?://|\bwww\.)"
-commonTLDs = r"(?:com|org|edu|gov|net|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|pro|tel|travel|xxx)"
-ccTLDs	 = r"(?:ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|" + \
-r"bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|" + \
-r"er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|" + \
-r"hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|" + \
-r"lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|" + \
-r"nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|" + \
-r"sl|sm|sn|so|sr|ss|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|" + \
-r"va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|za|zm|zw)"	# TODO: remove obscure country domains?
-urlStart2  = r"\b(?:[A-Za-z\d-])+(?:\.[A-Za-z0-9]+){0,3}\." + regex_or(commonTLDs, ccTLDs) + r"(?:\."+ccTLDs+r")?(?=\W|$)"
-urlBody    = r"(?:[^\.\s<>][^\s<>]*?)?"
-urlExtraCrapBeforeEnd = regex_or(punctChars, entity) + "+?"
-urlEnd     = r"(?:\.\.+|[<>]|\s|$)"
-url        = re.compile(regex_or(urlStart1, urlStart2) + urlBody + "(?=(?:"+urlExtraCrapBeforeEnd+")?"+urlEnd+")")
-
-
-mention_pattern=re.compile(u"@([^~!@#$%^&*()_+`=/?,.<> ])*")
-punctuation_pattern=re.compile(u"[~!@#$%^&*()_+`=/?,.<>: 0123456789 '\"“”‘’…;-]")
-
-
-bin_size = 100
-
-
-# return english percentage in integers
-def GetStatistics(text, silence):
-    import string
-    orig_text = text
-    text = url.sub("", text)
-    text = text.replace("RT", "")
-    text = mention_pattern.sub("", text)
-    text = punctuation_pattern.sub("", text)
-
-    char_count = len(text)
-    english_count = 0
-    for ch in text:
-        # print ch
-        if ch in string.printable:
-            english_count += 1
-    if not silence:
-        print("orig text:", orig_text)
-        print("\ttext=", text)
-        print("\tlength=", len(text), english_count*bin_size/char_count, bin_size-english_count*bin_size/char_count)
-
-    if char_count == 0:
-        return 1
+bad_chars = re.compile('[\r\n\t]+')
+def get_text_field(json):
+    txt = ''
+    if 'extended_tweet' in json and 'full_text' in json['extended_tweet']:
+        txt = json['extended_tweet']['full_text']
+    elif 'full_text' in json:
+        txt = json['full_text']
     else:
-        return english_count*bin_size/char_count
+        txt = json.get('text', '')
+    return bad_chars.sub(' ', txt)
+
+def get_text_from_tweet_json(jsn):
+    txt = get_text_field(jsn)
+    ## hm ... bug in full_text field for RTs? Or they just explain it terribly
+    ## either way, this is a "fix"
+    if txt.endswith(u"…") and 'retweeted_status' in jsn:
+        txt = u"RT @{un}: {text}".format(un=jsn['retweeted_status']['user']['screen_name'],
+                                         text=jsn['retweeted_status']['full_text']
+                                         if 'full_text' in jsn['retweeted_status']
+                                         else  jsn['retweeted_status']['text'])
+    return txt
 
 
-def classify_language(text, cutoff=95, silence=True):
-    english_percentage = GetStatistics(text, silence)
-    if english_percentage >= cutoff:
-        return "en"
-    elif english_percentage <= (100-cutoff):
-        return "ar"
+def us_geocode_tweet(tweet):
+    import tweet_geocode
+
+    if tweet.geocode_info is not None:
+        geo_info = tweet_geocode.geocode_us_county(tweet.geocode_info)
+        return {"lon": geo_info['lonlat'][0],
+                "lat": geo_info['lonlat'][1],
+                "county": lookup(geo_info, 'us_county.namelsad'),
+                "state": lookup(geo_info, 'us_state.abbrev'),
+                "loctype": geo_info['loc_type']
+                }
+    return None
+
+
+def world_geocode_tweet(tweet):
+    import tweet_geocode
+
+    if tweet.geocode_info is not None:
+        geo_info = tweet_geocode.geocode_world_country(tweet.geocode_info)
+        return {"lon": geo_info['lonlat'][0],
+                "lat": geo_info['lonlat'][1],
+                "country": lookup(geo_info, 'country'),
+                }
+    return None
+
+
+OneCoord = r'([-+]?\d{1,3}\.\d{3,})'
+Separator = r', ?'
+LatLong = re.compile(OneCoord + Separator + OneCoord, re.U)
+
+
+def get_geo_record_for_tweet(tweet):
+    is_coordinates = True
+    geo = lookup(tweet, 'coordinates')
+    if not geo:
+        is_coordinates = False
+        geo = lookup(tweet, 'geo')
+
+    if geo and geo['type'] == 'Point':
+        if is_coordinates:
+            lon, lat = geo['coordinates']
+        else:
+            lat, lon = geo['geo']
+        loc_type = 'OFFICIAL'
     else:
-        return "mix"
+        loc = lookup(tweet, 'user.location').strip()
+        if not loc:
+            return None
+        m = LatLong.search(loc.encode('utf8'))
+        if not m:
+            return None
+        lat, lon = m.groups()
+        loc_type = 'REGEX'
+    try:
+        lat = float(lat)
+        lon = float(lon)
+    except ValueError:
+        return None
+
+    if (lat, lon) == (0, 0) or lat < -90 or lat > 90 or lon < -180 or lon > 180:
+        return None
+
+    record = {}
+    record['lonlat'] = [lon, lat]
+    record['loc_type'] = loc_type
+    record['user_location'] = lookup(tweet, 'user.location')
+    return record
+
+
+def get_retweeted_user(tweet_json, return_id=False):
+    to_return = 'id' if return_id else 'screen_name'
+    text = get_text_from_tweet_json(tweet_json)
+
+    if 'retweeted_status' in tweet_json and 'user' in tweet_json['retweeted_status']:
+        return tweet_json['retweeted_status']['user'][to_return]
+
+    # If there is one user mention, then return it, otherwise return noting
+    if 'RT' in text and 'entities' in tweet_json and len(tweet_json['entities']['user_mentions']) == 1:
+        return tweet_json['entities']['user_mentions'][0][to_return]
+
+    return None
+
+
+def get_reply_to(line, return_id=False):
+    #if 'in_reply_to_status_id' not in line or \
+    #                        'in_reply_to_status_id' in line and line['in_reply_to_status_id'] is None:
+    #    return None
+
+    if not return_id:
+        if 'in_reply_to_screen_name' in line:
+            return line['in_reply_to_screen_name']
+        return None
+
+    if 'in_reply_to_user_id_str' in line and line['in_reply_to_user_id_str'] is not None:
+        return line['in_reply_to_user_id_str']
+
+    if 'in_reply_to_user_id' in line and line['in_reply_to_user_id'] is not None:
+        return line['in_reply_to_user_id']
+    return None
+
+def get_id(jsn):
+    if 'id_str' in jsn:
+        return int(jsn['id_str'])
+    if 'id' in jsn:
+        return jsn['id']
+    return None
+
+
+def get_retweeted_count(jsn):
+    if ('retweeted_status' not in jsn and 'quoted_status' not in jsn and
+                'retweet_count' in jsn and
+                jsn['retweet_count'] is not None and jsn['retweet_count'] > 0):
+        return jsn['retweet_count']
+    return 0
+
+
+def get_favorited_count(jsn):
+    if ('retweeted_status' not in jsn and 'quoted_status' not in jsn and
+                'favorite_count' in jsn and
+                jsn['favorite_count'] is not None and jsn['favorite_count'] > 0):
+        return jsn['favorite_count']
+    return 0
+
+
+def get_created_at(jsn):
+    if 'created_at' in jsn:
+        return parse_date(jsn['created_at'])
+    elif 'timestamp' in jsn:
+        return datetime.utcfromtimestamp(jsn['timestamp'] / 1000)
+    return None
+
+def get_ext_status_ents(status):
+    if status is None:
+        return {}
+
+    if 'extended_tweet' in status:
+        return lookup(status, 'extended_tweet.entities', list())
+    elif 'entities' in status:
+        return status['entities']
+    return None
+
+def get_hashtags(tweet_json):
+    text = get_text_from_tweet_json(tweet_json)
+    entities = get_ext_status_ents(tweet_json)
+    if entities:
+        return [entity['text'].lower() for entity in entities['hashtags']]
+    else:
+        # if its an old tweet, do it the hard way
+        return [x for x in set(
+            [t for t in text.split() if t.startswith("#") and not t == "#"])]
+
+
+def get_mentions(tweet_json, return_id=False):
+    text = get_text_from_tweet_json(tweet_json)
+    to_return = 'id' if return_id else 'screen_name'
+    entities = get_ext_status_ents(tweet_json)
+    if entities:
+        return [entity[to_return] for entity in entities['user_mentions'] if to_return in entity]
+    else:
+        # if its an old tweet, do it the hard way
+        return [x for x in set(
+            [t.replace("@", "") for t in text.split() if t.startswith("@") and not t == "@"])]
+
