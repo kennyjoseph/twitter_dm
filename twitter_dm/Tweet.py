@@ -214,7 +214,6 @@ class Tweet:
 
         ################### All connected users stuff ###################################
         self.all_connected_users = set([x for x in get_all_associated_users_for_tweet(self) if x != self.id])
-        self.all_connected_users.remove(self.id)
         ####################################################################
 
     def setTokens(self, tokens):

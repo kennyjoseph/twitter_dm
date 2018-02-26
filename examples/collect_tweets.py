@@ -27,11 +27,13 @@ mkdir_no_err(output_dir)
 i = 0
 tweets_chunked = chunk_data(tweet_ids)
 
+
+print tweets_chunked[0]
 # init a sync manager
 multiprocess_setup.init_good_sync_manager()
 
 # put data on the queue
-request_queue = multiprocess_setup.load_request_queue(tweet_ids, len(handles))
+request_queue = multiprocess_setup.load_request_queue(tweets_chunked, len(handles))
 # run!
 processes = []
 for i in range(len(handles)):
