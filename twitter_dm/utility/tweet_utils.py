@@ -16,7 +16,7 @@ def get_all_associated_users_for_tweet(t):
 
     # get all mentions in quoted tweet
     quote_users = []
-    if t.is_quote and t.quoted_tweet:
+    if t.quoted_tweet:
         quote_users = get_all_associated_users_for_tweet(t.quoted_tweet)
 
     # get all mentions in retweeted tweet

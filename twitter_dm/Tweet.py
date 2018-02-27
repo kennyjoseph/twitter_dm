@@ -186,6 +186,7 @@ class Tweet:
         self.reply_to_sn = get_reply_to(jsn, return_id=False)
         # this is a better name but keeping both for backwards compatability
         self.reply_to_user_screenname = self.reply_to_sn
+        self.in_reply_to_status_id = None
         if self.reply_to:
             self.in_reply_to_status_id = jsn.get('in_reply_to_status_id', None)
         ####################################################################
