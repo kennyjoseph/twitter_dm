@@ -43,7 +43,7 @@ QUOTATION_REGEX = re.compile(u'[\'"`‘“’”’]')
 
 def get_tweet_text_sub_emoticons(tweet):
     text = tweet.text
-    for e in [emoji_block3,emoji_block0,emoji_block1,emoji_block3,EMOTICONS_2,EMOTICONS]:
+    for e in [_emoji_block3,_emoji_block0,_emoji_block1,_emoji_block3,EMOTICONS_2,EMOTICONS]:
         text = e.sub("*",text)
     return text
 

@@ -313,8 +313,10 @@ class TwitterUser:
 
     def populate_tweets_from_api(self, json_output_directory=None,
                                  json_output_filename=None,
-                                 sleep_var=True, is_gzip=True,
+                                 sleep_var=True,
+                                 is_gzip=True,
                                  populate_object_with_tweets=True,
+                                 return_tweets= False,
                                  since_id=None):
         """
         Gets the last ~3200 tweets for the user from the Twitter REST API
@@ -379,7 +381,11 @@ class TwitterUser:
 
         print t_count, ' total tweets for: ', self.screen_name, ' ', len(
             tweets_from_api), ' new tweets from API'
-        return out_fil_name, len(tweets_from_api)
+
+        if return_tweets:
+            return tweets_from_api
+        else:
+            return out_fil_name, len(tweets_from_api)
 
     def populate_basic_info(self):
         params = {"include_entities": "false"}
