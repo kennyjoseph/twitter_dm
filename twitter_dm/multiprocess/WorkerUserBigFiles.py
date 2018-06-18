@@ -45,58 +45,58 @@ class BigFileUserDataWorker(multiprocessing.Process):
         while True:
             data = self.queue.get(True)
 
-            #try:
-            if data is None:
-                print 'ALL FINISHED!!!!'
-                self.output_file.close()
-                self.sinceid_output_file.close()
+            try:
+                if data is None:
+                    print 'ALL FINISHED!!!!'
+                    self.output_file.close()
+                    self.sinceid_output_file.close()
 
+                    if self.tweet_count_file:
+                        self.tweet_count_file.close()
+
+                    break
+                if len(data) != 2:
+                    raise Exception("Must specify tuple of user_identifier, last tweet ID (None if there is none)")
+
+                user_identifier, since_tweet_id = str(data[0]), data[1]
+
+                # Get the tweets
+                if self.gets_user_id:
+                    user = TwitterUser(self.api_hook, user_id=user_identifier)
+                else:
+                    user = TwitterUser(self.api_hook, screen_name=user_identifier)
+
+                print 'populating tweets: ', user_identifier
+                if since_tweet_id != '':
+                    tweets = user.populate_tweets_from_api(since_id=since_tweet_id,
+                                                         populate_object_with_tweets=False,
+                                                         return_tweets=True)
+                else:
+                    tweets = user.populate_tweets_from_api(populate_object_with_tweets=False,
+                                                           return_tweets=True)
+
+                # Write out the tweets
+                for tweet in tweets:
+                    self.output_file.write(json.dumps(tweet).strip().encode("utf8") + "\n")
+
+                if len(tweets):
+                    # write out the since tweet id file
+                    self.sinceid_output_file.write(tsn([user_identifier, tweets[0]['id']]))
+                else:
+                    self.sinceid_output_file.write(tsn([user_identifier, since_tweet_id]))
+
+                # if desired, write out the count file
                 if self.tweet_count_file:
-                    self.tweet_count_file.close()
+                    self.tweet_count_file.write(user_identifier+"\t"+str(len(tweets))+"\n")
 
+            except KeyboardInterrupt as e:
+                print e
                 break
-            if len(data) != 2:
-                raise Exception("Must specify tuple of user_identifier, last tweet ID (None if there is none)")
-
-            user_identifier, since_tweet_id = str(data[0]), data[1]
-
-            # Get the tweets
-            if self.gets_user_id:
-                user = TwitterUser(self.api_hook, user_id=user_identifier)
-            else:
-                user = TwitterUser(self.api_hook, screen_name=user_identifier)
-
-            print 'populating tweets: ', user_identifier
-            if since_tweet_id != '':
-                tweets = user.populate_tweets_from_api(since_id=since_tweet_id,
-                                                     populate_object_with_tweets=False,
-                                                     return_tweets=True)
-            else:
-                tweets = user.populate_tweets_from_api(populate_object_with_tweets=False,
-                                                       return_tweets=True)
-
-            # Write out the tweets
-            for tweet in tweets:
-                self.output_file.write(json.dumps(tweet).strip().encode("utf8") + "\n")
-
-            if len(tweets):
-                # write out the since tweet id file
-                self.sinceid_output_file.write(tsn([user_identifier, tweets[0]['id']]))
-            else:
-                self.sinceid_output_file.write(tsn([user_identifier, since_tweet_id]))
-
-            # if desired, write out the count file
-            if self.tweet_count_file:
-                self.tweet_count_file.write(user_identifier+"\t"+str(len(tweets))+"\n")
-
-            # except KeyboardInterrupt as e:
-            #     print e
-            #     break
-            # except Exception:
-            #     print('FAILED:: ', data)
-            #     exc_type, exc_value, exc_traceback = sys.exc_info()
-            #     print("*** print_tb:")
-            #     traceback.print_tb(exc_traceback, limit=30, file=sys.stdout)
-            #     print("*** print_exception:")
+            except Exception:
+                print('FAILED:: ', data)
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                print("*** print_tb:")
+                traceback.print_tb(exc_traceback, limit=30, file=sys.stdout)
+                print("*** print_exception:")
 
           #print('finished collecting data for: ', data)
