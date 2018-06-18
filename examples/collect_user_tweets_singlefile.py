@@ -34,7 +34,6 @@ for x in user_ids:
     except:
         pass
 
-handles = handles[:3]
 print 'num users: ', len(user_ids)
 
 

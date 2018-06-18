@@ -26,7 +26,6 @@ gen_tweet_counts_file) = collect_system_arguments(sys.argv,
                                                   'collect_followers (y/n)',
                                                   "gen_tweet_counts_file (y/n)"])
 
-handles = handles[:2]
 
 print 'num users: ', len(user_ids)
 
