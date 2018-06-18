@@ -68,7 +68,7 @@ except KeyboardInterrupt:
     print 'keyboard interrupt'
 
 
-with open(os.path.join(out_dir,"sinceid_all.txt"),"w") as of:
+with open(os.path.join(out_dir,"sinceid_all.tsv"),"w") as of:
     for fil in glob(os.path.join(out_dir,"sinceid","*")):
         for line in open(fil):
             of.write(line)
