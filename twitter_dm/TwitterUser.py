@@ -379,7 +379,8 @@ class TwitterUser:
         if populate_object_with_tweets:
             self.populate_tweets_from_file(out_fil_name)
 
-        print t_count, ' total tweets for: ', self.screen_name, ' ', len(
+        sig = self.screen_name if self.screen_name else self.user_id
+        print t_count+len(tweets_from_api), ' total tweets for: ', sig , ' ', len(
             tweets_from_api), ' new tweets from API'
 
         if return_tweets:

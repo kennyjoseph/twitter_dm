@@ -1,11 +1,6 @@
-"""This file shows an example of how to use
-the UserDataWorker to get information about a bunch of
-Twitter users fairly quickly.
+"""This file shows how to collect tweets for users in a format suitable for both backing up and
+to put onto spark (bz2)
 
-Note that the input is expected to be a list of user names, one per line.
-
-If you have user_ids, you can do that too, just change the user_id=False line
-when you're creating the workers
 """
 
 __author__ = 'kjoseph'
@@ -17,6 +12,7 @@ from twitter_dm.multiprocess import multiprocess_setup
 from twitter_dm.multiprocess.WorkerUserBigFiles import BigFileUserDataWorker
 from datetime import datetime
 from twitter_dm.utility.general_utils import mkdir_no_err, collect_system_arguments
+from glob import glob
 
 (handles, out_dir, user_ids, is_ids,
 gen_tweet_counts_file) = collect_system_arguments(sys.argv, ["gen_tweet_counts_file (y/n)"])
@@ -36,8 +32,11 @@ for x in user_ids:
 
 print 'num users: ', len(user_ids)
 
-
-mkdir_no_err(out_dir)
+try:
+    os.mkdir(out_dir)
+except:
+    print 'output directory already exists, not going to overwrite, exiting'
+    sys.exit(-1)
 mkdir_no_err(os.path.join(out_dir, "json"))
 mkdir_no_err(os.path.join(out_dir, "sinceid"))
 
@@ -67,3 +66,9 @@ try:
         print p.join(100000000)
 except KeyboardInterrupt:
     print 'keyboard interrupt'
+
+
+with open(os.path.join(out_dir,"sinceid_all.txt"),"w") as of:
+    for fil in glob(os.path.join(out_dir,"sinceid","*")):
+        for line in open(fil):
+            of.write(line)

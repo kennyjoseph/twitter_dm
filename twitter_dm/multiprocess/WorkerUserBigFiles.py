@@ -11,7 +11,7 @@ from twitter_dm.TwitterUser import TwitterUser
 import multiprocessing
 import sys, os
 import traceback
-import gzip
+import bz2
 import ujson as json
 from twitter_dm.utility.general_utils import Unbuffered, tab_stringify_newline as tsn
 
@@ -35,7 +35,7 @@ class BigFileUserDataWorker(multiprocessing.Process):
             self.tweet_count_file = Unbuffered(
                 open(
                     os.path.join(self.out_dir, tweet_count_file_dir,self.id +".txt"),"w"))
-        self.output_file = gzip.open(os.path.join(output_dir,"json", self.id+".json.gz"), "w")
+        self.output_file = bz2.BZ2File(os.path.join(output_dir,"json", self.id+".json.bz2"), "w")
 
         self.sinceid_output_file = open(os.path.join(output_dir, "sinceid", self.id + ".txt"), "w")
 
