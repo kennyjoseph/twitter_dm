@@ -32,7 +32,7 @@ for x in user_ids:
     except:
         pass
 
-print 'num users: ', len(user_ids)
+print 'num users: ', len(to_pass)
 
 try:
     os.mkdir(out_dir)
@@ -70,7 +70,13 @@ except KeyboardInterrupt:
     print 'keyboard interrupt'
 
 
+
 with open(full_sinceid_output_filename,"w") as of:
     for fil in glob(os.path.join(out_dir,"sinceid","*")):
         for line in open(fil):
             of.write(line)
+
+# write out copy of old sinceid file
+with open(os.path.join(out_dir,"sinceids_used.tsv"),"w") as of:
+    for x in to_pass:
+        of.write(str(x[0]) + "\t" + str(x[1]) + "\n")
