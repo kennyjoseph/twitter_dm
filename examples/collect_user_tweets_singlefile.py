@@ -15,7 +15,9 @@ from twitter_dm.utility.general_utils import mkdir_no_err, collect_system_argume
 from glob import glob
 
 (handles, out_dir, user_ids, is_ids,
-gen_tweet_counts_file) = collect_system_arguments(sys.argv, ["gen_tweet_counts_file (y/n)"])
+full_sinceid_output_filename,
+ gen_tweet_counts_file) = collect_system_arguments(sys.argv, ["full_sinceid_output_filename",
+                                                             "gen_tweet_counts_file (y/n)"])
 
 # messes up the user id processing thing so we have to redo
 is_ids = True
@@ -68,7 +70,7 @@ except KeyboardInterrupt:
     print 'keyboard interrupt'
 
 
-with open(os.path.join(out_dir,"sinceid_all.tsv"),"w") as of:
+with open(full_sinceid_output_filename,"w") as of:
     for fil in glob(os.path.join(out_dir,"sinceid","*")):
         for line in open(fil):
             of.write(line)
