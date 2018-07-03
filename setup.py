@@ -33,8 +33,8 @@ setup(
     url='https://github.com/kennyjoseph/twitter_dm',
 
     # Author details
-    author='Peter M. Landwehr and Kenneth Joseph',
-    author_email='pmlandwehr@gmail.com ; josephkena@gmail.com',
+    author='Kenneth Joseph',
+    author_email='josephkena@gmail.com',
 
     # Choose your license
     license='MIT',

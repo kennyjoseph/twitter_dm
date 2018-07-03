@@ -13,11 +13,12 @@ from twitter_dm.multiprocess.WorkerUserBigFiles import BigFileUserDataWorker
 from datetime import datetime
 from twitter_dm.utility.general_utils import mkdir_no_err, collect_system_arguments
 from glob import glob
+from pydoop import hdfs
 
 (handles, out_dir, user_ids, is_ids,
 full_sinceid_output_filename,
- gen_tweet_counts_file) = collect_system_arguments(sys.argv, ["full_sinceid_output_filename",
-                                                             "gen_tweet_counts_file (y/n)"])
+ gen_tweet_counts_file, hdfs_path) = collect_system_arguments(sys.argv, ["full_sinceid_output_filename",
+                                                             "gen_tweet_counts_file (y/n)","hdfs_path"])
 
 # messes up the user id processing thing so we have to redo
 is_ids = True
@@ -80,3 +81,6 @@ with open(full_sinceid_output_filename,"w") as of:
 with open(os.path.join(out_dir,"sinceids_used.tsv"),"w") as of:
     for x in to_pass:
         of.write(str(x[0]) + "\t" + str(x[1]) + "\n")
+
+
+hdfs.put(os.path.join(out_dir, "json"), hdfs_path)

@@ -46,7 +46,7 @@ def collect_system_arguments(system_args, additional_args = list()):
     print("Output Location: ", output_location)
 
     input_data = set([f.strip() for f in open(in_file).readlines()])
-    input_data = [x for x in input_data]
+    input_data = [x for x in input_data if x != '']
     print 'N Input Tokens ', len(input_data)
 
     is_given_ids = False
