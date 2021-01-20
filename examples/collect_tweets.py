@@ -19,33 +19,32 @@ from twitter_dm.utility.general_utils import mkdir_no_err,collect_system_argumen
 
 handles, output_dir, tweet_ids, is_ids = collect_system_arguments(sys.argv)
 
+if __name__ == "__main__":
 
-# Create the output directory
-mkdir_no_err(output_dir)
+	# Create the output directory
+	mkdir_no_err(output_dir)
 
-# chunk tweets into 100s (the API takes them by 100)
-i = 0
-tweets_chunked = chunk_data(tweet_ids)
+	# chunk tweets into 100s (the API takes them by 100)
+	i = 0
+	tweets_chunked = chunk_data(tweet_ids)
 
 
-print(tweets_chunked[0])
-# init a sync manager
-multiprocess_setup.init_good_sync_manager()
+	print(tweets_chunked[0])
 
-# put data on the queue
-request_queue = multiprocess_setup.load_request_queue(tweets_chunked, len(handles))
-# run!
-processes = []
-for i in range(len(handles)):
-    p = TweetDataWorker(request_queue,handles[i],i,output_dir)
-    p.start()
-    processes.append(p)
+	# put data on the queue
+	request_queue = multiprocess_setup.load_request_queue(tweets_chunked, len(handles))
+	# run!
+	processes = []
+	for i in range(len(handles)):
+	    p = TweetDataWorker(request_queue,handles[i],i,output_dir)
+	    p.start()
+	    processes.append(p)
 
-try:
-    for p in processes:
-        p.join()
-except KeyboardInterrupt:
-    print('keyboard interrupt')
+	try:
+	    for p in processes:
+	        p.join()
+	except KeyboardInterrupt:
+	    print('keyboard interrupt')
 
 
 
