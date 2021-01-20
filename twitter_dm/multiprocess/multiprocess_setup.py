@@ -7,8 +7,6 @@ import multiprocessing as mp
 
 def load_request_queue(data, n_terminals, add_nones=True):
     request_queue = mp.Queue()
-
-    print("DATA: ", data)
     print('loading ', len(data), ' objects onto queue')
     for d in data:
         request_queue.put( d)
