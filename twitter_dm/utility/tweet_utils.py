@@ -107,8 +107,8 @@ def get_text_from_tweet_json(jsn):
     txt = get_text_field(jsn)
     ## hm ... bug in full_text field for RTs? Or they just explain it terribly
     ## either way, this is a "fix"
-    if txt.endswith(u"…") and 'retweeted_status' in jsn:
-        txt = u"RT @{un}: {text}".format(un=jsn['retweeted_status']['user']['screen_name'],
+    if txt.endswith("…") and 'retweeted_status' in jsn:
+        txt = "RT @{un}: {text}".format(un=jsn['retweeted_status']['user']['screen_name'],
                                          text=jsn['retweeted_status']['full_text']
                                          if 'full_text' in jsn['retweeted_status']
                                          else  jsn['retweeted_status']['text'])

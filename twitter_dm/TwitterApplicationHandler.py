@@ -17,7 +17,7 @@ import os
 
 from rauth import OAuth1Service
 
-from TwitterAPIHook import TwitterAPIHook
+from .TwitterAPIHook import TwitterAPIHook
 
 
 class TwitterApplicationHandler:
@@ -33,10 +33,10 @@ class TwitterApplicationHandler:
             raise Exception("Need a config file and/or consumer_key")
 
         if consumer_key is not None:
-            print 'got key from constructor'
+            print('got key from constructor')
             self.consumer_key = consumer_key
         if consumer_secret is not None:
-            print 'got secret from constructor'
+            print('got secret from constructor')
             self.consumer_secret = consumer_secret
 
         self.knownUserDict = {}
@@ -61,23 +61,23 @@ class TwitterApplicationHandler:
             base_url='https://api.twitter.com/1.1/')
 
         self.api_hooks = []
-        for name in self.knownUserDict.keys():
+        for name in list(self.knownUserDict.keys()):
             self.api_hooks.append(TwitterAPIHook(self.consumer_key, self.consumer_secret, self.init_session(name)))
 
     def new_session(self, username):
         request_token, request_token_secret = self.twitter.get_request_token()
         authorize_url = self.twitter.get_authorize_url(request_token)
-        print('{un} : Visit this URL in your browser: {url}'.format(un=username,url=authorize_url))
+        print(('{un} : Visit this URL in your browser: {url}'.format(un=username,url=authorize_url)))
 
         try:
-            pin = raw_input('Enter PIN from browser: ')
-        except NameError:
             pin = input('Enter PIN from browser: ')
+        except NameError:
+            pin = eval(input('Enter PIN from browser: '))
 
         session = self.twitter.get_auth_session(request_token, request_token_secret, method='POST',
                                                 data={'oauth_verifier': pin})
         # Print token for reference / saving
-        print(session.access_token, session.access_token_secret)
+        print((session.access_token, session.access_token_secret))
 
 
         # Write token to known user file.
@@ -95,16 +95,16 @@ class TwitterApplicationHandler:
 
     def init_new_user(self,user):
         if user in self.knownUserDict:
-            print 'already have user'
+            print('already have user')
             return
         self.api_hooks.append(TwitterAPIHook(self.consumer_key, self.consumer_secret, self.init_session(user)))
 
     def init_session(self, user=''):
         if user == '':
             try:
-                user = raw_input('Enter user to be tied to this session: ')
-            except NameError:
                 user = input('Enter user to be tied to this session: ')
+            except NameError:
+                user = eval(input('Enter user to be tied to this session: '))
 
         if user in self.knownUserDict:
             session = self.reuse_session(user)
@@ -137,6 +137,6 @@ class TwitterApplicationHandler:
                 user, user_access_token, user_access_token_secret = line.strip().split(',')
                 self.knownUserDict[user] = (user_access_token, user_access_token_secret)
                 if not silent:
-                    print(' Got', user)
+                    print((' Got', user))
         except:
             raise Exception("Config file not specified correctly")

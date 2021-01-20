@@ -33,12 +33,12 @@ for x in user_ids:
     except:
         pass
 
-print 'num users: ', len(to_pass)
+print('num users: ', len(to_pass))
 
 try:
     os.mkdir(out_dir)
 except:
-    print 'output directory already exists, not going to overwrite, exiting'
+    print('output directory already exists, not going to overwrite, exiting')
     sys.exit(-1)
 mkdir_no_err(os.path.join(out_dir, "json"))
 mkdir_no_err(os.path.join(out_dir, "sinceid"))
@@ -66,9 +66,9 @@ for i in range(len(handles)):
 
 try:
     for p in processes:
-        print p.join(100000000)
+        print(p.join(100000000))
 except KeyboardInterrupt:
-    print 'keyboard interrupt'
+    print('keyboard interrupt')
 
 
 

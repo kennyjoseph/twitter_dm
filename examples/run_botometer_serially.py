@@ -23,18 +23,18 @@ with open(out_file) as inf:
         uid = json.loads(line)['user']['id_str']
         accounts.remove(uid)
 
-print 'n accounts: ', len(accounts)
+print('n accounts: ', len(accounts))
 
 of = Unbuffered(open("bot_out.json", "a"))
 
 for i, a in enumerate(accounts):
     if i % 250 == 0:
-        print i
+        print(i)
 
     # Check a single account
     try:
         result = bom.check_account(a)
         of.write(json.dumps(result) + "\n")
     except:
-        print 'fail', a
+        print('fail', a)
 

@@ -12,7 +12,7 @@ and goes to the Twitter API to get this user's tweets
 """
 __author__ = 'kjoseph'
 
-import StringIO
+import io
 import codecs
 import datetime
 import gzip
@@ -25,7 +25,7 @@ from collections import Counter
 
 from pkg_resources import resource_stream
 
-import Tweet
+from . import Tweet
 from .utility.general_utils import tab_stringify_newline as tsn
 from .utility.tweet_utils import parse_date
 
@@ -176,7 +176,7 @@ class TwitterUser:
                 tweet = t
             self.tweets.append(tweet)
 
-            if tweet.created_at and type(tweet.created_at) is not str and type(tweet.created_at) is not unicode:
+            if tweet.created_at and type(tweet.created_at) is not str and type(tweet.created_at) is not str:
                 if tweet.created_at < self.earliest_tweet_time:
                     self.earliest_tweet_time = tweet.created_at
                 if tweet.created_at > self.latest_tweet_time:
@@ -372,7 +372,7 @@ class TwitterUser:
             else:
                 out_fil = io.open(out_fil_name, "a")
                 for tweet in tweets_from_api:
-                    out_fil.write(json.dumps(tweet).strip() + u"\n")
+                    out_fil.write(json.dumps(tweet).strip() + "\n")
             out_fil.close()
 
         # populate the objects
@@ -380,8 +380,8 @@ class TwitterUser:
             self.populate_tweets_from_file(out_fil_name)
 
         sig = self.screen_name if self.screen_name else self.user_id
-        print t_count+len(tweets_from_api), ' total tweets for: ', sig , ' ', len(
-            tweets_from_api), ' new tweets from API'
+        print(t_count+len(tweets_from_api), ' total tweets for: ', sig , ' ', len(
+            tweets_from_api), ' new tweets from API')
 
         if return_tweets:
             return tweets_from_api
@@ -456,7 +456,7 @@ class TwitterUser:
             params={"count":5000},
             sleep_var=sleep_var)
         if print_output:
-            print('NUM FRIENDS: ', len(self.friend_ids))
+            print(('NUM FRIENDS: ', len(self.friend_ids)))
 
     def populate_followers(self, sleep_var=True,print_output=False):
         self.follower_ids = self.api_hook.get_with_cursor_for_user(
@@ -467,10 +467,10 @@ class TwitterUser:
             params={"count":5000},
             sleep_var=sleep_var)
         if print_output:
-            print('NUM FOLLOWERS: ', len(self.follower_ids))
+            print(('NUM FOLLOWERS: ', len(self.follower_ids)))
 
     def counter_to_links(self, full_net, single_net, name, restriction_set):
-        for k, v in single_net.iteritems():
+        for k, v in single_net.items():
             if restriction_set is None or k in restriction_set and k != self.screen_name:
                 full_net.append([self.user_id, k, v, name])
 
@@ -483,10 +483,10 @@ class TwitterUser:
 
     def get_ego_network_actors(self):
         all_net = self.retweeted + self.mentioned + self.replied_to
-        return [k for k in all_net.keys() if k != self.user_id]
+        return [k for k in list(all_net.keys()) if k != self.user_id]
 
     def write_counter(self, output, string_to_write, n_top, counter_data):
-        output.write(u'\n {0}:'
+        output.write('\n {0}:'
                      '\n\tTOTAL UNIQUE: {1}'
                      '\n\tTop {2}: {3}'.
                      format(string_to_write,
@@ -495,11 +495,11 @@ class TwitterUser:
                             json.dumps(counter_data.most_common(n_top))))
 
     def __unicode__(self):
-        output = StringIO.StringIO()
-        output.write(u'USER')
-        output.write(u'\n\tNAME: {0} ({1})'.format(self.screen_name, self.name))
-        output.write(u'\n\tLOCATION: {0}'.format(self.location))
-        output.write(u'\n\tDESCRIPTION: {0}'.format(self.description))
+        output = io.StringIO()
+        output.write('USER')
+        output.write('\n\tNAME: {0} ({1})'.format(self.screen_name, self.name))
+        output.write('\n\tLOCATION: {0}'.format(self.location))
+        output.write('\n\tDESCRIPTION: {0}'.format(self.description))
         output.write('\n\tNUM FRIENDS: {0}'.format(self.following_count))
         output.write('\n\tNUM_FOLLOWERS: {0}'.format(self.followers_count))
         output.write('\n\tTWEET COUNT: {0} (total {1})'.format(len(self.tweets), self.n_total_tweets))
@@ -523,7 +523,7 @@ class TwitterUser:
             output.write('\nList info:')
             output.write('\n\t On {0} lists'.format((len(self.lists_member_of))))
             for l in self.lists_member_of:
-                output.write(u'\n\t\t Name: {0} Member count: {1} Subscriber count: {2}'.
+                output.write('\n\t\t Name: {0} Member count: {1} Subscriber count: {2}'.
                              format(l['name'], l['n_members'], l['n_subscribers']))
 
         v = output.getvalue()
@@ -539,7 +539,7 @@ def get_user_id_str(user_data):
 
 
 def get_user_ids_and_sn_data_from_list(data, handles, is_sns, out_fil=None):
-    print len(data)
+    print(len(data))
     if len(data) < 100:
         user_data_chunked = [data]
     else:
@@ -559,7 +559,7 @@ def get_user_ids_and_sn_data_from_list(data, handles, is_sns, out_fil=None):
 
     i = 0
     for x in user_data_chunked:
-        print i
+        print(i)
         i += 1
 
         api_hook = handles[random.randint(0, len(handles) - 1)]

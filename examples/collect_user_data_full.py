@@ -27,7 +27,7 @@ gen_tweet_counts_file) = collect_system_arguments(sys.argv,
                                                   "gen_tweet_counts_file (y/n)"])
 
 
-print 'num users: ', len(user_ids)
+print('num users: ', len(user_ids))
 
 mkdir_no_err(out_dir)
 mkdir_no_err(os.path.join(out_dir, "obj"))
@@ -56,9 +56,9 @@ for i in range(len(handles)):
 
 try:
     for p in processes:
-        print p.join(100000000)
+        print(p.join(100000000))
 except KeyboardInterrupt:
-    print 'keyboard interrupt'
+    print('keyboard interrupt')
 
 if gen_tweet_counts_file:
     for p in processes:

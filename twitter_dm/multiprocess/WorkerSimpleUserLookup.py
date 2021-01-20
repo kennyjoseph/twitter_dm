@@ -44,29 +44,30 @@ class SimpleUserLookupWorker(multiprocessing.Process):
         multiprocessing.Process.__init__(self)
         self.queue = queue
         self.api_hook = api_hook
-        self.out_file = io.open(os.path.join(out_dir,str(conn_number)+"_nonactive_users.txt"),"w+")
-        self.user_info_out_file = io.open(os.path.join(out_dir,str(conn_number)+"_user_info.txt"),"w+")
-        #self.user_info_out_file.write(tab_stringify_newline(["id","name","screen_name","url",
-        #                                                     "protected","location","description","followers_count",
-        #                                                     "friends_count","created_at","utc_offset","time_zone",
-        #                                                     "statuses_count","user_lang","status_created_at",
-        #                                                     "status_coordinates","status_lang"])
+        self.out_file_name = os.path.join(out_dir,str(conn_number)+"_nonactive_users.txt")
+        self.user_info_out_file_name = os.path.join(out_dir,str(conn_number)+"_user_info.txt")
+        # #self.user_info_out_file.write(tab_stringify_newline(["id","name","screen_name","url",
+        # #                                                     "protected","location","description","followers_count",
+        # #                                                     "friends_count","created_at","utc_offset","time_zone",
+        # #                                                     "statuses_count","user_lang","status_created_at",
+        # #                                                     "status_coordinates","status_lang"])
         self.conn_number = conn_number
         self.gets_user_id = gets_user_id
 
     def run(self):
         print('Worker started')
         # do some initialization here
-
+        out_file = open(self.out_file_name, "w+")
+        user_info_out_file = open(self.user_info_out_file_name,"w+")
         while True:
             data = self.queue.get(True)
             try:
                 if data is None:
                     print('ALL FINISHED!!!!', self.conn_number)
-                    self.out_file.close()
-                    self.user_info_out_file.close()
+                    out_file.close()
+                    user_info_out_file.close()
                     break
-                print 'collecting data'
+                print('collecting data')
                 if self.gets_user_id:
                     user_data = self.api_hook.get_from_url("users/lookup.json",
                                                        {"user_id": ",".join(data), "include_entities": "false"},
@@ -76,12 +77,12 @@ class SimpleUserLookupWorker(multiprocessing.Process):
                                                        {"screen_name": ",".join(data), "include_entities": "false"},
                                                         do_post=True)
                 user_ret_ids = [str(u['id']) for u in user_data]
-                print len(data),len(user_ret_ids)
+                print(len(data),len(user_ret_ids))
                 not_there = set.difference(set(data),set(user_ret_ids))
-                print len(not_there)
+                print(len(not_there))
                 for u in not_there:
-                    self.out_file.write(tab_stringify_newline([u]))
-                print 'sleeping'
+                    out_file.write(tab_stringify_newline([u]))
+                print('sleeping')
 
                 for user in user_data:
                     output_data = [user["id"],
@@ -111,24 +112,24 @@ class SimpleUserLookupWorker(multiprocessing.Process):
                                     .replace("\n","  ")
                                     .replace("\r","  ")
                                     .replace("\t","  ")) if type(x) is str else x for x in output_data ]
-                    output_data = [(x.replace(u"\r\n",u"  ")
-                                    .replace(u"\n",u"  ")
-                                    .replace(u"\r","  ")
-                                    .replace(u"\t",u"  ")) if type(x) is unicode else x for x in output_data ]
+                    output_data = [(x.replace("\r\n","  ")
+                                    .replace("\n","  ")
+                                    .replace("\r","  ")
+                                    .replace("\t","  ")) if type(x) is str else x for x in output_data ]
                     to_write = tab_stringify_newline(output_data)
 
-                    self.user_info_out_file.write(to_write)
+                    user_info_out_file.write(to_write)
 
                 sleep(15)
 
             except KeyboardInterrupt as e:
-                print e
+                print(e)
                 break
             except Exception:
-                print('FAILED:: ', data)
+                print(('FAILED:: ', data))
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 print("*** print_tb:")
                 traceback.print_tb(exc_traceback, limit=50, file=sys.stdout)
                 print("*** print_exception:")
 
-            print('finished collecting data for: ', data)
+            print(('finished collecting data for: ', data))

@@ -37,7 +37,7 @@ class TwitterAPIHook:
 
         if not session:
             if not access_token or not access_token_secret:
-                print 'YOU NEED TO PROVIDE A SESSION OR AN APPLICATION KEY OR APPLICATION SECRET!'
+                print('YOU NEED TO PROVIDE A SESSION OR AN APPLICATION KEY OR APPLICATION SECRET!')
                 sys.exit(-1)
             else:
                 self.session = (OAuth1Service(
@@ -83,7 +83,7 @@ class TwitterAPIHook:
                 if 'errors' in r.json():
                     error = r.json()['errors'][0]['message']
                     if r.json()['errors'][0]['code'] in RERUN_ERROR_REASONS and rerun_on_error:
-                        print('ERROR: {reason}, rerunnable so sleeping for 2 mins'.format(reason=error))
+                        print(('ERROR: {reason}, rerunnable so sleeping for 2 mins'.format(reason=error)))
                         sleep(2*60)
                         continue
                 elif 'error' in r.json():
@@ -92,18 +92,18 @@ class TwitterAPIHook:
                 request_completed=True
 
             except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:
-                print('connection error! Sleeping for 60 then reconnecting ', name, ' request tries: ', tried_request)
-                print(self.session.access_token, self.session.access_token_secret)
+                print(('connection error! Sleeping for 60 then reconnecting ', name, ' request tries: ', tried_request))
+                print((self.session.access_token, self.session.access_token_secret))
                 sleep(60)
                 try:
                     self.session = \
                         self.twitter.get_session((self.session.access_token, self.session.access_token_secret))
                 except:
                     print('FAILED RECONNECT AGAIN!!')
-                print(' reconnected: ', name)
+                print((' reconnected: ', name))
 
         if error:
-            print('\tGot an error, reason: {0} URL: {1} params: {2}'.format(error, url, params))
+            print(('\tGot an error, reason: {0} URL: {1} params: {2}'.format(error, url, params)))
             return None
 
         return r
@@ -171,7 +171,7 @@ class TwitterAPIHook:
                 data += r.json()
             
             except:
-                print(' CALL FAILED, JSON COULD NOT PARSE: ', url, params, name)
+                print((' CALL FAILED, JSON COULD NOT PARSE: ', url, params, name))
                 break
 
         return data

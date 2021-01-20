@@ -28,13 +28,13 @@ user = TwitterUser(api_hook,screen_name=username_to_collect_data_for)
 # the sleep_var param tells the function it shouldn't worry
 # about rate limits (we're only collecting for one user, so it doesn't really matter
 # If you remove the is_gzip argument, the output file will be gzipped
-print 'populating users tweets!'
+print('populating users tweets!')
 user.populate_tweets_from_api(json_output_filename=username_to_collect_data_for+".json",
                               sleep_var=False, is_gzip=False, since_id=None)
 
 
 for t in user.tweets:
-    print t.mentions
-print 'user had {n_tweets} tweets'.format(n_tweets=len(user.tweets))
+    print(t.mentions)
+print('user had {n_tweets} tweets'.format(n_tweets=len(user.tweets)))
 
 

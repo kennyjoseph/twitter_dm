@@ -1,4 +1,4 @@
-from Tokenize import *
-from twokenize import *
+from .Tokenize import *
+from .twokenize import *
 
-from nlp_helpers import *
+from .nlp_helpers import *

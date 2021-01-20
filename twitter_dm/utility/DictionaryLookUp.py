@@ -35,7 +35,7 @@ class DictionaryLookUp:
     def insert_into_mappings(self,data, map_from_column,map_to_column,all_lower ):
         split_len = len(data)
         if split_len <= map_from_column or split_len <= map_to_column:
-            print u'Line: {0} is malformatted'.format(",".join(data))
+            print('Line: {0} is malformatted'.format(",".join(data)))
             raise Exception("malformed line")
 
         src = data[map_from_column]
@@ -65,16 +65,16 @@ class DictionaryLookUp:
     '''
     def init_mappings(self,file_location,map_from_column,map_to_column,sep,has_header,all_lower):
 
-        print 'getting mappings\n\tfile: {0}\n\theader: {1}\n\tsep: {2}\n\tmap_from: {3},\n\tmap_to: {4}'.format(
+        print('getting mappings\n\tfile: {0}\n\theader: {1}\n\tsep: {2}\n\tmap_from: {3},\n\tmap_to: {4}'.format(
             file_location, has_header, sep,map_from_column,map_to_column
-        )
+        ))
 
 
         num_decode_failed = 0
 
         if '.xlsx' in file_location:
             input_file = load_workbook(filename = file_location, use_iterators = True)
-            print 'loaded'
+            print('loaded')
             input_sheet = input_file.worksheets[len(input_file.worksheets)-1]
             for row in input_sheet.iter_rows():
                 val = [cell.value for cell in row]
@@ -94,11 +94,11 @@ class DictionaryLookUp:
                     num_decode_failed +=1
 
         s = set()
-        for k in self.mappings_dict.values():
+        for k in list(self.mappings_dict.values()):
             for v in k:
                 s.add(v)
-        print 'done! Size: {0}, N Unique Values: {1},  DECODE FAILED COUNT: {2}'.format(
-            len(self.mappings_dict),len(s),num_decode_failed)
+        print('done! Size: {0}, N Unique Values: {1},  DECODE FAILED COUNT: {2}'.format(
+            len(self.mappings_dict),len(s),num_decode_failed))
 
 
     def get_entities_for_text(self, text):

@@ -31,5 +31,5 @@ try:
     for p in processes:
         p.join()
 except KeyboardInterrupt:
-    print 'keyboard interrupt'
+    print('keyboard interrupt')
 

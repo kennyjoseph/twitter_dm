@@ -4,42 +4,42 @@ import string
 
 try:
     # UCS-4
-    EMOTICONS = re.compile(u'[\U00010000-\U0010ffff]')
-    EMOTICONS_2 = re.compile(u'[\u2700-\u27BF\u2600-\u26FF\u2300-\u23FF]')
+    EMOTICONS = re.compile('[\U00010000-\U0010ffff]')
+    EMOTICONS_2 = re.compile('[\u2700-\u27BF\u2600-\u26FF\u2300-\u23FF]')
 except re.error:
     # UCS-2
-    EMOTICONS = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
-    EMOTICONS_2 = re.compile(u'[\u2700-\u27BF\u2600-\u26FF\u2300-\u23FF]')
-_emoji_block0 = re.compile(u'[\u2600-\u27BF]')
-_emoji_block1 = re.compile(u'[\uD83C][\uDF00-\uDFFF]')
-_emoji_block2 = re.compile(u'[\uD83D][\uDC00-\uDE4F]')
-_emoji_block3 = re.compile(u'[\uD83D][\uDE80-\uDEFF]')
+    EMOTICONS = re.compile('[\uD800-\uDBFF][\uDC00-\uDFFF]')
+    EMOTICONS_2 = re.compile('[\u2700-\u27BF\u2600-\u26FF\u2300-\u23FF]')
+_emoji_block0 = re.compile('[\u2600-\u27BF]')
+_emoji_block1 = re.compile('[\uD83C][\uDF00-\uDFFF]')
+_emoji_block2 = re.compile('[\uD83D][\uDC00-\uDE4F]')
+_emoji_block3 = re.compile('[\uD83D][\uDE80-\uDEFF]')
 
 
 CRAP_CHAR_REPLACEMENT = {
-    ord(u"\x85") : 8230,
-    ord(u'\x96') : 8211,             # u'\u2013' en-dash
-    ord(u'\x97') : 8212,             # u'\u2014' em-dash
-    ord(u'\x91') : 8216,             # u'\u2018' left single quote
-    ord(u'\x92') : 8217,             # u'\u2019' right single quote
-    ord(u'\x93') : 8220,             # u'\u201C' left double quote
-    ord(u'\x94') : 8221,             # u'\u201D' right double quote
-    ord(u'\x95') : 8226              # u'\u2022' bullet
+    ord("\x85") : 8230,
+    ord('\x96') : 8211,             # u'\u2013' en-dash
+    ord('\x97') : 8212,             # u'\u2014' em-dash
+    ord('\x91') : 8216,             # u'\u2018' left single quote
+    ord('\x92') : 8217,             # u'\u2019' right single quote
+    ord('\x93') : 8220,             # u'\u201C' left double quote
+    ord('\x94') : 8221,             # u'\u201D' right double quote
+    ord('\x95') : 8226              # u'\u2022' bullet
 }
 
 CRAP_CHAR_REMOVAL = {
-    ord(u"\x85") : None,
-    ord(u'\x96') : None,             # u'\u2013' en-dash
-    ord(u'\x97') : None,             # u'\u2014' em-dash
-    ord(u'\x91') : None,             # u'\u2018' left single quote
-    ord(u'\x92') : None,             # u'\u2019' right single quote
-    ord(u'\x93') : None,             # u'\u201C' left double quote
-    ord(u'\x94') : None,             # u'\u201D' right double quote
-    ord(u'\x95') : None              # u'\u2022' bullet
+    ord("\x85") : None,
+    ord('\x96') : None,             # u'\u2013' en-dash
+    ord('\x97') : None,             # u'\u2014' em-dash
+    ord('\x91') : None,             # u'\u2018' left single quote
+    ord('\x92') : None,             # u'\u2019' right single quote
+    ord('\x93') : None,             # u'\u201C' left double quote
+    ord('\x94') : None,             # u'\u201D' right double quote
+    ord('\x95') : None              # u'\u2022' bullet
 }
 
 
-QUOTATION_REGEX = re.compile(u'[\'"`‘“’”’]')
+QUOTATION_REGEX = re.compile('[\'"`‘“’”’]')
 
 def get_tweet_text_sub_emoticons(tweet):
     text = tweet.text
@@ -57,7 +57,7 @@ def get_cleaned_text(text):
     try:
         return QUOTATION_REGEX.sub("",
                 remove_emoji(
-                    text.lower().replace("'s","").replace(u"\u2026","").strip(string.punctuation)).translate(CRAP_CHAR_REMOVAL))
+                    text.lower().replace("'s","").replace("\u2026","").strip(string.punctuation)).translate(CRAP_CHAR_REMOVAL))
     except:
         return text
 

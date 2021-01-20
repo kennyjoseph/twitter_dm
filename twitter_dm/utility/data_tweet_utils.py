@@ -49,7 +49,7 @@ def parse_tweet_json_file_to_dict(infile_path):
                 # Couldn't parse line for some reason; ignore
                 skipped_lines += 1
 
-        print 'Skipped', skipped_lines
+        print('Skipped', skipped_lines)
         return tweet_dict
 
 
@@ -95,7 +95,7 @@ def return_users_from_json_file(file_name,
         try:
             tweet = json.loads(line)
         except:
-            print 'failed tweet'
+            print('failed tweet')
             pass
         lang = tweet['lang'] if 'lang' in tweet else langid.classify(tweet['text'])[0]
         if not only_english or (only_english and lang == 'en'):
@@ -112,16 +112,16 @@ def return_users_from_json_file(file_name,
     if n_tweets == 0 or (only_english and (n_tweets-n_non_english) == 0):
         return []
 
-    good_users = [u for u in users.itervalues() if len(u) >= min_tweet_count_for_user]
+    good_users = [u for u in users.values() if len(u) >= min_tweet_count_for_user]
     twitter_users = [TwitterUser(list_of_tweets=u,stopwords=stopwords) for u in good_users]
 
     if verbose:
-        print '\tPercent non english tweets ignored:\t{:0.2f}'.format(n_non_english/n_tweets)
-        print '\tNum used tweets:\t{0}'.format(n_tweets-n_non_english)
-        print '\tN users pre min selection:\t', len(users)
+        print('\tPercent non english tweets ignored:\t{:0.2f}'.format(n_non_english/n_tweets))
+        print('\tNum used tweets:\t{0}'.format(n_tweets-n_non_english))
+        print('\tN users pre min selection:\t', len(users))
 
-        print '\tN users post min selection:\t', len(twitter_users)
-        n_tweets_per_user = [len(u) for u in users.itervalues()]
+        print('\tN users post min selection:\t', len(twitter_users))
+        n_tweets_per_user = [len(u) for u in users.values()]
         #print 'Tweet stats...min: %d max: %d median: %d mean: %d sd: %d' % \
         #(np.min(n_tweets_per_user),
         # np.max(n_tweets_per_user),

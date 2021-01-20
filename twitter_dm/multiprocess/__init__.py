@@ -1,3 +1,3 @@
 __author__ = 'kjoseph'
 
-import WorkerTweetData
+from . import WorkerTweetData

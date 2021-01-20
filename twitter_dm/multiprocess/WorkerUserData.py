@@ -10,7 +10,7 @@ __author__ = 'kjoseph'
 from twitter_dm.TwitterUser import TwitterUser
 
 import multiprocessing
-import cPickle as pickle
+import pickle as pickle
 import sys, os
 import traceback
 import glob
@@ -60,8 +60,8 @@ class UserDataWorker(multiprocessing.Process):
 
         if ((step_count and not add_users_to_queue_function) or
             (not step_count and add_users_to_queue_function)):
-            print 'WARNING: you supplied a step count but no function, or vice versa, ',
-            print 'for your snowball sample. This isnt going to work! Fix yo code'
+            print('WARNING: you supplied a step count but no function, or vice versa, ', end=' ')
+            print('for your snowball sample. This isnt going to work! Fix yo code')
 
     def run(self):
         print('Worker started')
@@ -73,10 +73,10 @@ class UserDataWorker(multiprocessing.Process):
 
             try:
                 if data is None:
-                    print 'ALL FINISHED!!!!'
+                    print('ALL FINISHED!!!!')
                     break
 
-                if len(data) == 1 or type(data) is str or type(data) is unicode or type(data) is int:
+                if len(data) == 1 or type(data) is str or type(data) is str or type(data) is int:
                     user_identifier = data
                 elif len(data) == 3:
                     user_identifier, snow_sample_number, since_tweet_id = data
@@ -88,14 +88,14 @@ class UserDataWorker(multiprocessing.Process):
 
                 user_identifier = str(user_identifier)
 
-                print 'Starting: ', data
+                print('Starting: ', data)
 
                 pickle_filename = os.path.join(self.out_dir,"obj",user_identifier)
                 json_filename = os.path.join(self.out_dir,"json",user_identifier+".json.gz")
 
                 # Get the user's data
                 if os.path.exists(pickle_filename) and os.path.exists(json_filename) and not self.add_to_file:
-                    print '\tgot existing data for: ', data
+                    print('\tgot existing data for: ', data)
                     user = pickle.load(open(pickle_filename,"rb"))
                     user.populate_tweets_from_file(json_filename)
                 else:
@@ -104,11 +104,11 @@ class UserDataWorker(multiprocessing.Process):
                     else:
                         user = TwitterUser(self.api_hook, screen_name=user_identifier)
 
-                    print 'populating tweets', user_identifier
+                    print('populating tweets', user_identifier)
 
                     if self.populate_tweets:
                         if self.save_user_tweets:
-                            print 'saving tweets to: ', json_filename
+                            print('saving tweets to: ', json_filename)
                             of_name, tweet_count = user.populate_tweets_from_api(
                                                             json_output_filename=json_filename,
                                                             since_id=since_tweet_id,
@@ -121,15 +121,15 @@ class UserDataWorker(multiprocessing.Process):
                             self.tweet_count_file.write(str(user_identifier)+"\t"+str(tweet_count)+"\n")
 
                     if self.populate_lists:
-                        print 'populating lists', user.screen_name
+                        print('populating lists', user.screen_name)
                         user.populate_lists_member_of()
 
                     if self.populate_friends:
-                        print 'populating friends, ', user.screen_name
+                        print('populating friends, ', user.screen_name)
                         user.populate_friends()
 
                     if self.populate_followers:
-                        print 'populating followers, ', user.screen_name
+                        print('populating followers, ', user.screen_name)
                         user.populate_followers()
 
                     if self.save_user_data and \
@@ -149,10 +149,10 @@ class UserDataWorker(multiprocessing.Process):
                     self.post_process_function(user)
 
             except KeyboardInterrupt as e:
-                print e
+                print(e)
                 break
             except Exception:
-                print('FAILED:: ', data)
+                print(('FAILED:: ', data))
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 print("*** print_tb:")
                 traceback.print_tb(exc_traceback, limit=30, file=sys.stdout)

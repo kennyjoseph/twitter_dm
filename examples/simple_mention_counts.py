@@ -1,6 +1,6 @@
 __author__ = 'mbenigni'
 
-import cPickle as pickle
+import pickle as pickle
 import sys
 from collections import Counter
 from multiprocessing import Pool
@@ -9,7 +9,7 @@ import os
 from twitter_dm.utility.general_utils import tab_stringify_newline as tsn, mkdir_no_err
 
 if len(sys.argv) != 4:
-    print 'usage:  [input_dir] [output dir] [# cores for execution]'
+    print('usage:  [input_dir] [output dir] [# cores for execution]')
     sys.exit(-1)
 
 
@@ -48,12 +48,12 @@ def get_user_info(d):
 
 objfiles = listdir(os.path.join(INPUT_DIR,'obj/'))
 jsonfiles = set([os.path.basename(f)[:-8] for f in listdir(os.path.join(INPUT_DIR,'json/'))])
-print list(jsonfiles)[:5]
-print objfiles[:5]
+print(list(jsonfiles)[:5])
+print(objfiles[:5])
 onlyfiles = [os.path.basename(o) for o in objfiles if o in jsonfiles]
 
-print 'N FILES: ', len(onlyfiles)
-print onlyfiles[:5]
+print('N FILES: ', len(onlyfiles))
+print(onlyfiles[:5])
 #results = [get_user_info((0,onlyfiles[0]))]
 
 pool = Pool(int(sys.argv[3]))
@@ -63,6 +63,6 @@ pool.terminate()
 
 of = open(os.path.join(OUTPUT_DIR,"mention_counts_total.tsv"),"w")
 for uid, mention_counter in results:
-    for k,v in mention_counter.items():
+    for k,v in list(mention_counter.items()):
         of.write(tsn([uid,k,v]))
 of.close()

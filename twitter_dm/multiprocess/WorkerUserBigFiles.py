@@ -31,28 +31,36 @@ class BigFileUserDataWorker(multiprocessing.Process):
         self.tweet_count_file = None
 
         self.id = self.api_hook.consumer_key+"_"+self.api_hook.access_token
+        self.tweet_count_filename = None
         if tweet_count_file_dir:
-            self.tweet_count_file = Unbuffered(
-                open(
-                    os.path.join(self.out_dir, tweet_count_file_dir,self.id +".txt"),"w"))
-        self.output_file = bz2.BZ2File(os.path.join(output_dir,"json", self.id+".json.bz2"), "w")
+            self.tweet_count_filename = os.path.join(self.out_dir, tweet_count_file_dir,self.id +".txt")
+        self.output_filename = os.path.join(output_dir,"json", self.id+".json.bz2")
 
-        self.sinceid_output_file = open(os.path.join(output_dir, "sinceid", self.id + ".txt"), "w")
+        self.sinceid_output_filename = os.path.join(output_dir, "sinceid", self.id + ".txt")
 
     def run(self):
         print('Worker started')
+        tweet_count_file = None
+        if self.tweet_count_filename:
+            tweet_count_file = Unbuffered(
+                open(
+                    os.path.join(self.out_dir, tweet_count_file_dir,self.id +".txt"),"w"))
+        output_file = bz2.BZ2File(self.output_filename, "w")
+
+        sinceid_output_file = open(self.sinceid_output_filename, "w")
+
 
         while True:
             data = self.queue.get(True)
 
             try:
                 if data is None:
-                    print 'ALL FINISHED!!!!'
-                    self.output_file.close()
-                    self.sinceid_output_file.close()
+                    print('ALL FINISHED!!!!')
+                    output_file.close()
+                    sinceid_output_file.close()
 
-                    if self.tweet_count_file:
-                        self.tweet_count_file.close()
+                    if self.tweet_count_filename:
+                        tweet_count_file.close()
 
                     break
                 if len(data) != 2:
@@ -66,7 +74,7 @@ class BigFileUserDataWorker(multiprocessing.Process):
                 else:
                     user = TwitterUser(self.api_hook, screen_name=user_identifier)
 
-                print 'populating tweets: ', user_identifier
+                print('populating tweets: ', user_identifier)
                 if since_tweet_id != '':
                     tweets = user.populate_tweets_from_api(since_id=since_tweet_id,
                                                          populate_object_with_tweets=False,
@@ -77,23 +85,23 @@ class BigFileUserDataWorker(multiprocessing.Process):
 
                 # Write out the tweets
                 for tweet in tweets:
-                    self.output_file.write(json.dumps(tweet).strip().encode("utf8") + "\n")
+                    output_file.write(json.dumps(tweet).strip().encode("utf8") + "\n")
 
                 if len(tweets):
                     # write out the since tweet id file
-                    self.sinceid_output_file.write(tsn([user_identifier, tweets[0]['id']]))
+                    sinceid_output_file.write(tsn([user_identifier, tweets[0]['id']]))
                 else:
-                    self.sinceid_output_file.write(tsn([user_identifier, since_tweet_id]))
+                    sinceid_output_file.write(tsn([user_identifier, since_tweet_id]))
 
                 # if desired, write out the count file
                 if self.tweet_count_file:
-                    self.tweet_count_file.write(user_identifier+"\t"+str(len(tweets))+"\n")
+                    tweet_count_file.write(user_identifier+"\t"+str(len(tweets))+"\n")
 
             except KeyboardInterrupt as e:
-                print e
+                print(e)
                 break
             except Exception:
-                print('FAILED:: ', data)
+                print(('FAILED:: ', data))
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 print("*** print_tb:")
                 traceback.print_tb(exc_traceback, limit=30, file=sys.stdout)

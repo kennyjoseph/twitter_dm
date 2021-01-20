@@ -13,16 +13,16 @@ Note that a lot of the code is ugly because it deals with both the "new" and "ol
 tweet formats. It needs way more commenting, but that will come, I hope, soon.
 """
 
-import HTMLParser
+import html.parser
 import arrow
 from bs4 import BeautifulSoup
 import ujson as json
 import gzip
 import codecs
-import TwitterUser
-from nlp import Tokenize
+from . import TwitterUser
+from .nlp import Tokenize
 from .utility.tweet_utils import *
-from nlp.twokenize import tokenize
+from .nlp.twokenize import tokenize
 
 
 class Tweet:
@@ -91,7 +91,7 @@ class Tweet:
         ################ Text Stuff #######################################
         # Basic replacement of html characters
         tweet_text = get_text_from_tweet_json(jsn)
-        self.text = HTMLParser.HTMLParser().unescape(tweet_text)
+        self.text = html.parser.HTMLParser().unescape(tweet_text)
 
         # TOKEN EXTRACTION
         if do_tokenize:

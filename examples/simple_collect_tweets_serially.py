@@ -26,7 +26,7 @@ api_hook = TwitterAPIHook(consumer_key,consumer_secret,
 try:
     os.mkdir(output_directory)
 except:
-    print 'output directory already exists'
+    print('output directory already exists')
 
 # get tweet ids to hydrate
 if path_to_gzipped_tweet_id_file.endswith(".gz"):

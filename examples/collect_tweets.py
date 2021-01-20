@@ -28,7 +28,7 @@ i = 0
 tweets_chunked = chunk_data(tweet_ids)
 
 
-print tweets_chunked[0]
+print(tweets_chunked[0])
 # init a sync manager
 multiprocess_setup.init_good_sync_manager()
 
@@ -45,7 +45,7 @@ try:
     for p in processes:
         p.join()
 except KeyboardInterrupt:
-    print 'keyboard interrupt'
+    print('keyboard interrupt')
 
 
 

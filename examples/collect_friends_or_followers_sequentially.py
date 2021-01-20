@@ -19,7 +19,7 @@ handle_iter = 0
 param_arg = 'user_id' if is_ids else 'screen_name'
 
 for i, handle in enumerate(accounts):
-    print 'user: ', i,  handle
+    print('user: ', i,  handle)
 
     if os.path.exists(os.path.join(output_dir,handle)):
         continue
@@ -31,27 +31,27 @@ for i, handle in enumerate(accounts):
     n_collected = 0
 
     while True:
-        print "\t\t", n_collected, n_collected, handle_iter
+        print("\t\t", n_collected, n_collected, handle_iter)
 
         if handle_iter == len(handles):
-            print ' sleeping now'
+            print(' sleeping now')
             sleep(120)
             handle_iter = 0
 
 
         handle = handles[handle_iter]
-        print handle.CONSUMER_KEY, handle.access_token
+        print(handle.CONSUMER_KEY, handle.access_token)
         try:
             json_data = handle.get_from_url(friends_or_followers + "/ids.json",params)
         except ValueError as e:
-            print e
+            print(e)
             handle_iter += 1
             continue
 
         handle_iter += 1
 
         if json_data is None or not len(json_data):
-            print json_data is None
+            print(json_data is None)
             break
 
         n_collected += len(json_data.get("ids",[]))

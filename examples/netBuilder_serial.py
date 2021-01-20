@@ -1,6 +1,6 @@
 __author__ = 'mbenigni'
 
-import cPickle as pickle
+import pickle as pickle
 import codecs
 import itertools
 import sys
@@ -12,7 +12,7 @@ from os import listdir, mkdir
 from twitter_dm.utility.general_utils import tab_stringify_newline
 
 if len(sys.argv) != 2:
-    print 'usage:  [edgelist output dir]'
+    print('usage:  [edgelist output dir]')
     sys.exit(-1)
 
 
@@ -160,7 +160,7 @@ if __name__ == "__main__":
         if res['followers'] is not None:
             for q in res['followers']:
                 friend_file.write(tab_stringify_newline([q, uid]))
-        for lang, count in res['lang'].items():
+        for lang, count in list(res['lang'].items()):
             lang_file.write(tab_stringify_newline([uid, lang, count]))
         for g in res['geotags']:
             geo_file.write(tab_stringify_newline([uid, g[0], g[1], g[2]]))

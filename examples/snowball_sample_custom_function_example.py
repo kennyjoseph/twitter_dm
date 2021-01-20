@@ -13,7 +13,7 @@ from twitter_dm.utility import general_utils
 #sys.argv = ['', '/Users/kennyjoseph/git/thesis/thesis_python/twitter_login_creds',
 #            'out_here', '1']
 if len(sys.argv) != 5:
-    print 'usage:  [known_user_dir] [output_dir][step_count][friends or mentions]'
+    print('usage:  [known_user_dir] [output_dir][step_count][friends or mentions]')
     sys.exit(-1)
 
 OUTPUT_DIRECTORY = sys.argv[2]
@@ -22,8 +22,8 @@ step_count = int(sys.argv[3])
 # get all the handles we have to the api
 handles = general_utils.get_handles(glob.glob(os.path.join(sys.argv[1],"*.txt")))
 
-print len(handles)
-print 'n authed users: ', len(handles)
+print(len(handles))
+print('n authed users: ', len(handles))
 
 
 # user screen names we are interested in
@@ -31,7 +31,7 @@ user_sns = ['ManchesterMJC','Aviationeuro','SanteriSanttus','OneworldLover',
             'ENORsquawker','plane_spotters','MANSpotter99','BennyPlanespot','PlanespotterGuy','planespotterWal']
 
 user_screenname_id_pairs = get_user_ids_and_sn_data_from_list(user_sns,handles,True)
-print 'got screen names, ', len(user_screenname_id_pairs)
+print('got screen names, ', len(user_screenname_id_pairs))
 
 # put data on the queue
 request_queue = multiprocess_setup.load_request_queue(
@@ -48,7 +48,7 @@ multiprocess_setup.init_good_sync_manager()
 
 # put data on the queue
 user_screenname_id_pairs = get_user_ids_and_sn_data_from_list(user_sns,handles,True)
-print 'got screen names, ', len(user_screenname_id_pairs)
+print('got screen names, ', len(user_screenname_id_pairs))
 
 # put data on the queue
 request_queue = multiprocess_setup.load_request_queue(
@@ -94,5 +94,5 @@ try:
     for p in processes:
         p.join()
 except KeyboardInterrupt:
-    print 'keyboard interrupt'
+    print('keyboard interrupt')
 

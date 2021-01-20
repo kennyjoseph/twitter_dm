@@ -17,11 +17,11 @@ class BaseTweepyListener(StreamListener):
         
     def on_data(self, data):
         if self.nt % 1000 == 0:
-            print(self.nt)
+            print((self.nt))
         self.nt +=1 
         if data:
             try:
-                self.output_file.write((data.strip()+u"\n").encode("utf8"))
+                self.output_file.write((data.strip()+"\n").encode("utf8"))
             except:
                 pass
         return True
@@ -32,16 +32,16 @@ class BaseTweepyListener(StreamListener):
 
 
 if len(sys.argv) != 4:
-    print 'Usage: python tweepy_integration.py [path_to_cred_file] [output_filename] [keywords, separated by commas]'
+    print('Usage: python tweepy_integration.py [path_to_cred_file] [output_filename] [keywords, separated by commas]')
     sys.exit(-1)
 
 handles = get_handles_from_filepath(sys.argv[1])
 output_file = Unbuffered(gzip.open(sys.argv[2],"wb"))
 keywords = [x.strip() for x in sys.argv[3].split(",")]
 
-print '\n\n\nbegin tracking: ', keywords
+print('\n\n\nbegin tracking: ', keywords)
 
-print " output to: ",  sys.argv[2]
+print(" output to: ",  sys.argv[2])
 
 handle = handles[0]
 
@@ -58,5 +58,5 @@ while True:
     except requests.packages.urllib3.exceptions.ReadTimeoutError:
         pass
     except AttributeError:
-        print 'strip error'
+        print('strip error')
         pass

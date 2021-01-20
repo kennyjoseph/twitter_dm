@@ -10,17 +10,17 @@ This class has some arabic stuff specific to particular projects I'm working on.
 There's probably a bunch of ways to make this better/faster.
 """
 
-import HTMLParser
+import html.parser
 import string
 
 import regex
 
-import twokenize
-from nlp_helpers import lemmatize
+from . import twokenize
+from .nlp_helpers import lemmatize
 
 _arabic_stemmer = None
-arabic_regex = regex.compile('[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]+',regex.U)
-POSSESSIVE_REGEX = regex.compile(u"['’′][^\s\.,?\"]*",regex.U)
+arabic_regex = regex.compile('[\\u0600-\\u06ff\\u0750-\\u077f\\u08a0-\\u08ff]+',regex.U)
+POSSESSIVE_REGEX = regex.compile("['’′][^\s\.,?\"]*",regex.U)
 remove_punctuation_map = dict((ord(char), None) for char in string.punctuation)
 
 
@@ -77,9 +77,9 @@ def extract_tokens(text,
     urls & single characters removed removed, # and @ prefixes removed.
     """
 
-    text = HTMLParser.HTMLParser().unescape(text)
+    text = html.parser.HTMLParser().unescape(text)
 
-    tempTokens = [unicode(token) for token in tokenizing_function(text) if token[:4] != 'http' and len(token) > 1]
+    tempTokens = [str(token) for token in tokenizing_function(text) if token[:4] != 'http' and len(token) > 1]
     if keep_hashtags_and_mentions:
         tempTokens = [token[1:] if token[0] == '#' or token[0] == '@' and len(token) > 1 else token for token in tempTokens]
 
@@ -95,7 +95,7 @@ def extract_tokens(text,
                                         not token.translate(remove_punctuation_map).isdigit()]
 
     # remove initial, terminal, or paired quotation marks from word boundaries
-    quotes = u'\'"`‘“’”'
+    quotes = '\'"`‘“’”'
     words = [token[1:] if token[0] in quotes and (len(token) == 1 or token[1] in string.letters) else token for token in words]
     words = [token[:-1] if len(token) > 0 and token[-1] in quotes and token[0] in string.letters else token for token in words]
 
