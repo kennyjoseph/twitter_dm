@@ -9,7 +9,6 @@ most likely)
 """
 __author__ = 'kjoseph'
 
-import codecs
 import ujson as json
 import multiprocessing
 from time import sleep
