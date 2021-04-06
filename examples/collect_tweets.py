@@ -20,17 +20,12 @@ if __name__ == '__main__':
 	
 	handles, output_dir, tweet_ids, is_ids = collect_system_arguments(sys.argv)
 
-
 	# Create the output directory
 	mkdir_no_err(output_dir)
 
 	# chunk tweets into 100s (the API takes them by 100)
 	i = 0
 	tweets_chunked = chunk_data(tweet_ids)
-
-
-	print(tweets_chunked[0])
-
 
 	# put data on the queue
 	request_queue = multiprocess_setup.load_request_queue(tweets_chunked, len(handles))
