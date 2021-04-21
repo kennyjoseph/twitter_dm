@@ -4,23 +4,13 @@ __author__ = 'kjoseph'
 from twitter_dm import TwitterApplicationHandler
 
 users = [
-    'mondaytuesday88',
-    'returnhatangle',
-    'blademistake',
-    'caresouthwake',
-    'milkroddanger',
-    'drumsecret',
-    'faceclubcause',
-    'norconvenient',
-    'claimchairman',
-    'mondaytuesday01',
-    'PoisonJacquespl',
-    'mcduffmonsterma',
-    'robertalotias',
-    'doctorablotata',
+    'BenigniMatthew',
+    'BotResearcher',
+    'ungaBunga5000',
+    'ungaBunga5001',
 ]
 
-app_info = [ ['rrJL7zuoaekldDElRnE059nc5','N7uZYZj98J1LIlEEACp8k5f6ZaUVtsv05qaoB8KnJixYjqH40h']]
+app_info = [ ['q6ynzUTI2hVuYSCtkCCgWJBnw','jNIN9CFF0gysebKJGjKsnle9tIDd7TDBkquXz0uFWVAaseFPw3']]
 
 for user in users:
     for app in app_info:
