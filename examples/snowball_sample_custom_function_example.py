@@ -27,8 +27,7 @@ print('n authed users: ', len(handles))
 
 
 # user screen names we are interested in
-user_sns = ['ManchesterMJC','Aviationeuro','SanteriSanttus','OneworldLover',
-            'ENORsquawker','plane_spotters','MANSpotter99','BennyPlanespot','PlanespotterGuy','planespotterWal']
+user_sns = ["Rach4Patriarchy","Scintst_AZ","guitargroyper70","BreLaurenn"]
 
 user_screenname_id_pairs = get_user_ids_and_sn_data_from_list(user_sns,handles,True)
 print('got screen names, ', len(user_screenname_id_pairs))
@@ -44,7 +43,7 @@ general_utils.mkdir_no_err(OUTPUT_DIRECTORY)
 general_utils.mkdir_no_err(pickle_dir)
 general_utils.mkdir_no_err(network_dir)
 
-multiprocess_setup.init_good_sync_manager()
+#multiprocess_setup.init_good_sync_manager()
 
 # put data on the queue
 user_screenname_id_pairs = get_user_ids_and_sn_data_from_list(user_sns,handles,True)

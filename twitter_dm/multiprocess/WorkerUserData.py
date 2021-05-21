@@ -112,10 +112,10 @@ class UserDataWorker(multiprocessing.Process):
                             of_name, tweet_count = user.populate_tweets_from_api(
                                                             json_output_filename=json_filename,
                                                             since_id=since_tweet_id,
-                                                            populate_object_with_tweets=False)
+                                                            populate_object_with_tweets=True)
                         else:
                             of_name, tweet_count = user.populate_tweets_from_api(since_id=since_tweet_id,
-                                                                                 populate_object_with_tweets=False)
+                                                                                 populate_object_with_tweets=True)
 
                         if self.tweet_count_file:
                             self.tweet_count_file.write(str(user_identifier)+"\t"+str(tweet_count)+"\n")
