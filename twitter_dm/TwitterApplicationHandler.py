@@ -33,10 +33,10 @@ class TwitterApplicationHandler:
             raise Exception("Need a config file and/or consumer_key")
 
         if consumer_key is not None:
-            print 'got key from constructor'
+            print('got key from constructor')
             self.consumer_key = consumer_key
         if consumer_secret is not None:
-            print 'got secret from constructor'
+            print('got secret from constructor')
             self.consumer_secret = consumer_secret
 
         self.knownUserDict = {}
@@ -95,7 +95,7 @@ class TwitterApplicationHandler:
 
     def init_new_user(self,user):
         if user in self.knownUserDict:
-            print 'already have user'
+            print('already have user')
             return
         self.api_hooks.append(TwitterAPIHook(self.consumer_key, self.consumer_secret, self.init_session(user)))
 

@@ -35,7 +35,7 @@ class TweetDataWorker(multiprocessing.Process):
             sleep(10)
             #try:
             if data is None:
-                print 'ALL FINISHED!!!!', self.conn_number
+                print('ALL FINISHED!!!!', self.conn_number)
                 self.tweet_id_output_file.close()
                 self.tweet_output_file.close()
                 break
@@ -51,20 +51,20 @@ class TweetDataWorker(multiprocessing.Process):
                     self.tweet_id_output_file.write(str(tw['id']) + "\tg\n")
                     data.remove(tw['id'])
                 except KeyboardInterrupt as e:
-                    print e
+                    print(e)
                     break
                 except:
-                    print 'writing tweet failed'
+                    print('writing tweet failed')
                     pass
                 
             for failed_tweet in data:
                 try:
                     self.tweet_id_output_file.write(str(failed_tweet) + "\tf\n")
                 except KeyboardInterrupt as e:
-                    print e
+                    print(e)
                     break
                 except:
-                    print 'writing tweet_id failed'
+                    print('writing tweet_id failed')
                     
             print('N GOOD: ', good)
 

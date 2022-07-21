@@ -22,7 +22,7 @@ Ported to Python by Myle Ott <myleott@gmail.com>.
 
 from __future__ import print_function
 
-import HTMLParser
+from html.parser import HTMLParser
 
 import regex
 
@@ -33,10 +33,10 @@ def regex_or(*items):
 Contractions = regex.compile(u"(?i)(\w+)(n['’′]t|['’′]ve|['’′]ll|['’′]d|['’′]re|['’′]s|['’′]m)$", regex.UNICODE)
 Whitespace = regex.compile(u"[\s\u0020\u00a0\u1680\u180e\u202f\u205f\u3000\u2000-\u200a]+", regex.UNICODE)
 
-punctChars = r"['\"“”‘’.?!…,:;]"
+punctChars = "['\"“”‘’.?!…,:;]"
 #punctSeq   = punctChars+"+"	#'anthem'. => ' anthem '.
-punctSeq   = r"['\"“”‘’]+|[.?!,…]+|[:;]+"	#'anthem'. => ' anthem ' .
-entity     = r"&(?:amp|lt|gt|quot);"
+punctSeq   = "['\"“”‘’]+|[.?!,…]+|[:;]+"	#'anthem'. => ' anthem ' .
+entity     = "&(?:amp|lt|gt|quot);"
 #  URLs
 
 
@@ -44,9 +44,9 @@ entity     = r"&(?:amp|lt|gt|quot);"
 # If you actually empirically test it the results are bad.
 # Please see https://github.com/brendano/ark-tweet-nlp/pull/9
 
-urlStart1  = r"(?:https?://|\bwww\.)"
-commonTLDs = r"(?:com|org|edu|gov|net|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|pro|tel|travel|xxx)"
-ccTLDs	 = r"(?:ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|" + \
+urlStart1  = "(?:https?://|\bwww\.)"
+commonTLDs = "(?:com|org|edu|gov|net|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|pro|tel|travel|xxx)"
+ccTLDs	 = "(?:ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|" + \
 r"bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|" + \
 r"er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|" + \
 r"hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|" + \
@@ -54,29 +54,29 @@ r"lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|
 r"nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|" + \
 r"sl|sm|sn|so|sr|ss|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|" + \
 r"va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|za|zm|zw)"	# TODO: remove obscure country domains?
-urlStart2  = r"\b(?:[A-Za-z\d-])+(?:\.[A-Za-z0-9]+){0,3}\." + regex_or(commonTLDs, ccTLDs) + r"(?:\."+ccTLDs+r")?(?=\W|$)"
-urlBody    = r"(?:[^\.\s<>][^\s<>]*?)?"
+urlStart2  = "\b(?:[A-Za-z\d-])+(?:\.[A-Za-z0-9]+){0,3}\." + regex_or(commonTLDs, ccTLDs) + "(?:\."+ccTLDs+")?(?=\W|$)"
+urlBody    = "(?:[^\.\s<>][^\s<>]*?)?"
 urlExtraCrapBeforeEnd = regex_or(punctChars, entity) + "+?"
-urlEnd     = r"(?:\.\.+|[<>]|\s|$)"
+urlEnd     = "(?:\.\.+|[<>]|\s|$)"
 url        = regex_or(urlStart1, urlStart2) + urlBody + "(?=(?:"+urlExtraCrapBeforeEnd+")?"+urlEnd+")"
 
 
 # Numeric
-timeLike   = r"\d+(?::\d+){1,2}"
+timeLike   = "\d+(?::\d+){1,2}"
 #numNum     = r"\d+\.\d+"
-numberWithCommas = r"(?:(?<!\d)\d{1,3},)+?\d{3}" + r"(?=(?:[^,\d]|$))"
-numComb	 = u"[\u0024\u058f\u060b\u09f2\u09f3\u09fb\u0af1\u0bf9\u0e3f\u17db\ua838\ufdfc\ufe69\uff04\uffe0\uffe1\uffe5\uffe6\u00a2-\u00a5\u20a0-\u20b9]?\\d+(?:\\.\\d+)+%?".encode('utf-8')
+numberWithCommas = "(?:(?<!\d)\d{1,3},)+?\d{3}" + "(?=(?:[^,\d]|$))"
+numComb	 = u"[\u0024\u058f\u060b\u09f2\u09f3\u09fb\u0af1\u0bf9\u0e3f\u17db\ua838\ufdfc\ufe69\uff04\uffe0\uffe1\uffe5\uffe6\u00a2-\u00a5\u20a0-\u20b9]?\\d+(?:\\.\\d+)+%?"
 
 # Abbreviations
-boundaryNotDot = regex_or("$", r"\s", r"[“\"?!,:;]", entity)
-aa1  = r"(?:[A-Za-z]\.){2,}(?=" + boundaryNotDot + ")"
-aa2  = r"[^A-Za-z](?:[A-Za-z]\.){1,}[A-Za-z](?=" + boundaryNotDot + ")"
-standardAbbreviations = r"\b(?:[Mm]r|[Mm]rs|[Mm]s|[Dd]r|[Ss]r|[Jj]r|[Rr]ep|[Ss]en|[Ss]t)\."
+boundaryNotDot = regex_or("$", "\s", "[“\"?!,:;]", entity)
+aa1  = "(?:[A-Za-z]\.){2,}(?=" + boundaryNotDot + ")"
+aa2  = "[^A-Za-z](?:[A-Za-z]\.){1,}[A-Za-z](?=" + boundaryNotDot + ")"
+standardAbbreviations = "\b(?:[Mm]r|[Mm]rs|[Mm]s|[Dd]r|[Ss]r|[Jj]r|[Rr]ep|[Ss]en|[Ss]t)\."
 arbitraryAbbrev = regex_or(aa1, aa2, standardAbbreviations)
 separators  = "(?:--+|―|—|~|–|=)"
-decorations = u"(?:[♫♪]+|[★☆]+|[♥❤♡]+|[\u2639-\u263b]+|[\ue001-\uebbb]+)".encode('utf-8')
-thingsThatSplitWords = r"[^\s\.,?\"]"
-embeddedApostrophe = thingsThatSplitWords+r"+['’′]" + thingsThatSplitWords + "*"
+decorations = u"(?:[♫♪]+|[★☆]+|[♥❤♡]+|[\u2639-\u263b]+|[\ue001-\uebbb]+)"
+thingsThatSplitWords = "[^\s\.,?\"]"
+embeddedApostrophe = thingsThatSplitWords+"+['’′]" + thingsThatSplitWords + "*"
 
 #  Emoticons
 # myleott: in Python the (?iu) flags affect the whole expression
@@ -84,10 +84,10 @@ embeddedApostrophe = thingsThatSplitWords+r"+['’′]" + thingsThatSplitWords +
 normalEyes = "[:=]" # 8 and x are eyes but cause problems
 wink = "[;]"
 noseArea = "(?:|-|[^a-zA-Z0-9 ])" # doesn't get :'-(
-happyMouths = r"[D\)\]\}]+"
-sadMouths = r"[\(\[\{]+"
+happyMouths = "[D\)\]\}]+"
+sadMouths = "[\(\[\{]+"
 tongue = "[pPd3]+"
-otherMouths = r"(?:[oO]+|[/\\]+|[vV]+|[Ss]+|[|]+)" # remove forward slash if http://'s aren't cleaned
+otherMouths = "(?:[oO]+|[/\\]+|[vV]+|[Ss]+|[|]+)" # remove forward slash if http://'s aren't cleaned
 
 # mouth repetition examples:
 # @aliciakeys Put it in a love song :-))
@@ -95,22 +95,22 @@ otherMouths = r"(?:[oO]+|[/\\]+|[vV]+|[Ss]+|[|]+)" # remove forward slash if htt
 
 # myleott: try to be as case insensitive as possible, but still not perfect, e.g., o.O fails
 #bfLeft = u"(♥|0|o|°|v|\\$|t|x|;|\u0ca0|@|ʘ|•|・|◕|\\^|¬|\\*)".encode('utf-8')
-bfLeft = u"(♥|0|[oO]|°|[vV]|\\$|[tT]|[xX]|;|\u0ca0|@|ʘ|•|・|◕|\\^|¬|\\*)".encode('utf-8')
-bfCenter = r"(?:[\.]|[_-]+)"
-bfRight = r"\2"
-s3 = r"(?:--['\"])"
-s4 = r"(?:<|&lt;|>|&gt;)[\._-]+(?:<|&lt;|>|&gt;)"
-s5 = "(?:[.][_]+[.])"
+bfLeft = u"(♥|0|[oO]|°|[vV]|\\$|[tT]|[xX]|;|\u0ca0|@|ʘ|•|・|◕|\\^|¬|\\*)"
+bfCenter = u"(?:[\.]|[_-]+)"
+bfRight = u"\2"
+s3 = u"(?:--['\"])"
+s4 = u"(?:<|&lt;|>|&gt;)[\._-]+(?:<|&lt;|>|&gt;)"
+s5 = u"(?:[.][_]+[.])"
 # myleott: in Python the (?i) flag affects the whole expression
 #basicface = "(?:(?i)" +bfLeft+bfCenter+bfRight+ ")|" +s3+ "|" +s4+ "|" + s5
-basicface = "(?:" +bfLeft+bfCenter+bfRight+ ")|" +s3+ "|" +s4+ "|" + s5
+basicface = u"(?:" +bfLeft+bfCenter+bfRight+ u")|" +s3+ u"|" +s4+ u"|" + s5
 
-eeLeft = r"[＼\\ƪԄ\(（<>;ヽ\-=~\*]+"
-eeRight= u"[\\-=\\);'\u0022<>ʃ）/／ノﾉ丿╯σっµ~\\*]+".encode('utf-8')
-eeSymbol = r"[^A-Za-z0-9\s\(\)\*:=-]"
-eastEmote = eeLeft + "(?:"+basicface+"|" +eeSymbol+")+" + eeRight
+eeLeft = u"[＼\\ƪԄ\(（<>;ヽ\-=~\*]+"
+eeRight= u"[\\-=\\);'\u0022<>ʃ）/／ノﾉ丿╯σっµ~\\*]+"
+eeSymbol = u"[^A-Za-z0-9\s\(\)\*:=-]"
+eastEmote = eeLeft + u"(?:"+basicface+u"|" +eeSymbol+u")+" + eeRight
 
-oOEmote = r"(?:[oO]" + bfCenter + r"[oO])"
+oOEmote = "(?:[oO]" + bfCenter + r"[oO])"
 
 
 emoticon = regex_or(
@@ -133,7 +133,7 @@ emoticon = regex_or(
 
 Hearts = "(?:<+/?3+)+"  # the other hearts are in decorations
 
-Arrows = regex_or(r"(?:<*[-―—=]*>+|<+[-―—=]*>*)", u"[\u2190-\u21ff]+".encode('utf-8'))
+Arrows = regex_or("(?:<*[-―—=]*>+|<+[-―—=]*>*)", u"[\u2190-\u21ff]+")
 
 # BTO 2011-06: restored Hashtag, AtMention protection (dropped in original scala port) because it fixes
 # "hello (#hashtag)" ==> "hello (#hashtag )"  WRONG
@@ -152,13 +152,13 @@ AtMention = "[@＠][a-zA-Z0-9_]+"
 # I was worried this would conflict with at-mentions
 # but seems ok in sample of 5800: 7 changes all email fixes
 # http://www.regular-expressions.info/email.html
-Bound = r"(?:\W|^|$)"
-Email = regex_or("(?<=(?:\W))", "(?<=(?:^))") + r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}(?=" +Bound+")"
+Bound = "(?:\W|^|$)"
+Email = regex_or("(?<=(?:\W))", "(?<=(?:^))") + u"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}(?=" +Bound+")"
 
 # We will be tokenizing using these regexps as delimiters
 # Additionally, these things are "protected", meaning they shouldn't be further split themselves.
 Protected  = regex.compile(
-    unicode(regex_or(
+    (regex_or(
         Hearts,
         url,
         Email,
@@ -176,7 +176,7 @@ Protected  = regex.compile(
         embeddedApostrophe,
         Hashtag,  
         AtMention
-    ).decode('utf-8')), regex.UNICODE)
+    )), regex.UNICODE)
 
 # Edge punctuation
 # Want: 'foo' => ' foo '

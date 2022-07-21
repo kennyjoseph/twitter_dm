@@ -47,7 +47,7 @@ class BigFileUserDataWorker(multiprocessing.Process):
 
             try:
                 if data is None:
-                    print 'ALL FINISHED!!!!'
+                    print('ALL FINISHED!!!!')
                     self.output_file.close()
                     self.sinceid_output_file.close()
 
@@ -66,7 +66,7 @@ class BigFileUserDataWorker(multiprocessing.Process):
                 else:
                     user = TwitterUser(self.api_hook, screen_name=user_identifier)
 
-                print 'populating tweets: ', user_identifier
+                print('populating tweets: ', user_identifier)
                 if since_tweet_id != '':
                     tweets = user.populate_tweets_from_api(since_id=since_tweet_id,
                                                          populate_object_with_tweets=False,
@@ -90,7 +90,7 @@ class BigFileUserDataWorker(multiprocessing.Process):
                     self.tweet_count_file.write(user_identifier+"\t"+str(len(tweets))+"\n")
 
             except KeyboardInterrupt as e:
-                print e
+                print(e)
                 break
             except Exception:
                 print('FAILED:: ', data)

@@ -11,7 +11,6 @@ import gzip
 import sys
 import glob
 from itertools import groupby
-from twitter_dm.TwitterApplicationHandler import TwitterApplicationHandler
 
 
 class Unbuffered(object):
@@ -29,12 +28,12 @@ def get_unbuffered_output(filename, open_fun=io.open):
 
 def collect_system_arguments(system_args, additional_args = list()):
     if len(system_args) != (4+len(additional_args)):
-        print 'usage:  [partial_path_to_twitter_credentials]  ',
-        print '[file with users (ids or sns) or tweet ids to collect]',
-        print '[output_filename or directory]',
+        print('usage:  [partial_path_to_twitter_credentials]  ',)
+        print('[file with users (ids or sns) or tweet ids to collect]',)
+        print('[output_filename or directory]',)
         for addtl_arg in additional_args:
-            print '[' + addtl_arg + ']',
-        print
+            print('[' + addtl_arg + ']',)
+        print()
         sys.exit(-1)
 
     creds_path, in_file, output_location = system_args[1:4]
@@ -47,7 +46,7 @@ def collect_system_arguments(system_args, additional_args = list()):
 
     input_data = set([f.strip() for f in open(in_file).readlines()])
     input_data = [x for x in input_data if x != '']
-    print 'N Input Tokens ', len(input_data)
+    print('N Input Tokens ', len(input_data))
 
     is_given_ids = False
     try:
@@ -69,7 +68,7 @@ def get_handles_from_filepath(creds_path):
 
     print( " ".join(['Getting creds from: ',creds_path ]))
     handles = get_handles(glob.glob(creds_path))
-    print 'N Auth Tokens: ', len(handles)
+    print('N Auth Tokens: ', len(handles))
     return handles
 
 def mkdir_no_err(dir_name):
@@ -106,10 +105,11 @@ def chunk_data(data,chunk_size=100):
 
 
 def get_handles(file_list,silent=False):
+    from twitter_dm.TwitterApplicationHandler import TwitterApplicationHandler
     handles = []
     for fil in file_list:
         if not silent:
-            print fil
+            print(fil)
         app_handler = TwitterApplicationHandler(pathToConfigFile=fil,silent=silent)
         handles += app_handler.api_hooks
     return handles

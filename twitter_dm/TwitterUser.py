@@ -12,11 +12,11 @@ and goes to the Twitter API to get this user's tweets
 """
 __author__ = 'kjoseph'
 
-import StringIO
 import codecs
 import datetime
 import gzip
 import io
+from io import StringIO
 import os
 import random
 import subprocess
@@ -26,8 +26,8 @@ from collections import Counter
 from pkg_resources import resource_stream
 
 import Tweet
-from .utility.general_utils import tab_stringify_newline as tsn
-from .utility.tweet_utils import parse_date
+from utility.general_utils import tab_stringify_newline as tsn
+from utility.tweet_utils import parse_date
 
 
 class TwitterUser:
@@ -380,9 +380,9 @@ class TwitterUser:
             self.populate_tweets_from_file(out_fil_name)
 
         sig = self.screen_name if self.screen_name else self.user_id
-        print t_count+len(tweets_from_api), ' total tweets for: ', sig , ' ', len(
+        print(t_count+len(tweets_from_api), ' total tweets for: ', sig , ' ', len(
             tweets_from_api), ' new tweets from API'
-
+        )
         if return_tweets:
             return tweets_from_api
         else:
@@ -539,7 +539,7 @@ def get_user_id_str(user_data):
 
 
 def get_user_ids_and_sn_data_from_list(data, handles, is_sns, out_fil=None):
-    print len(data)
+    print(len(data))
     if len(data) < 100:
         user_data_chunked = [data]
     else:
@@ -559,7 +559,7 @@ def get_user_ids_and_sn_data_from_list(data, handles, is_sns, out_fil=None):
 
     i = 0
     for x in user_data_chunked:
-        print i
+        print(i)
         i += 1
 
         api_hook = handles[random.randint(0, len(handles) - 1)]

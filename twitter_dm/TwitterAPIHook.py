@@ -37,7 +37,7 @@ class TwitterAPIHook:
 
         if not session:
             if not access_token or not access_token_secret:
-                print 'YOU NEED TO PROVIDE A SESSION OR AN APPLICATION KEY OR APPLICATION SECRET!'
+                print('YOU NEED TO PROVIDE A SESSION OR AN APPLICATION KEY OR APPLICATION SECRET!')
                 sys.exit(-1)
             else:
                 self.session = (OAuth1Service(

@@ -13,7 +13,7 @@ Note that a lot of the code is ugly because it deals with both the "new" and "ol
 tweet formats. It needs way more commenting, but that will come, I hope, soon.
 """
 
-import HTMLParser
+from html.parser import HTMLParser
 import arrow
 from bs4 import BeautifulSoup
 import ujson as json
@@ -21,7 +21,7 @@ import gzip
 import codecs
 import TwitterUser
 from nlp import Tokenize
-from .utility.tweet_utils import *
+from utility.tweet_utils import *
 from nlp.twokenize import tokenize
 
 
