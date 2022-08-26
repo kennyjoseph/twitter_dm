@@ -44,7 +44,7 @@ def collect_system_arguments(system_args, additional_args = list()):
 
     print("Output Location: ", output_location)
 
-    input_data = set([f.strip() for f in open(in_file).readlines()])
+    input_data = set([f.strip() for f in open(in_file, 'r').readlines()])
     input_data = [x for x in input_data if x != '']
     print('N Input Tokens ', len(input_data))
 
@@ -78,11 +78,11 @@ def mkdir_no_err(dir_name):
         pass
 
 def strip_newlines(x):
-    return (unicode(x).replace(u"\r\n",u"   ")
-                      .replace(u"\r",u"   ")
-                      .replace(u"\n",u"   ")
-                      .replace(u"\t", u"   ")
-                      .replace(u"\"", u"'"))
+    return (x.encode('utf-8').replace("\r\n","   ")
+                      .replace("\r","   ")
+                      .replace("\n","   ")
+                      .replace("\t", "   ")
+                      .replace("\"", "'"))
 
 def stringify(data):
     return [strip_newlines(x) for x in data]
