@@ -96,15 +96,6 @@ class BigFileUserDataWorker(multiprocessing.Process):
             except KeyboardInterrupt as e:
                 print(e)
                 break
-            except BrokenPipeError as e:
-                print('BROKEN PIPE!!!!')
-                self.output_file.close()
-                self.sinceid_output_file.close()
-
-                if self.tweet_count_file:
-                    self.tweet_count_file.close()
-
-                break
             except Exception:
                 print('FAILED:: ', data)
                 exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -113,3 +104,9 @@ class BigFileUserDataWorker(multiprocessing.Process):
                 print("*** print_exception:")
 
           #print('finished collecting data for: ', data)
+        self.output_file.close()
+        self.sinceid_output_file.close()
+
+        if self.tweet_count_file:
+            self.tweet_count_file.close()
+
