@@ -19,10 +19,10 @@ from bs4 import BeautifulSoup
 import ujson as json
 import gzip
 import codecs
-import TwitterUser
-from nlp import Tokenize
-from utility.tweet_utils import *
-from nlp.twokenize import tokenize
+from twitter_dm import TwitterUser
+from twitter_dm.nlp import Tokenize
+from twitter_dm.utility.tweet_utils import *
+from twitter_dm.nlp.twokenize import tokenize
 
 
 class Tweet:
