@@ -25,9 +25,9 @@ from collections import Counter
 
 from pkg_resources import resource_stream
 
-import Tweet
-from utility.general_utils import tab_stringify_newline as tsn
-from utility.tweet_utils import parse_date
+from twitter_dm import Tweet
+from twitter_dm.utility.general_utils import tab_stringify_newline as tsn
+from twitter_dm.utility.tweet_utils import parse_date
 
 
 class TwitterUser:

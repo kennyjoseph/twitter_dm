@@ -17,7 +17,7 @@ import os
 
 from rauth import OAuth1Service
 
-from TwitterAPIHook import TwitterAPIHook
+from .TwitterAPIHook import TwitterAPIHook
 
 
 class TwitterApplicationHandler:
